@@ -2,7 +2,9 @@
 <html>
 <head>
 
-<title>🚀 Pump Scanner</title>
+<title>Pump Scanner</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -33,9 +35,10 @@ color:#00ff88;
 color:#ff5555;
 }
 
-#chart{
+canvas{
+background:white;
+border-radius:10px;
 margin-top:20px;
-height:600px;
 }
 
 </style>
@@ -50,24 +53,30 @@ height:600px;
 
 
 <div id="coins">
-در حال دریافت اطلاعات...
+در حال دریافت دیتا...
 </div>
 
 
-
-<h2 id="title">
-📈 TradingView Chart
+<h2 id="chartTitle">
+📈 Chart
 </h2>
 
 
-<div id="chart"></div>
+<canvas id="chart"></canvas>
 
 
 
 <script>
 
 
+let chart;
+
+
+
 async function loadCoins(){
+
+
+try{
 
 
 let res = await fetch("/api/pumps");
@@ -81,9 +90,12 @@ let html="";
 coins.forEach(c=>{
 
 
+let signal = c.signal || "";
+
+
 html += `
 
-<div class="card" onclick="openChart('${c.symbol}')">
+<div class="card" onclick="showChart('${c.symbol}')">
 
 
 <h2>${c.symbol}</h2>
@@ -93,35 +105,37 @@ html += `
 
 
 تغییر 24h:
+
 <span class="green">
 🚀 ${c.change24h}%
 </span>
+
 <br>
 
 
 حجم:
+
 📊 ${Number(c.volume).toLocaleString()}
+
 <br>
 
 
 امتیاز پامپ:
+
 🔥 ${c.pumpScore}
+
+
 <br>
 
 
-${c.dumpRisk > 0 
-? 
-'<span class="red">⚠️ Dump Risk '+c.dumpRisk+'%</span>'
-:
-'<span class="green">🚀 Pump</span>'
-}
-
+${signal}
 
 
 </div>
 
-
 `;
+
+
 
 });
 
@@ -129,94 +143,145 @@ ${c.dumpRisk > 0
 document.getElementById("coins").innerHTML=html;
 
 
+
+}
+
+catch(e){
+
+document.getElementById("coins").innerHTML=
+"❌ خطا در دریافت اطلاعات";
+
+console.log(e);
+
+}
+
+
 }
 
 
 
+async function showChart(symbol){
 
-function openChart(symbol){
 
-
-document.getElementById("title").innerHTML =
+document.getElementById("chartTitle").innerHTML=
 "📈 "+symbol+" Chart";
 
 
-let pair =
-"BINANCE:"+symbol+"USDT";
+try{
+
+
+let url =
+"https://api.binance.com/api/v3/klines?symbol="
++symbol+
+"USDT&interval=15m&limit=50";
 
 
 
-document.getElementById("chart").innerHTML=`
-
-<div class="tradingview-widget-container">
+let res = await fetch(url);
 
 
-<div id="tv_chart"></div>
-
-
-</div>
-
-`;
+let data = await res.json();
 
 
 
-let script=document.createElement("script");
+if(!Array.isArray(data)){
 
+throw new Error("Chart unavailable");
 
-script.src=
-"https://s3.tradingview.com/tv.js";
-
-
-script.onload=function(){
-
-
-new TradingView.widget({
-
-container_id:"tv_chart",
-
-width:"100%",
-
-height:600,
-
-symbol:pair,
-
-interval:"15",
-
-timezone:"Etc/UTC",
-
-theme:"dark",
-
-style:"1",
-
-locale:"fa",
-
-toolbar_bg:"#111",
-
-enable_publishing:false,
-
-hide_side_toolbar:false
-
-});
-
-
-};
+}
 
 
 
-document.getElementById("chart").appendChild(script);
+let prices=data.map(
+x=>Number(x[4])
+);
+
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+
+chart=new Chart(
+
+document.getElementById("chart"),
+
+{
+
+type:"line",
+
+data:{
+
+
+labels:prices.map((x,i)=>i+1),
+
+
+datasets:[{
+
+label:symbol,
+
+data:prices,
+
+borderWidth:2
+
+}]
+
+
+},
+
+
+options:{
+
+responsive:true
+
+}
+
+
+}
+
+);
 
 
 
 }
 
+
+catch(e){
+
+
+document.getElementById("chartTitle").innerHTML=
+"⚠️ چارت "+symbol+" موجود نیست";
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+console.log(symbol,e);
+
+
+}
+
+
+
+}
 
 
 
 loadCoins();
 
 
+
 </script>
 
 
 </body>
+
 </html>
