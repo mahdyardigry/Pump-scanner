@@ -5,137 +5,78 @@ const app = express();
 
 app.use(express.static(__dirname));
 
-app.get("/", (req,res)=>{
+
+app.get("/",(req,res)=>{
     res.sendFile(path.join(__dirname,"index.html"));
 });
 
 
-let cache = {
-    data:null,
-    time:0
-};
 
-
-async function getCoins(){
-
-    // استفاده از کش
-    if(cache.data && Date.now()-cache.time < 30000){
-        return cache.data;
-    }
-
-
-    const url =
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false";
-
-
-    const response = await fetch(url);
-
-
-    if(!response.ok){
-        throw new Error("CoinGecko status "+response.status);
-    }
-
-
-    const data = await response.json();
-
-
-
-    const result = data
-
-    .filter(c=>c.volume > 1000000)
-
-    .map(c=>{
-
-
-        let volumeRatio =
-        c.volume / c.market_cap;
-
-
-        let pumpScore =
-        (
-          Number(c.price_change_percentage_24h || 0)
-          * 0.5
-          +
-          volumeRatio * 100
-          * 0.5
-        ).toFixed(2);
-
-
-
-        return {
-
-            symbol:c.symbol.toUpperCase(),
-
-            name:c.name,
-
-            price:c.current_price,
-
-            change24h:
-            Number(
-            c.price_change_percentage_24h || 0
-            ).toFixed(2),
-
-            volume:c.total_volume,
-
-            marketcap:c.market_cap,
-
-            volumeRatio:
-            volumeRatio.toFixed(2),
-
-            pumpScore:pumpScore,
-
-            image:c.image
-        };
-
-
-    })
-
-
-
-    .sort((a,b)=>
-        b.pumpScore-a.pumpScore
-    )
-
-
-    .slice(0,50);
-
-
-
-    cache.data=result;
-    cache.time=Date.now();
-
-
-    return result;
-
-}
-
-
-
-
-app.get("/api/pumps",async(req,res)=>{
+app.get("/api/pumps", async(req,res)=>{
 
 
 try{
 
 
-const coins=await getCoins();
+const response = await fetch(
+"https://api.lbkex.com/v2/ticker/24hr.do"
+);
+
+
+
+const json = await response.json();
+
+
+
+let coins = json.data.map(c=>{
+
+
+return {
+
+symbol:c.symbol,
+
+price:Number(c.latest),
+
+change24h:Number(c.change).toFixed(2),
+
+volume:Number(c.vol),
+
+};
+
+
+})
+
+
+
+.filter(c=>
+c.symbol.endsWith("usdt")
+)
+
+
+
+.sort((a,b)=>
+b.change24h-a.change24h
+)
+
+
+
+.slice(0,50);
+
 
 
 res.json(coins);
 
 
 
-}catch(error){
+}catch(e){
 
 
-console.log(error.message);
+console.log(e.message);
 
 
 res.status(500).json({
 
-error:"Market data unavailable",
-
-message:error.message
+error:"LBank API Error"
 
 });
 
@@ -145,7 +86,6 @@ message:error.message
 
 
 });
-
 
 
 
@@ -153,11 +93,10 @@ const PORT =
 process.env.PORT || 8080;
 
 
-
 app.listen(PORT,()=>{
 
 console.log(
-"Pump Scanner running on "+PORT
+"Pump Scanner running"
 );
 
 });
