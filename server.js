@@ -5,11 +5,16 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// فایل های سایت
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(express.static(__dirname));
 
 
-app.get("/api/pumps", (req,res)=>{
+app.get("/", (req,res)=>{
+    res.sendFile(path.join(__dirname,"index.html"));
+});
+
+
+app.get("/api/pumps",(req,res)=>{
 
 res.json([
 {
@@ -38,11 +43,6 @@ pumpScore:99
 }
 ]);
 
-});
-
-
-app.get("*",(req,res)=>{
-res.sendFile(path.join(__dirname,"public","index.html"));
 });
 
 
