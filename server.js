@@ -1,158 +1,116 @@
 const express = require("express");
-const path = require("path");
+const axios = require("axios");
 
 const app = express();
 
-app.use(express.static(__dirname));
+app.use(express.static("public"));
+
+const PORT = process.env.PORT || 3000;
 
 
-app.get("/", (req,res)=>{
-    res.sendFile(path.join(__dirname,"index.html"));
-});
-
-
-
-// LBank Pump Scanner
-app.get("/api/pumps", async(req,res)=>{
+// LBank Futures ticker
+app.get("/api/pumps", async (req,res)=>{
 
 try{
 
 
-const response = await fetch(
-"https://api.lbkex.com/v2/ticker.do"
+const url =
+"https://api.lbkex.com/v2/ticker.do";
+
+
+const response = await axios.get(url,{
+timeout:10000
+});
+
+
+let raw=response.data;
+
+
+// بررسی جواب
+if(!raw || !raw.data){
+
+return res.json({
+error:"No LBank data",
+raw:raw
+});
+
+}
+
+
+let coins=[];
+
+
+Object.keys(raw.data).forEach(symbol=>{
+
+
+let c=raw.data[symbol];
+
+
+if(!c) return;
+
+
+let price=Number(c.latest);
+
+
+let change=Number(c.change24h || 0);
+
+
+let volume=Number(c.vol || 0);
+
+
+
+if(change>3 && volume>100000){
+
+
+coins.push({
+
+symbol:symbol.toUpperCase(),
+
+price,
+
+change24h:change.toFixed(2),
+
+volume,
+
+pumpScore:
+Math.round(
+(change*5)+(Math.log10(volume)*10)
+)
+
+});
+
+
+}
+
+
+
+});
+
+
+
+// مرتب سازی پامپ
+
+coins.sort((a,b)=>
+b.pumpScore-a.pumpScore
 );
 
 
 
-const json = await response.json();
+res.json(coins.slice(0,50));
 
 
 
-console.log("LBANK RESPONSE");
-console.log(JSON.stringify(json));
+}catch(e){
 
 
-
-// پیدا کردن لیست دیتا با هر ساختاری
-let list = [];
-
-if(Array.isArray(json)){
-    list = json;
-}
-
-else if(Array.isArray(json.data)){
-    list = json.data;
-}
-
-else if(Array.isArray(json.tickers)){
-    list = json.tickers;
-}
-
-else if(json.data && typeof json.data === "object"){
-
-    list = Object.values(json.data);
-
-}
-
-
-
-if(list.length === 0){
-
-return res.json({
-
-error:"No coin data from LBank",
-
-raw:json
-
-});
-
-}
-
-
-
-
-let coins = list.map(c=>{
-
-
-return {
-
-
-symbol:
-(c.symbol || c.pair || "")
-.toUpperCase(),
-
-
-price:
-Number(
-c.latest ||
-c.price ||
-c.last ||
-0
-),
-
-
-change24h:
-Number(
-c.change ||
-c.change24h ||
-c.rate ||
-0
-).toFixed(2),
-
-
-volume:
-Number(
-c.vol ||
-c.volume ||
-0
-)
-
-
-
-};
-
-
-})
-
-
-
-
-.filter(c=>
-
-c.symbol.includes("USDT")
-
-)
-
-
-
-.sort((a,b)=>
-
-Number(b.change24h) -
-Number(a.change24h)
-
-)
-
-
-
-.slice(0,50);
-
-
-
-res.json(coins);
-
-
-
-}catch(error){
-
-
-console.log(error);
+console.log(e.message);
 
 
 res.status(500).json({
 
-error:"LBank API Error",
+error:"LBank connection failed",
 
-message:error.message
+message:e.message
 
 });
 
@@ -161,20 +119,13 @@ message:error.message
 
 
 });
-
-
-
-
-
-const PORT =
-process.env.PORT || 8080;
 
 
 
 app.listen(PORT,()=>{
 
 console.log(
-"Pump Scanner running on port "+PORT
+"Pump Scanner running on "+PORT
 );
 
 });
