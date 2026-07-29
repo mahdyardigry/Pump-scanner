@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>🚀 Pump Scanner</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 background:#111;
 color:white;
@@ -24,46 +26,59 @@ button{
 background:#008cff;
 color:white;
 border:0;
-padding:8px;
+padding:10px;
 border-radius:8px;
 }
 
-iframe{
-width:100%;
-height:500px;
-border:0;
+canvas{
+background:white;
+border-radius:10px;
 margin-top:20px;
 }
 
 </style>
+
 </head>
+
 
 <body>
 
+
 <h1>🚀 Pump Scanner</h1>
+
 
 <div id="coins"></div>
 
+
 <h2 id="title">📈 Chart</h2>
 
-<div id="chartBox"></div>
+
+<canvas id="chart"></canvas>
+
 
 
 <script>
 
 
+let chart;
+
+
+
 async function loadCoins(){
+
 
 let res = await fetch("/api/pumps");
 
 let coins = await res.json();
+
 
 let html="";
 
 
 coins.forEach(c=>{
 
-html+=`
+
+html += `
 
 <div class="card">
 
@@ -80,17 +95,19 @@ html+=`
 امتیاز:
 🔥 ${c.pumpScore}<br>
 
-${c.signal || ""}<br>
+سیگنال:
+${c.signal}<br>
 
 ریسک دامپ:
-⚠️ ${c.dumpRisk || 0}%
+⚠️ ${c.dumpRisk}%
 
 
 <br><br>
 
-<button onclick="openChart('${c.symbol}')">
+<button onclick="showChart('${c.symbol}')">
 📈 نمایش چارت
 </button>
+
 
 </div>
 
@@ -106,55 +123,90 @@ document.getElementById("coins").innerHTML=html;
 
 
 
-function openChart(symbol){
 
 
-let map={
-
-"BTC":"BINANCE:BTCUSDT",
-"ETH":"BINANCE:ETHUSDT",
-"EUL":"BINANCE:EULUSDT",
-"ON":"BINANCE:ONUSDT",
-"PIPEDOG":"BINANCE:PIPEDOGUSDT"
-
-};
+async function showChart(symbol){
 
 
-let pair=map[symbol];
-
-
-document.getElementById("title").innerHTML=
+document.getElementById("title").innerHTML =
 "📈 "+symbol+" Chart";
 
 
-if(!pair){
 
-document.getElementById("chartBox").innerHTML=
-"❌ این ارز در TradingView پیدا نشد";
+let res = await fetch("/api/chart/"+symbol);
 
-return;
+
+let data = await res.json();
+
+
+
+let prices=data.map(x=>x.price);
+
+let labels=data.map(x=>x.time);
+
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+
+chart = new Chart(
+
+document.getElementById("chart"),
+
+{
+
+type:"line",
+
+data:{
+
+
+labels:labels,
+
+
+datasets:[{
+
+label:symbol,
+
+data:prices,
+
+borderWidth:3
+
+}]
+
+
+},
+
+
+options:{
+
+responsive:true
 
 }
 
 
+}
 
-document.getElementById("chartBox").innerHTML=`
+);
 
-<iframe
-src="https://www.tradingview.com/widgetembed/?symbol=${pair}&interval=15">
-</iframe>
-
-`;
 
 
 }
+
+
 
 
 
 loadCoins();
 
 
+
 </script>
+
 
 </body>
 </html>
