@@ -16,44 +16,58 @@ app.get("/api/pumps", async(req,res)=>{
 try{
 
 const response = await fetch(
-"https://api.lbkex.com/v2/ticker/24hr.do"
+"https://api.lbkex.com/v2/ticker.do"
 );
 
 
-const text = await response.text();
+const json = await response.json();
 
 
-console.log("LBANK RESPONSE:");
-console.log(text);
+let coins = json.data.map(c=>{
+
+return {
+
+symbol:c.symbol,
+price:Number(c.latest),
+change24h:Number(c.change).toFixed(2),
+volume:Number(c.vol)
+
+};
+
+})
+
+
+.filter(c=>c.symbol.includes("usdt"))
+
+
+.sort((a,b)=>
+b.change24h-a.change24h
+)
+
+
+.slice(0,50);
 
 
 
-res.json({
+res.json(coins);
 
-status: response.status,
-
-data:text
-
-});
 
 
 }catch(e){
 
-
-console.log("ERROR:",e.message);
-
+console.log(e.message);
 
 res.status(500).json({
 
-error:e.message
+error:"LBank API Error",
+message:e.message
 
 });
-
 
 }
 
-});
 
+});
 
 
 const PORT=process.env.PORT || 8080;
@@ -61,6 +75,6 @@ const PORT=process.env.PORT || 8080;
 
 app.listen(PORT,()=>{
 
-console.log("Scanner Started");
+console.log("Pump Scanner Started");
 
 });
