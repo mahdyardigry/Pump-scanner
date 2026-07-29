@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html>
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>🚀 Pump Scanner</title>
 
@@ -13,70 +10,69 @@ body{
 background:#111;
 color:white;
 font-family:tahoma;
-margin:0;
-padding:15px;
-}
-
-h1{
-text-align:center;
+padding:20px;
 }
 
 .card{
 background:#222;
-margin:10px 0;
 padding:15px;
-border-radius:10px;
+margin:10px 0;
+border-radius:12px;
 }
 
 button{
-background:#00aaff;
+background:#008cff;
 color:white;
 border:0;
-padding:10px 15px;
+padding:10px;
 border-radius:8px;
-font-size:15px;
-margin-top:10px;
-cursor:pointer;
 }
 
-button:hover{
-background:#0090dd;
-}
-
-#tvchart{
+iframe{
+width:100%;
+height:500px;
+border:0;
 margin-top:20px;
-height:650px;
-background:#000;
 border-radius:10px;
-overflow:hidden;
 }
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <h1>🚀 Pump Scanner</h1>
 
+
 <div id="coins"></div>
 
-<h2 id="chartTitle">📈 TradingView Chart</h2>
 
-<div id="tvchart"></div>
+<h2 id="title">📈 Chart</h2>
 
-<script src="https://s3.tradingview.com/tv.js"></script>
+
+<div id="chart"></div>
+
+
 
 <script>
 
+
 async function loadCoins(){
 
-const res=await fetch("/api/pumps");
-const coins=await res.json();
+
+let res=await fetch("/api/pumps");
+
+let coins=await res.json();
+
 
 let html="";
 
+
 coins.forEach(c=>{
+
 
 html+=`
 
@@ -84,96 +80,93 @@ html+=`
 
 <h2>${c.symbol}</h2>
 
-قیمت:
-${c.price}
+قیمت: ${c.price}<br>
 
-<br><br>
-
-تغییر 24 ساعت:
-🚀 ${c.change24h}%
-
-<br><br>
+تغییر 24h:
+🚀 ${c.change24h}%<br>
 
 حجم:
-📊 ${Number(c.volume).toLocaleString("fa-IR")}
+📊 ${Number(c.volume).toLocaleString()}<br>
 
-<br><br>
+امتیاز:
+🔥 ${c.pumpScore}<br>
 
-امتیاز پامپ:
-🔥 ${c.pumpScore}
-
-<br><br>
-
-سیگنال:
-${c.signal}
-
-<br><br>
+${c.signal || ""}<br>
 
 ریسک دامپ:
-⚠️ ${c.dumpRisk}%
+⚠️ ${c.dumpRisk || 0}%
+
 
 <br><br>
 
 <button onclick="showChart('${c.symbol}')">
-
 📈 نمایش چارت
-
 </button>
 
+
 </div>
+
 
 `;
 
 });
 
+
 document.getElementById("coins").innerHTML=html;
 
+
 }
+
+
 
 function showChart(symbol){
 
-document.getElementById("chartTitle").innerHTML="📈 "+symbol;
 
-document.getElementById("tvchart").innerHTML="";
+let tvSymbol="BINANCE:"+symbol+"USDT";
 
-new TradingView.widget({
 
-container_id:"tvchart",
+// اصلاح نمادها
 
-autosize:true,
+if(symbol=="ON"){
+tvSymbol="BINANCE:ONUSDT";
+}
 
-symbol:"BINANCE:"+symbol+"USDT",
 
-interval:"15",
+if(symbol=="PIPEDOG"){
+tvSymbol="MEXC:PIPEDOGUSDT";
+}
 
-timezone:"Etc/UTC",
 
-theme:"dark",
+if(symbol=="EUL"){
+tvSymbol="BINANCE:EULUSDT";
+}
 
-style:"1",
 
-locale:"en",
 
-toolbar_bg:"#111",
+document.getElementById("title").innerHTML=
+"📈 "+symbol+" Chart";
 
-enable_publishing:false,
 
-allow_symbol_change:true,
 
-hide_top_toolbar:false,
+document.getElementById("chart").innerHTML=`
 
-hide_legend:false,
+<iframe
 
-save_image:false
+src="https://www.tradingview.com/widgetembed/?symbol=${tvSymbol}&interval=15&theme=dark">
 
-});
+</iframe>
+
+`;
 
 }
 
+
+
 loadCoins();
+
 
 </script>
 
-</body>
 
+</body>
 </html>
