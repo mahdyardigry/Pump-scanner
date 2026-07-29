@@ -24,16 +24,16 @@ button{
 background:#008cff;
 color:white;
 border:0;
-padding:10px;
+padding:10px 15px;
 border-radius:8px;
 }
 
 iframe{
 width:100%;
-height:500px;
+height:550px;
 border:0;
 margin-top:20px;
-border-radius:10px;
+border-radius:12px;
 }
 
 </style>
@@ -46,14 +46,12 @@ border-radius:10px;
 
 <h1>🚀 Pump Scanner</h1>
 
-
 <div id="coins"></div>
-
 
 <h2 id="title">📈 Chart</h2>
 
-
-<div id="chart"></div>
+<div id="chart">
+</div>
 
 
 
@@ -63,9 +61,11 @@ border-radius:10px;
 async function loadCoins(){
 
 
-let res=await fetch("/api/pumps");
+try{
 
-let coins=await res.json();
+let res = await fetch("/api/pumps");
+
+let coins = await res.json();
 
 
 let html="";
@@ -74,7 +74,7 @@ let html="";
 coins.forEach(c=>{
 
 
-html+=`
+html += `
 
 <div class="card">
 
@@ -88,9 +88,10 @@ html+=`
 حجم:
 📊 ${Number(c.volume).toLocaleString()}<br>
 
-امتیاز:
+امتیاز پامپ:
 🔥 ${c.pumpScore}<br>
 
+سیگنال:
 ${c.signal || ""}<br>
 
 ریسک دامپ:
@@ -106,13 +107,20 @@ ${c.signal || ""}<br>
 
 </div>
 
-
 `;
 
 });
 
 
 document.getElementById("coins").innerHTML=html;
+
+
+}catch(e){
+
+document.getElementById("coins").innerHTML=
+"خطا در دریافت اطلاعات";
+
+}
 
 
 }
@@ -122,23 +130,28 @@ document.getElementById("coins").innerHTML=html;
 function showChart(symbol){
 
 
-let tvSymbol="BINANCE:"+symbol+"USDT";
+
+let symbols={
 
 
-// اصلاح نمادها
+"ON":"BINANCE:ONUSDT",
 
-if(symbol=="ON"){
-tvSymbol="BINANCE:ONUSDT";
-}
+"PIPEDOG":"MEXC:PIPEDOGUSDT",
 
-
-if(symbol=="PIPEDOG"){
-tvSymbol="MEXC:PIPEDOGUSDT";
-}
+"EUL":"BINANCE:EULUSDT"
 
 
-if(symbol=="EUL"){
-tvSymbol="BINANCE:EULUSDT";
+};
+
+
+
+let tvSymbol = symbols[symbol];
+
+
+if(!tvSymbol){
+
+tvSymbol="BINANCE:"+symbol+"USDT";
+
 }
 
 
@@ -148,15 +161,20 @@ document.getElementById("title").innerHTML=
 
 
 
-document.getElementById("chart").innerHTML=`
+document.getElementById("chart").innerHTML=
+
+
+`
 
 <iframe
 
-src="https://www.tradingview.com/widgetembed/?symbol=${tvSymbol}&interval=15&theme=dark">
+src="https://www.tradingview.com/widgetembed/?symbol=${tvSymbol}&interval=15&theme=dark&style=1">
 
 </iframe>
 
 `;
+
+
 
 }
 
