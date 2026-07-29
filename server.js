@@ -5,152 +5,108 @@ const app = express();
 
 app.use(express.static(__dirname));
 
+let cache = [];
+let lastUpdate = 0;
 
+
+// صفحه اصلی
 app.get("/", (req,res)=>{
-  res.sendFile(path.join(__dirname,"index.html"));
+    res.sendFile(path.join(__dirname,"index.html"));
 });
 
 
-// Cache
-let cacheData = null;
-let cacheTime = 0;
-
-const CACHE_DURATION = 60000; // 60 seconds
-
-
-
-async function getCoins(){
-
-    const now = Date.now();
-
-    // اگر داده جدید داریم از کش بده
-    if(cacheData && (now - cacheTime < CACHE_DURATION)){
-        return cacheData;
-    }
-
-
-    const url =
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=100&page=1";
-
-
-    const response = await fetch(url);
-
-
-    if(!response.ok){
-
-        throw new Error(
-            "CoinGecko status "+response.status
-        );
-
-    }
-
-
-    const data = await response.json();
-
-
-    const result = data
-    .filter(c=>c.symbol)
-    .map(c=>({
-
-        symbol:c.symbol.toUpperCase(),
-
-        name:c.name,
-
-        price:c.current_price,
-
-        change24h:
-        c.price_change_percentage_24h || 0,
-
-        volume:
-        c.total_volume || 0,
-
-        marketcap:
-        c.market_cap || 0,
-
-        image:c.image
-
-    }));
-
-
-    cacheData = result;
-
-    cacheTime = now;
-
-
-    return result;
-
-}
-
-
-
-
+// دریافت پامپ ها
 app.get("/api/pumps", async(req,res)=>{
 
+    try {
 
-try{
-
-
-const coins = await getCoins();
-
-
-// حذف استیبل کوین ها
-const filtered = coins.filter(c=>
-
-![
-"USDT",
-"USDC",
-"USDS",
-"DAI"
-]
-.includes(c.symbol)
-
-);
+        // هر 60 ثانیه فقط یک بار از CoinGecko بگیر
+        if(cache.length > 0 && Date.now() - lastUpdate < 60000){
+            return res.json(cache);
+        }
 
 
-// مرتب بر اساس رشد
-const pumps = filtered
-.sort((a,b)=>
-b.change24h-a.change24h
-)
-.slice(0,20);
+        const url =
+        "https://api.coingecko.com/api/v3/coins/markets"+
+        "?vs_currency=usd"+
+        "&order=percent_change_24h_desc"+
+        "&per_page=50"+
+        "&page=1"+
+        "&sparkline=false";
 
 
-
-res.json(pumps);
-
-
-
-}catch(error){
-
-
-console.log(error.message);
+        const response = await fetch(url,{
+            headers:{
+                "accept":"application/json",
+                "user-agent":"PumpScanner"
+            }
+        });
 
 
-// اگر قبلا داده داشتیم همان را بده
-if(cacheData){
+        if(!response.ok){
+            throw new Error(
+                "CoinGecko status "+response.status
+            );
+        }
 
-return res.json(cacheData.slice(0,20));
 
-}
+        const data = await response.json();
 
 
-res.status(500).json({
+        const coins = data.map(c=>({
 
-error:"Data temporarily unavailable"
+            symbol:c.symbol.toUpperCase(),
+
+            name:c.name,
+
+            price:c.current_price,
+
+            change24h:
+            Number(c.price_change_percentage_24h || 0)
+            .toFixed(2),
+
+            volume:c.total_volume,
+
+            marketcap:c.market_cap,
+
+            image:c.image
+
+        }));
+
+
+        cache = coins;
+
+        lastUpdate = Date.now();
+
+
+        res.json(coins);
+
+
+    }catch(error){
+
+
+        console.log(error.message);
+
+
+        // اگر API خراب شد اطلاعات قبلی را بده
+        if(cache.length){
+            return res.json(cache);
+        }
+
+
+        res.status(500).json({
+
+            error:"Data provider unavailable"
+
+        });
+
+    }
 
 });
 
 
-}
 
-
-
-});
-
-
-
-const PORT =
-process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 
 app.listen(PORT,()=>{
