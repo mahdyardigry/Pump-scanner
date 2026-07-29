@@ -1,66 +1,94 @@
 const coins = document.getElementById("coins");
-const whale = document.getElementById("whale");
-const smart = document.getElementById("smart");
 
-
-coins.innerHTML = "⏳ دریافت اطلاعات...";
-
+coins.innerHTML = "⏳ در حال دریافت اطلاعات...";
 
 fetch("/api/pumps")
-.then(res => res.json())
-.then(data => {
+  .then(res => res.json())
+  .then(data => {
 
-coins.innerHTML = "";
+    coins.innerHTML = "";
 
+    data.forEach(c => {
 
-data.forEach(c => {
+      let color = "#00ff66";
 
-coins.innerHTML += `
+      if (c.pumpScore >= 90) color = "#ff0000";
+      else if (c.pumpScore >= 70) color = "#ff9800";
+      else if (c.pumpScore >= 50) color = "#ffee00";
 
-<div style="
-padding:10px;
-border-bottom:1px solid #333;
-">
+      coins.innerHTML += `
+      <div style="
+        background:#1b1b1b;
+        border:1px solid #333;
+        border-radius:12px;
+        padding:15px;
+        margin:12px 0;
+      ">
 
-<b>${c.symbol}</b> - ${c.name}
+        <h3 style="margin:0;color:white">
+          ${c.symbol}
+        </h3>
 
-<br>
+        <div style="color:#aaa">
+          ${c.name || ""}
+        </div>
 
-💵 قیمت:
-${c.price}
+        <br>
 
-<br>
+        💵 Price :
+        <b>${c.price}</b>
 
-🚀 تغییر 24h:
-${c.change24h}%
+        <br>
 
-<br>
+        🚀 24h :
+        <span style="color:#00ff66">
+        ${c.change24h}%
+        </span>
 
-📊 حجم:
-${Number(c.volume).toLocaleString()}
+        <br>
 
-<br>
+        📊 Volume :
+        ${Number(c.volume).toLocaleString()}
 
-🏦 Market Cap:
-${Number(c.marketcap).toLocaleString()}
+        <br><br>
 
-</div>
+        Pump Score
 
-`;
+        <div style="
+          background:#333;
+          border-radius:8px;
+          overflow:hidden;
+          height:20px;
+        ">
 
-});
+          <div style="
+            width:${c.pumpScore}%;
+            background:${color};
+            height:100%;
+            text-align:center;
+            color:white;
+            font-size:12px;
+          ">
+            ${c.pumpScore}
+          </div>
 
+        </div>
 
-})
-.catch(err=>{
+        <br>
 
-coins.innerHTML="❌ خطا در نمایش اطلاعات";
+        <button onclick="window.open('https://www.tradingview.com/chart/?symbol=BINANCE:${c.symbol}USDT')">
+        📈 Chart
+        </button>
 
-console.log(err);
+      </div>
+      `;
+    });
 
-});
+  })
+  .catch(err => {
 
+    console.log(err);
 
-whale.innerHTML="🐋 Whale Scanner آماده شد";
+    coins.innerHTML = "❌ خطا در دریافت اطلاعات";
 
-smart.innerHTML="🧠 Smart Money در نسخه بعدی اضافه می‌شود";
+  });
