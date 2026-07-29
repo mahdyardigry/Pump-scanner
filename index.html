@@ -2,19 +2,143 @@
 <html>
 <head>
 <title>Pump Scanner</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+background:#111;
+color:white;
+font-family:tahoma;
+padding:20px;
+}
+
+.card{
+background:#222;
+padding:15px;
+margin:10px;
+border-radius:10px;
+}
+
+canvas{
+background:white;
+border-radius:10px;
+}
+</style>
+
 </head>
 
 <body>
 
-<h2>🚀 Pump Scanner</h2>
+<h1>🚀 Pump Scanner</h1>
 
-<div id="coins">
-در حال دریافت...
+<div id="coins"></div>
+
+<h2>📈 Chart</h2>
+
+<canvas id="chart"></canvas>
+
+
+<script>
+
+let chart;
+
+
+async function load(){
+
+const res = await fetch("/api/pumps");
+
+const coins = await res.json();
+
+
+let html="";
+
+
+coins.forEach(c=>{
+
+html+=`
+
+<div class="card">
+
+<h2>${c.symbol}</h2>
+
+قیمت: ${c.price}<br>
+
+تغییر 24h: 🚀 ${c.change24h}%<br>
+
+حجم: 📊 ${c.volume}<br>
+
+امتیاز: 🔥 ${c.pumpScore}
+
 </div>
 
+`;
 
-<script src="app.js"></script>
+});
+
+
+document.getElementById("coins").innerHTML=html;
+
+
+
+let first = coins[0];
+
+
+let data=[
+
+first.price*0.97,
+first.price*0.99,
+first.price,
+first.price*1.02,
+first.price*1.05
+
+];
+
+
+if(chart) chart.destroy();
+
+
+chart=new Chart(
+document.getElementById("chart"),
+{
+
+type:"line",
+
+data:{
+
+labels:[
+"1",
+"2",
+"3",
+"4",
+"5"
+],
+
+datasets:[{
+
+label:first.symbol,
+
+data:data,
+
+borderWidth:2
+
+}]
+
+}
+
+}
+
+);
+
+
+}
+
+
+load();
+
+
+</script>
+
 
 </body>
 </html>
