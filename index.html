@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>🚀 Pump Scanner</title>
 
-<style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
 body{
 background:#111;
 color:white;
@@ -24,25 +24,21 @@ button{
 background:#008cff;
 color:white;
 border:0;
-padding:10px 15px;
+padding:8px;
 border-radius:8px;
 }
 
 iframe{
 width:100%;
-height:550px;
+height:500px;
 border:0;
 margin-top:20px;
-border-radius:12px;
 }
 
 </style>
-
 </head>
 
-
 <body>
-
 
 <h1>🚀 Pump Scanner</h1>
 
@@ -50,9 +46,7 @@ border-radius:12px;
 
 <h2 id="title">📈 Chart</h2>
 
-<div id="chart">
-</div>
-
+<div id="chartBox"></div>
 
 
 <script>
@@ -60,21 +54,16 @@ border-radius:12px;
 
 async function loadCoins(){
 
-
-try{
-
 let res = await fetch("/api/pumps");
 
 let coins = await res.json();
-
 
 let html="";
 
 
 coins.forEach(c=>{
 
-
-html += `
+html+=`
 
 <div class="card">
 
@@ -88,10 +77,9 @@ html += `
 حجم:
 📊 ${Number(c.volume).toLocaleString()}<br>
 
-امتیاز پامپ:
+امتیاز:
 🔥 ${c.pumpScore}<br>
 
-سیگنال:
 ${c.signal || ""}<br>
 
 ریسک دامپ:
@@ -100,10 +88,9 @@ ${c.signal || ""}<br>
 
 <br><br>
 
-<button onclick="showChart('${c.symbol}')">
+<button onclick="openChart('${c.symbol}')">
 📈 نمایش چارت
 </button>
-
 
 </div>
 
@@ -115,65 +102,49 @@ ${c.signal || ""}<br>
 document.getElementById("coins").innerHTML=html;
 
 
-}catch(e){
-
-document.getElementById("coins").innerHTML=
-"خطا در دریافت اطلاعات";
-
-}
-
-
 }
 
 
 
-function showChart(symbol){
+function openChart(symbol){
 
 
+let map={
 
-let symbols={
-
-
+"BTC":"BINANCE:BTCUSDT",
+"ETH":"BINANCE:ETHUSDT",
+"EUL":"BINANCE:EULUSDT",
 "ON":"BINANCE:ONUSDT",
-
-"PIPEDOG":"MEXC:PIPEDOGUSDT",
-
-"EUL":"BINANCE:EULUSDT"
-
+"PIPEDOG":"BINANCE:PIPEDOGUSDT"
 
 };
 
 
-
-let tvSymbol = symbols[symbol];
-
-
-if(!tvSymbol){
-
-tvSymbol="BINANCE:"+symbol+"USDT";
-
-}
-
+let pair=map[symbol];
 
 
 document.getElementById("title").innerHTML=
 "📈 "+symbol+" Chart";
 
 
+if(!pair){
 
-document.getElementById("chart").innerHTML=
+document.getElementById("chartBox").innerHTML=
+"❌ این ارز در TradingView پیدا نشد";
+
+return;
+
+}
 
 
-`
+
+document.getElementById("chartBox").innerHTML=`
 
 <iframe
-
-src="https://www.tradingview.com/widgetembed/?symbol=${tvSymbol}&interval=15&theme=dark&style=1">
-
+src="https://www.tradingview.com/widgetembed/?symbol=${pair}&interval=15">
 </iframe>
 
 `;
-
 
 
 }
@@ -184,7 +155,6 @@ loadCoins();
 
 
 </script>
-
 
 </body>
 </html>
