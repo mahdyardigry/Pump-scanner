@@ -5,51 +5,64 @@ const app = express();
 
 app.use(express.static(__dirname));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+app.get("/", (req,res)=>{
+  res.sendFile(path.join(__dirname,"index.html"));
 });
 
-app.get("/api/pumps", async (req, res) => {
-  try {
-    const response = await fetch(
-      "https://api.binance.com/api/v3/ticker/24hr",
-      {
-        headers: {
-          "User-Agent": "PumpScanner/1.0"
-        }
-      }
-    );
 
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: "Binance API Error",
-        status: response.status
-      });
-    }
+app.get("/api/pumps", async (req,res)=>{
 
-    const data = await response.json();
+try{
 
-    const list = data
-      .filter(c => c.symbol.endsWith("USDT"))
-      .sort((a, b) =>
-        parseFloat(b.priceChangePercent) -
-        parseFloat(a.priceChangePercent)
-      )
-      .slice(0, 20);
+const url =
+"https://api.binance.com/api/v3/ticker/24hr";
 
-    res.json(list);
-
-  } catch (e) {
-    console.error(e);
-
-    res.status(500).json({
-      error: e.message
-    });
-  }
+const response = await fetch(url,{
+headers:{
+"User-Agent":"Mozilla/5.0"
+}
 });
+
+
+if(!response.ok){
+return res.json({
+error:"Binance blocked",
+status:response.status
+});
+}
+
+
+const data = await response.json();
+
+
+const list = data
+.filter(c=>c.symbol.endsWith("USDT"))
+.filter(c=>Number(c.quoteVolume)>1000000)
+.sort((a,b)=>
+Number(b.priceChangePercent) -
+Number(a.priceChangePercent)
+)
+.slice(0,20);
+
+
+res.json(list);
+
+
+}catch(err){
+
+res.json({
+error:"Server error",
+message:err.message
+});
+
+}
+
+
+});
+
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
-  console.log("Pump Scanner started on port " + PORT);
+app.listen(PORT,()=>{
+console.log("Pump Scanner running "+PORT);
 });
