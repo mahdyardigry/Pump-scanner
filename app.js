@@ -5,37 +5,35 @@ const smart = document.getElementById("smart");
 
 coins.innerHTML = "⏳ درحال دریافت اطلاعات...";
 
-fetch("https://api.binance.com/api/v3/ticker/24hr")
+fetch("/api/pumps")
 .then(res => res.json())
 .then(data => {
 
-const list = data
-.filter(c => c.symbol.endsWith("USDT"))
-.sort((a,b)=>parseFloat(b.priceChangePercent)-parseFloat(a.priceChangePercent))
-.slice(0,20);
+    coins.innerHTML = "";
 
-coins.innerHTML="";
+    data.forEach(c => {
 
-list.forEach(c=>{
+        coins.innerHTML += `
+        <div style="padding:8px;border-bottom:1px solid #333;">
+            <b>${c.symbol}</b><br>
+            🚀 تغییر قیمت:
+            ${parseFloat(c.priceChangePercent).toFixed(2)}%
+            <br>
+            📈 Volume:
+            ${Number(c.quoteVolume).toLocaleString()}
+        </div>
+        `;
 
-coins.innerHTML+=`
-<div style="padding:8px;border-bottom:1px solid #333;">
-<b>${c.symbol}</b><br>
-🚀 ${parseFloat(c.priceChangePercent).toFixed(2)}%
-<br>
-📈 Volume :
-${Number(c.quoteVolume).toLocaleString()}
-</div>
-`;
-
-});
+    });
 
 })
-.catch(()=>{
+.catch(error => {
 
-coins.innerHTML="❌ خطا در دریافت اطلاعات";
+    console.log(error);
+    coins.innerHTML = "❌ خطا در دریافت اطلاعات";
 
 });
 
-whale.innerHTML="🐋 نسخه اول آماده شد";
-smart.innerHTML="🧠 در نسخه بعدی اضافه می‌شود";
+
+whale.innerHTML = "🐋 نسخه اول آماده شد";
+smart.innerHTML = "🧠 در نسخه بعدی اضافه می‌شود";
