@@ -1,94 +1,56 @@
 const coins = document.getElementById("coins");
 
-coins.innerHTML = "⏳ در حال دریافت اطلاعات...";
 
 fetch("/api/pumps")
-  .then(res => res.json())
-  .then(data => {
 
-    coins.innerHTML = "";
+.then(res=>res.json())
 
-    data.forEach(c => {
+.then(data=>{
 
-      let color = "#00ff66";
+coins.innerHTML="";
 
-      if (c.pumpScore >= 90) color = "#ff0000";
-      else if (c.pumpScore >= 70) color = "#ff9800";
-      else if (c.pumpScore >= 50) color = "#ffee00";
 
-      coins.innerHTML += `
-      <div style="
-        background:#1b1b1b;
-        border:1px solid #333;
-        border-radius:12px;
-        padding:15px;
-        margin:12px 0;
-      ">
+data.forEach(c=>{
 
-        <h3 style="margin:0;color:white">
-          ${c.symbol}
-        </h3>
+coins.innerHTML += `
 
-        <div style="color:#aaa">
-          ${c.name || ""}
-        </div>
+<div style="
+border:1px solid #444;
+padding:10px;
+margin:10px;
+border-radius:10px;
+">
 
-        <br>
+<h3>${c.symbol}</h3>
 
-        💵 Price :
-        <b>${c.price}</b>
+قیمت: ${c.price}
 
-        <br>
+<br>
 
-        🚀 24h :
-        <span style="color:#00ff66">
-        ${c.change24h}%
-        </span>
+تغییر 24h:
+🚀 ${c.change24h}%
 
-        <br>
+<br>
 
-        📊 Volume :
-        ${Number(c.volume).toLocaleString()}
+حجم:
+📊 ${Number(c.volume).toLocaleString()}
 
-        <br><br>
+<br>
 
-        Pump Score
+امتیاز پامپ:
+🔥 ${c.pumpScore}
 
-        <div style="
-          background:#333;
-          border-radius:8px;
-          overflow:hidden;
-          height:20px;
-        ">
+</div>
 
-          <div style="
-            width:${c.pumpScore}%;
-            background:${color};
-            height:100%;
-            text-align:center;
-            color:white;
-            font-size:12px;
-          ">
-            ${c.pumpScore}
-          </div>
+`;
 
-        </div>
+});
 
-        <br>
 
-        <button onclick="window.open('https://www.tradingview.com/chart/?symbol=BINANCE:${c.symbol}USDT')">
-        📈 Chart
-        </button>
+})
 
-      </div>
-      `;
-    });
+.catch(e=>{
 
-  })
-  .catch(err => {
+coins.innerHTML="خطا در دریافت اطلاعات";
 
-    console.log(err);
-
-    coins.innerHTML = "❌ خطا در دریافت اطلاعات";
-
-  });
+});
