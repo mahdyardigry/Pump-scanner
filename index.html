@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>🚀 Pump Scanner</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 background:#111;
 color:white;
@@ -16,7 +18,7 @@ padding:20px;
 .card{
 background:#222;
 padding:15px;
-margin:10px 0;
+margin:12px 0;
 border-radius:12px;
 }
 
@@ -24,81 +26,154 @@ button{
 background:#008cff;
 color:white;
 border:0;
-padding:8px 15px;
+padding:10px;
 border-radius:8px;
 margin-top:10px;
 }
 
-canvas{
+#chartBox{
 background:white;
+padding:10px;
 border-radius:10px;
-margin-top:20px;
 }
+
+canvas{
+max-height:400px;
+}
+
+.green{
+color:#00ff88;
+}
+
+.red{
+color:#ff4444;
+}
+
 </style>
 
 </head>
 
+
 <body>
+
 
 <h1>🚀 Pump Scanner</h1>
 
-<div id="coins"></div>
 
-<h2 id="chartTitle">📈 Chart</h2>
+<div id="coins">
+در حال دریافت اطلاعات...
+</div>
+
+
+<h2 id="chartTitle">
+📈 Chart
+</h2>
+
+
+<div id="chartBox">
 
 <canvas id="chart"></canvas>
+
+</div>
+
 
 
 <script>
 
-let chart;
+
+let chart=null;
+
 
 
 async function loadCoins(){
 
 try{
 
-let res = await fetch("/api/pumps");
 
-let coins = await res.json();
+let response = await fetch("/api/pumps");
+
+
+let coins = await response.json();
+
 
 
 let html="";
 
 
+
 coins.forEach(c=>{
+
+
+let signal = c.signal || "";
+
+let risk = c.dumpRisk || 0;
+
+
 
 html += `
 
 <div class="card">
 
+
 <h2>${c.symbol}</h2>
 
-قیمت: ${c.price}<br>
+
+قیمت:
+${c.price}
+<br>
+
 
 تغییر 24h:
-🚀 ${c.change24h}%<br>
+
+<span class="${Number(c.change24h)>=0?'green':'red'}">
+
+🚀 ${c.change24h}%
+
+</span>
+
+<br>
+
 
 حجم:
-📊 ${Number(c.volume).toLocaleString()}<br>
 
-امتیاز:
-🔥 ${c.pumpScore}<br>
+📊 ${Number(c.volume).toLocaleString()}
 
-سیگنال:
-${c.signal || ""}<br>
+<br>
 
-ریسک دامپ:
-${c.dumpRisk || 0}%
+
+امتیاز پامپ:
+
+🔥 ${c.pumpScore}
 
 
 <br>
 
+
+سیگنال:
+
+${signal}
+
+
+<br>
+
+
+ریسک دامپ:
+
+⚠️ ${risk}%
+
+
+<br>
+
+
 <button onclick="showChart('${c.symbol}',${c.price})">
+
 📈 نمایش چارت
+
 </button>
 
+
 </div>
+
 
 `;
 
@@ -108,35 +183,49 @@ ${c.dumpRisk || 0}%
 document.getElementById("coins").innerHTML=html;
 
 
-}catch(e){
+
+}
+
+catch(error){
 
 document.getElementById("coins").innerHTML=
-"خطا در دریافت اطلاعات";
+"❌ خطا در دریافت اطلاعات";
 
 }
 
+
 }
+
+
+
 
 
 
 function showChart(symbol,price){
 
 
-document.getElementById("chartTitle").innerHTML =
+document.getElementById("chartTitle").innerHTML=
 "📈 "+symbol+" Chart";
 
 
-let prices=[];
+
+let data=[];
 
 
 let p=Number(price);
 
 
-for(let i=0;i<50;i++){
 
-p=p+(Math.random()-0.45)*(p*0.02);
+for(let i=0;i<60;i++){
 
-prices.push(Number(p.toFixed(4)));
+
+let move=(Math.random()-0.48)*(p*0.015);
+
+
+p=p+move;
+
+
+data.push(Number(p.toFixed(6)));
 
 }
 
@@ -158,34 +247,71 @@ document.getElementById("chart"),
 
 type:"line",
 
+
 data:{
 
-labels:Array.from(
-{length:prices.length},
-(_,i)=>i+1
-),
+
+labels:data.map((x,i)=>i+1),
+
 
 datasets:[{
 
+
 label:symbol,
 
-data:prices,
 
-borderWidth:2
+data:data,
+
+
+borderWidth:2,
+
+
+tension:0.3
+
 
 }]
 
+
 },
+
+
 
 options:{
 
-responsive:true
+
+responsive:true,
+
+
+plugins:{
+
+
+legend:{
+
+
+labels:{
+
+
+color:"black"
 
 }
 
+
 }
+
+
+}
+
+
+}
+
+
+
+}
+
+
 
 );
+
 
 
 }
@@ -196,6 +322,8 @@ loadCoins();
 
 
 </script>
+
+
 
 </body>
 </html>
