@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
 
-<title>🚀 Pump Scanner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>🚀 Pump Scanner</title>
 
 <style>
 
@@ -12,318 +13,167 @@ body{
 background:#111;
 color:white;
 font-family:tahoma;
-padding:20px;
+margin:0;
+padding:15px;
+}
+
+h1{
+text-align:center;
 }
 
 .card{
 background:#222;
+margin:10px 0;
 padding:15px;
-margin:12px 0;
-border-radius:12px;
-}
-
-button{
-background:#008cff;
-color:white;
-border:0;
-padding:10px;
-border-radius:8px;
-margin-top:10px;
-}
-
-#chartBox{
-background:white;
-padding:10px;
 border-radius:10px;
 }
 
-canvas{
-max-height:400px;
+button{
+background:#00aaff;
+color:white;
+border:0;
+padding:10px 15px;
+border-radius:8px;
+font-size:15px;
+margin-top:10px;
+cursor:pointer;
 }
 
-.green{
-color:#00ff88;
+button:hover{
+background:#0090dd;
 }
 
-.red{
-color:#ff4444;
+#tvchart{
+margin-top:20px;
+height:650px;
+background:#000;
+border-radius:10px;
+overflow:hidden;
 }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <h1>🚀 Pump Scanner</h1>
 
+<div id="coins"></div>
 
-<div id="coins">
-در حال دریافت اطلاعات...
-</div>
+<h2 id="chartTitle">📈 TradingView Chart</h2>
 
+<div id="tvchart"></div>
 
-<h2 id="chartTitle">
-📈 Chart
-</h2>
-
-
-<div id="chartBox">
-
-<canvas id="chart"></canvas>
-
-</div>
-
-
+<script src="https://s3.tradingview.com/tv.js"></script>
 
 <script>
 
-
-let chart=null;
-
-
-
 async function loadCoins(){
 
-try{
-
-
-let response = await fetch("/api/pumps");
-
-
-let coins = await response.json();
-
-
+const res=await fetch("/api/pumps");
+const coins=await res.json();
 
 let html="";
 
-
-
 coins.forEach(c=>{
 
-
-let signal = c.signal || "";
-
-let risk = c.dumpRisk || 0;
-
-
-
-html += `
+html+=`
 
 <div class="card">
 
-
 <h2>${c.symbol}</h2>
-
 
 قیمت:
 ${c.price}
-<br>
 
+<br><br>
 
-تغییر 24h:
-
-<span class="${Number(c.change24h)>=0?'green':'red'}">
-
+تغییر 24 ساعت:
 🚀 ${c.change24h}%
 
-</span>
-
-<br>
-
+<br><br>
 
 حجم:
+📊 ${Number(c.volume).toLocaleString("fa-IR")}
 
-📊 ${Number(c.volume).toLocaleString()}
-
-<br>
-
+<br><br>
 
 امتیاز پامپ:
-
 🔥 ${c.pumpScore}
 
-
-<br>
-
+<br><br>
 
 سیگنال:
+${c.signal}
 
-${signal}
-
-
-<br>
-
+<br><br>
 
 ریسک دامپ:
+⚠️ ${c.dumpRisk}%
 
-⚠️ ${risk}%
+<br><br>
 
-
-<br>
-
-
-<button onclick="showChart('${c.symbol}',${c.price})">
+<button onclick="showChart('${c.symbol}')">
 
 📈 نمایش چارت
 
 </button>
 
-
 </div>
-
 
 `;
 
 });
 
-
 document.getElementById("coins").innerHTML=html;
 
-
-
 }
 
-catch(error){
+function showChart(symbol){
 
-document.getElementById("coins").innerHTML=
-"❌ خطا در دریافت اطلاعات";
+document.getElementById("chartTitle").innerHTML="📈 "+symbol;
 
-}
+document.getElementById("tvchart").innerHTML="";
 
+new TradingView.widget({
 
-}
+container_id:"tvchart",
 
+autosize:true,
 
+symbol:"BINANCE:"+symbol+"USDT",
 
+interval:"15",
 
+timezone:"Etc/UTC",
 
+theme:"dark",
 
-function showChart(symbol,price){
+style:"1",
 
+locale:"en",
 
-document.getElementById("chartTitle").innerHTML=
-"📈 "+symbol+" Chart";
+toolbar_bg:"#111",
 
+enable_publishing:false,
 
+allow_symbol_change:true,
 
-let data=[];
+hide_top_toolbar:false,
 
+hide_legend:false,
 
-let p=Number(price);
+save_image:false
 
-
-
-for(let i=0;i<60;i++){
-
-
-let move=(Math.random()-0.48)*(p*0.015);
-
-
-p=p+move;
-
-
-data.push(Number(p.toFixed(6)));
+});
 
 }
-
-
-
-if(chart){
-
-chart.destroy();
-
-}
-
-
-
-chart=new Chart(
-
-document.getElementById("chart"),
-
-{
-
-type:"line",
-
-
-data:{
-
-
-labels:data.map((x,i)=>i+1),
-
-
-datasets:[{
-
-
-label:symbol,
-
-
-data:data,
-
-
-borderWidth:2,
-
-
-tension:0.3
-
-
-}]
-
-
-},
-
-
-
-options:{
-
-
-responsive:true,
-
-
-plugins:{
-
-
-legend:{
-
-
-labels:{
-
-
-color:"black"
-
-}
-
-
-}
-
-
-}
-
-
-}
-
-
-
-}
-
-
-
-);
-
-
-
-}
-
-
 
 loadCoins();
 
-
 </script>
 
-
-
 </body>
+
 </html>
