@@ -6,6 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 background:#111;
 color:white;
@@ -17,108 +18,153 @@ padding:20px;
 background:#222;
 padding:15px;
 margin:10px;
-border-radius:10px;
+border-radius:12px;
+cursor:pointer;
+}
+
+.card:hover{
+background:#333;
 }
 
 canvas{
 background:white;
 border-radius:10px;
 }
+
 </style>
 
 </head>
 
+
 <body>
+
 
 <h1>🚀 Pump Scanner</h1>
 
+
 <div id="coins"></div>
 
-<h2>📈 Chart</h2>
+
+<h2 id="chartTitle">
+📈 Chart
+</h2>
+
 
 <canvas id="chart"></canvas>
 
 
+
 <script>
+
 
 let chart;
 
 
-async function load(){
+
+async function loadCoins(){
+
 
 const res = await fetch("/api/pumps");
 
 const coins = await res.json();
 
 
+
 let html="";
+
 
 
 coins.forEach(c=>{
 
-html+=`
 
-<div class="card">
+html += `
+
+
+<div class="card" onclick="showChart('${c.symbol}')">
+
 
 <h2>${c.symbol}</h2>
 
 قیمت: ${c.price}<br>
 
-تغییر 24h: 🚀 ${c.change24h}%<br>
+تغییر 24h:
+🚀 ${c.change24h}%<br>
 
-حجم: 📊 ${c.volume}<br>
+حجم:
+📊 ${c.volume}<br>
 
-امتیاز: 🔥 ${c.pumpScore}
+امتیاز:
+🔥 ${c.pumpScore}
+
 
 </div>
 
+
 `;
 
+
 });
+
 
 
 document.getElementById("coins").innerHTML=html;
 
 
 
-let first = coins[0];
+}
 
 
-let data=[
 
-first.price*0.97,
-first.price*0.99,
-first.price,
-first.price*1.02,
-first.price*1.05
-
-];
+function showChart(symbol){
 
 
-if(chart) chart.destroy();
+document.getElementById("chartTitle").innerHTML =
+"📈 Chart "+symbol;
 
 
-chart=new Chart(
+
+let prices=[];
+
+
+
+let start=100;
+
+
+for(let i=0;i<30;i++){
+
+start = start + (Math.random()-0.45)*5;
+
+prices.push(start.toFixed(2));
+
+}
+
+
+
+if(chart){
+
+chart.destroy();
+
+}
+
+
+
+chart = new Chart(
+
 document.getElementById("chart"),
+
 {
 
 type:"line",
 
 data:{
 
-labels:[
-"1",
-"2",
-"3",
-"4",
-"5"
-],
+labels:Array.from({length:30},(_,i)=>i+1),
 
 datasets:[{
 
-label:first.symbol,
+label:symbol,
 
-data:data,
+data:prices,
 
 borderWidth:2
 
@@ -126,15 +172,18 @@ borderWidth:2
 
 }
 
+
 }
 
 );
 
 
+
 }
 
 
-load();
+
+loadCoins();
 
 
 </script>
