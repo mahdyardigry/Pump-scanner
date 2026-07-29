@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Pump Scanner</title>
+<title>🚀 Pump Scanner</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 body{
 background:#111;
 color:white;
@@ -20,19 +18,15 @@ background:#222;
 padding:15px;
 margin:10px 0;
 border-radius:12px;
-cursor:pointer;
 }
 
-.card:hover{
-background:#333;
-}
-
-.green{
-color:#00ff88;
-}
-
-.red{
-color:#ff5555;
+button{
+background:#008cff;
+color:white;
+border:0;
+padding:8px 15px;
+border-radius:8px;
+margin-top:10px;
 }
 
 canvas{
@@ -40,44 +34,29 @@ background:white;
 border-radius:10px;
 margin-top:20px;
 }
-
 </style>
 
 </head>
 
-
 <body>
-
 
 <h1>🚀 Pump Scanner</h1>
 
+<div id="coins"></div>
 
-<div id="coins">
-در حال دریافت دیتا...
-</div>
-
-
-<h2 id="chartTitle">
-📈 Chart
-</h2>
-
+<h2 id="chartTitle">📈 Chart</h2>
 
 <canvas id="chart"></canvas>
 
 
-
 <script>
-
 
 let chart;
 
 
-
 async function loadCoins(){
 
-
 try{
-
 
 let res = await fetch("/api/pumps");
 
@@ -89,53 +68,39 @@ let html="";
 
 coins.forEach(c=>{
 
-
-let signal = c.signal || "";
-
-
 html += `
 
-<div class="card" onclick="showChart('${c.symbol}')">
-
+<div class="card">
 
 <h2>${c.symbol}</h2>
 
-
 قیمت: ${c.price}<br>
 
-
 تغییر 24h:
-
-<span class="green">
-🚀 ${c.change24h}%
-</span>
-
-<br>
-
+🚀 ${c.change24h}%<br>
 
 حجم:
+📊 ${Number(c.volume).toLocaleString()}<br>
 
-📊 ${Number(c.volume).toLocaleString()}
+امتیاز:
+🔥 ${c.pumpScore}<br>
+
+سیگنال:
+${c.signal || ""}<br>
+
+ریسک دامپ:
+${c.dumpRisk || 0}%
+
 
 <br>
 
-
-امتیاز پامپ:
-
-🔥 ${c.pumpScore}
-
-
-<br>
-
-
-${signal}
-
+<button onclick="showChart('${c.symbol}',${c.price})">
+📈 نمایش چارت
+</button>
 
 </div>
 
 `;
-
-
 
 });
 
@@ -143,58 +108,37 @@ ${signal}
 document.getElementById("coins").innerHTML=html;
 
 
-
-}
-
-catch(e){
+}catch(e){
 
 document.getElementById("coins").innerHTML=
-"❌ خطا در دریافت اطلاعات";
+"خطا در دریافت اطلاعات";
 
-console.log(e);
+}
 
 }
 
 
-}
+
+function showChart(symbol,price){
 
 
-
-async function showChart(symbol){
-
-
-document.getElementById("chartTitle").innerHTML=
+document.getElementById("chartTitle").innerHTML =
 "📈 "+symbol+" Chart";
 
 
-try{
+let prices=[];
 
 
-let url =
-"https://api.binance.com/api/v3/klines?symbol="
-+symbol+
-"USDT&interval=15m&limit=50";
+let p=Number(price);
 
 
+for(let i=0;i<50;i++){
 
-let res = await fetch(url);
+p=p+(Math.random()-0.45)*(p*0.02);
 
-
-let data = await res.json();
-
-
-
-if(!Array.isArray(data)){
-
-throw new Error("Chart unavailable");
+prices.push(Number(p.toFixed(4)));
 
 }
-
-
-
-let prices=data.map(
-x=>Number(x[4])
-);
 
 
 
@@ -216,9 +160,10 @@ type:"line",
 
 data:{
 
-
-labels:prices.map((x,i)=>i+1),
-
+labels:Array.from(
+{length:prices.length},
+(_,i)=>i+1
+),
 
 datasets:[{
 
@@ -230,9 +175,7 @@ borderWidth:2
 
 }]
 
-
 },
-
 
 options:{
 
@@ -240,35 +183,9 @@ responsive:true
 
 }
 
-
 }
 
 );
-
-
-
-}
-
-
-catch(e){
-
-
-document.getElementById("chartTitle").innerHTML=
-"⚠️ چارت "+symbol+" موجود نیست";
-
-
-if(chart){
-
-chart.destroy();
-
-}
-
-
-console.log(symbol,e);
-
-
-}
-
 
 
 }
@@ -278,10 +195,7 @@ console.log(symbol,e);
 loadCoins();
 
 
-
 </script>
 
-
 </body>
-
 </html>
