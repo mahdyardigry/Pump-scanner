@@ -5,7 +5,6 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-
 app.use(express.static(__dirname));
 
 
@@ -14,38 +13,113 @@ app.get("/", (req,res)=>{
 });
 
 
-app.get("/api/pumps",(req,res)=>{
+// Pump Scanner API
+app.get("/api/pumps", async (req,res)=>{
 
-res.json([
-{
-symbol:"BTC",
-name:"Bitcoin",
-price:64375,
-change24h:"1.60",
-volume:24639003402,
-pumpScore:72
-},
-{
-symbol:"EUL",
-name:"Euler",
-price:1.82,
-change24h:"19.10",
-volume:91203179,
-pumpScore:95
-},
-{
-symbol:"ON",
-name:"Orochi",
-price:0.247,
-change24h:"37.30",
-volume:44391994,
-pumpScore:99
+try {
+
+const url =
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=100&page=1&sparkline=false";
+
+
+const response = await fetch(url);
+
+
+if(!response.ok){
+throw new Error("CoinGecko API Error");
 }
-]);
+
+
+const coins = await response.json();
+
+
+const result = coins
+.filter(c =>
+c.price_change_percentage_24h > 3 &&
+c.total_volume > 1000000
+)
+.map(c=>{
+
+
+let score = 0;
+
+
+// تغییر قیمت
+score += Math.min(
+c.price_change_percentage_24h * 2,
+50
+);
+
+
+// حجم
+let volumeRatio =
+c.total_volume / c.market_cap;
+
+
+if(volumeRatio > 0.2)
+score += 30;
+else if(volumeRatio > 0.05)
+score += 15;
+
+
+// محدود کردن امتیاز
+score = Math.min(
+Math.round(score),
+100
+);
+
+
+return {
+
+symbol:c.symbol.toUpperCase(),
+
+name:c.name,
+
+price:c.current_price,
+
+change24h:
+c.price_change_percentage_24h
+?.toFixed(2),
+
+volume:c.total_volume,
+
+marketcap:c.market_cap,
+
+pumpScore:score
+
+};
+
+
+});
+
+
+res.json(result.slice(0,20));
+
+
+}
+
+catch(err){
+
+console.log(err.message);
+
+res.status(500).json({
+
+error:"Market data unavailable",
+message:err.message
+
+});
+
+
+}
+
 
 });
 
 
 app.listen(PORT,()=>{
-console.log("Server running on "+PORT);
+
+console.log(
+"Pump Scanner running on port "+PORT
+);
+
 });
