@@ -5,54 +5,66 @@ const app = express();
 
 app.use(express.static(__dirname));
 
+
 app.get("/", (req,res)=>{
   res.sendFile(path.join(__dirname,"index.html"));
 });
 
 
+// Pump Scanner API
 app.get("/api/pumps", async (req,res)=>{
 
 try{
 
-const url =
-"https://api.binance.com/api/v3/ticker/24hr";
-
-const response = await fetch(url,{
-headers:{
-"User-Agent":"Mozilla/5.0"
-}
-});
+const response = await fetch(
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=percent_change_24h_desc&per_page=20&page=1&sparkline=false"
+);
 
 
 if(!response.ok){
+
 return res.json({
-error:"Binance blocked",
+error:"CoinGecko API Error",
 status:response.status
 });
+
 }
 
 
 const data = await response.json();
 
 
-const list = data
-.filter(c=>c.symbol.endsWith("USDT"))
-.filter(c=>Number(c.quoteVolume)>1000000)
-.sort((a,b)=>
-Number(b.priceChangePercent) -
-Number(a.priceChangePercent)
-)
-.slice(0,20);
+const list = data.map(c=>({
+
+symbol:c.symbol.toUpperCase(),
+name:c.name,
+
+price:c.current_price,
+
+change24h:
+c.price_change_percentage_24h,
+
+volume:
+c.total_volume,
+
+marketcap:
+c.market_cap,
+
+image:c.image
+
+}));
 
 
 res.json(list);
 
 
-}catch(err){
+}catch(error){
 
-res.json({
-error:"Server error",
-message:err.message
+res.status(500).json({
+
+error:"Server Error",
+message:error.message
+
 });
 
 }
@@ -61,8 +73,14 @@ message:err.message
 });
 
 
+
 const PORT = process.env.PORT || 8080;
 
+
 app.listen(PORT,()=>{
-console.log("Pump Scanner running "+PORT);
+
+console.log(
+"Pump Scanner running on port "+PORT
+);
+
 });
