@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
-<title>Pump Scanner</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Pump Scanner</title>
 
 <style>
 
@@ -11,183 +13,116 @@ body{
 background:#111;
 color:white;
 font-family:tahoma;
+margin:0;
 padding:20px;
 }
 
+h1{
+text-align:center;
+}
+
 .card{
+
 background:#222;
 padding:15px;
-margin:10px;
+margin-bottom:12px;
 border-radius:12px;
 cursor:pointer;
+transition:.2s;
+
 }
 
 .card:hover{
+
 background:#333;
+
 }
 
-canvas{
-background:white;
-border-radius:10px;
+iframe{
+
+width:100%;
+height:650px;
+border:none;
+border-radius:12px;
+background:#000;
+
 }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <h1>🚀 Pump Scanner</h1>
 
-
 <div id="coins"></div>
-
 
 <h2 id="chartTitle">
 📈 Chart
 </h2>
 
-
-<canvas id="chart"></canvas>
-
-
+<iframe id="tvchart"></iframe>
 
 <script>
 
-
-let chart;
-
-
-
 async function loadCoins(){
 
+const res=await fetch("/api/pumps");
 
-const res = await fetch("/api/pumps");
-
-const coins = await res.json();
-
-
+const coins=await res.json();
 
 let html="";
 
-
-
 coins.forEach(c=>{
 
-
-html += `
-
+html+=`
 
 <div class="card" onclick="showChart('${c.symbol}')">
 
-
 <h2>${c.symbol}</h2>
 
-قیمت: ${c.price}<br>
+قیمت:
+${c.price}
+
+<br><br>
 
 تغییر 24h:
-🚀 ${c.change24h}%<br>
+🚀 ${c.change24h}%
+
+<br><br>
 
 حجم:
-📊 ${c.volume}<br>
+📊 ${Number(c.volume).toLocaleString()}
 
-امتیاز:
+<br><br>
+
+امتیاز پامپ:
 🔥 ${c.pumpScore}
-
 
 </div>
 
-
 `;
-
 
 });
 
-
-
 document.getElementById("coins").innerHTML=html;
 
-
-
 }
-
-
 
 function showChart(symbol){
 
+document.getElementById("chartTitle").innerHTML="📈 "+symbol;
 
-document.getElementById("chartTitle").innerHTML =
-"📈 Chart "+symbol;
-
-
-
-let prices=[];
-
-
-
-let start=100;
-
-
-for(let i=0;i<30;i++){
-
-start = start + (Math.random()-0.45)*5;
-
-prices.push(start.toFixed(2));
+document.getElementById("tvchart").src=
+"https://www.tradingview.com/chart/?symbol=BINANCE:"+symbol+"USDT";
 
 }
-
-
-
-if(chart){
-
-chart.destroy();
-
-}
-
-
-
-chart = new Chart(
-
-document.getElementById("chart"),
-
-{
-
-type:"line",
-
-data:{
-
-labels:Array.from({length:30},(_,i)=>i+1),
-
-datasets:[{
-
-label:symbol,
-
-data:prices,
-
-borderWidth:2
-
-}]
-
-}
-
-
-}
-
-);
-
-
-
-}
-
-
 
 loadCoins();
 
-
 </script>
 
-
 </body>
+
 </html>
