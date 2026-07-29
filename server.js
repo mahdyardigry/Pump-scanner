@@ -1,125 +1,130 @@
 const express = require("express");
-const path = require("path");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(__dirname));
+app.use(express.static("public"));
 
 
-app.get("/", (req,res)=>{
-    res.sendFile(path.join(__dirname,"index.html"));
+// صفحه اصلی
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
 });
 
 
-// Pump Scanner API
-app.get("/api/pumps", async (req,res)=>{
+// موتور تحلیل Pump / Dump
+function analyzeCoin(coin) {
 
-try {
-
-const url =
-"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=100&page=1&sparkline=false";
-
-
-const response = await fetch(url);
+    let change = Number(coin.change24h);
+    let volume = Number(coin.volume);
+    let marketcap = Number(coin.marketcap || 1);
 
 
-if(!response.ok){
-throw new Error("CoinGecko API Error");
-}
+    let volumeRatio = volume / marketcap;
 
 
-const coins = await response.json();
+    // امتیاز پامپ
+    let pumpScore = 0;
+
+    if(change > 5) pumpScore += 20;
+    if(change > 15) pumpScore += 25;
+    if(volumeRatio > 1) pumpScore += 25;
+    if(volumeRatio > 3) pumpScore += 20;
+    if(volume > 50000000) pumpScore += 10;
 
 
-const result = coins
-.filter(c =>
-c.price_change_percentage_24h > 3 &&
-c.total_volume > 1000000
-)
-.map(c=>{
+    if(pumpScore > 100)
+        pumpScore = 100;
 
 
-let score = 0;
+
+    // ریسک دامپ
+    let dumpRisk = 0;
+
+    if(change > 50)
+        dumpRisk += 40;
+
+    if(change > 100)
+        dumpRisk += 30;
+
+    if(volumeRatio < 0.5)
+        dumpRisk += 20;
 
 
-// تغییر قیمت
-score += Math.min(
-c.price_change_percentage_24h * 2,
-50
-);
+    if(dumpRisk > 100)
+        dumpRisk = 100;
 
 
-// حجم
-let volumeRatio =
-c.total_volume / c.market_cap;
+
+    let signal="👀 Watch";
 
 
-if(volumeRatio > 0.2)
-score += 30;
-else if(volumeRatio > 0.05)
-score += 15;
+    if(pumpScore >= 70 && dumpRisk < 50)
+        signal="🚀 Pump";
+
+    if(dumpRisk >= 60)
+        signal="⚠️ Dump Risk";
 
 
-// محدود کردن امتیاز
-score = Math.min(
-Math.round(score),
-100
-);
-
-
-return {
-
-symbol:c.symbol.toUpperCase(),
-
-name:c.name,
-
-price:c.current_price,
-
-change24h:
-c.price_change_percentage_24h
-?.toFixed(2),
-
-volume:c.total_volume,
-
-marketcap:c.market_cap,
-
-pumpScore:score
-
-};
-
-
-});
-
-
-res.json(result.slice(0,20));
-
-
-}
-
-catch(err){
-
-console.log(err.message);
-
-res.status(500).json({
-
-error:"Market data unavailable",
-message:err.message
-
-});
-
+    return {
+        ...coin,
+        volumeRatio: volumeRatio.toFixed(2),
+        pumpScore,
+        dumpRisk,
+        signal
+    };
 
 }
 
 
+
+// API
+app.get("/api/pumps",(req,res)=>{
+
+
+    let coins=[
+
+        {
+            symbol:"ON",
+            name:"Orochi",
+            price:0.259,
+            change24h:"18.24",
+            volume:54667120,
+            marketcap:35000000
+        },
+
+        {
+            symbol:"PIPEDOG",
+            name:"Pipedog",
+            price:0.0034,
+            change24h:"313.66",
+            volume:65595074,
+            marketcap:20000000
+        },
+
+        {
+            symbol:"EUL",
+            name:"Euler",
+            price:1.75,
+            change24h:"6.25",
+            volume:88078568,
+            marketcap:49000000
+        }
+
+    ];
+
+
+    let result = coins.map(analyzeCoin);
+
+
+    res.json(result);
+
+
 });
+
 
 
 app.listen(PORT,()=>{
-
-console.log(
-"Pump Scanner running on port "+PORT
-);
-
+    console.log("Pump Dump Scanner running on "+PORT);
 });
