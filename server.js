@@ -5,45 +5,51 @@ const app = express();
 
 app.use(express.static(__dirname));
 
-app.get("/", (req,res)=>{
-  res.sendFile(path.join(__dirname,"index.html"));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.get("/api/pumps", async (req,res)=>{
-
-  try{
-
+app.get("/api/pumps", async (req, res) => {
+  try {
     const response = await fetch(
-      "https://api.binance.com/api/v3/ticker/24hr"
+      "https://api.binance.com/api/v3/ticker/24hr",
+      {
+        headers: {
+          "User-Agent": "PumpScanner/1.0"
+        }
+      }
     );
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: "Binance API Error",
+        status: response.status
+      });
+    }
 
     const data = await response.json();
 
     const list = data
-    .filter(c=>c.symbol.endsWith("USDT"))
-    .sort((a,b)=>
-      parseFloat(b.priceChangePercent) -
-      parseFloat(a.priceChangePercent)
-    )
-    .slice(0,20);
+      .filter(c => c.symbol.endsWith("USDT"))
+      .sort((a, b) =>
+        parseFloat(b.priceChangePercent) -
+        parseFloat(a.priceChangePercent)
+      )
+      .slice(0, 20);
 
     res.json(list);
 
-  }catch(e){
+  } catch (e) {
+    console.error(e);
 
     res.status(500).json({
-      error:"Binance error"
+      error: e.message
     });
-
   }
-
 });
-
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT,()=>{
- console.log(
- "Pump Scanner started on port "+PORT
- );
+app.listen(PORT, () => {
+  console.log("Pump Scanner started on port " + PORT);
 });
