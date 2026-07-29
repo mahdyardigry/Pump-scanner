@@ -5,12 +5,12 @@ const app = express();
 
 app.use(express.static(__dirname));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+app.get("/", (req,res)=>{
+  res.sendFile(path.join(__dirname,"index.html"));
 });
 
-app.get("/api/pumps", async (req, res) => {
-  try {
+app.get("/api/pumps", async (req,res)=>{
+  try{
     const response = await fetch(
       "https://api.binance.com/api/v3/ticker/24hr"
     );
@@ -19,19 +19,17 @@ app.get("/api/pumps", async (req, res) => {
 
     const list = data
       .filter(c => c.symbol.endsWith("USDT"))
-      .sort(
-        (a, b) =>
-          parseFloat(b.priceChangePercent) -
-          parseFloat(a.priceChangePercent)
+      .sort((a,b)=>
+        parseFloat(b.priceChangePercent) -
+        parseFloat(a.priceChangePercent)
       )
-      .slice(0, 20);
+      .slice(0,20);
 
     res.json(list);
 
-  } catch (error) {
-    console.log(error);
+  }catch(error){
     res.status(500).json({
-      error: "Binance API failed"
+      error:"Binance error"
     });
   }
 });
@@ -39,8 +37,6 @@ app.get("/api/pumps", async (req, res) => {
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(PORT, () => {
-  console.log(
-    "Pump Scanner started on port " + PORT
-  );
+app.listen(PORT,()=>{
+ console.log("Pump Scanner running "+PORT);
 });
