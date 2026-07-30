@@ -4,7 +4,12 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static("public"));
+// فایل های html css js از ریشه پروژه
+app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+});
 
 app.get("/api/pumps", async (req, res) => {
 
@@ -16,25 +21,19 @@ app.get("/api/pumps", async (req, res) => {
 
         const data = await response.json();
 
-        const result = data
-            .filter(c => c.price_change_percentage_24h !== null)
+        const coins = data
+            .filter(c => c.price_change_percentage_24h != null)
             .sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h)
             .slice(0, 20)
             .map(c => {
 
-                let score = 0;
-
-                score += Math.min(
-                    Math.abs(c.price_change_percentage_24h) * 3,
-                    60
+                let score = Math.round(
+                    Math.min(
+                        c.price_change_percentage_24h * 2 +
+                        (c.total_volume / c.market_cap) * 100,
+                        100
+                    )
                 );
-
-                score += Math.min(
-                    (c.total_volume / c.market_cap) * 100,
-                    40
-                );
-
-                score = Math.round(score);
 
                 return {
 
@@ -53,11 +52,11 @@ app.get("/api/pumps", async (req, res) => {
                     pumpScore: score,
 
                     signal:
-                        score > 80
-                            ? "🚀 PUMP"
-                            : score > 60
-                            ? "👀 WATCH"
-                            : "➖ NORMAL",
+                        score >= 80
+                            ? "🚀 Pump"
+                            : score >= 60
+                            ? "👀 Watch"
+                            : "➖ Normal",
 
                     dumpRisk:
                         c.price_change_percentage_24h > 80
@@ -70,14 +69,14 @@ app.get("/api/pumps", async (req, res) => {
 
             });
 
-        res.json(result);
+        res.json(coins);
 
-    } catch (err) {
+    } catch (e) {
 
-        console.log(err);
+        console.log(e);
 
         res.status(500).json({
-            error: "API Error"
+            error: "CoinGecko Error"
         });
 
     }
@@ -94,9 +93,9 @@ app.get("/api/chart/:symbol", async (req, res) => {
             "https://api.coingecko.com/api/v3/coins/list"
         );
 
-        const coins = await list.json();
+        const all = await list.json();
 
-        const coin = coins.find(c => c.symbol === symbol);
+        const coin = all.find(c => c.symbol === symbol);
 
         if (!coin) {
 
@@ -108,21 +107,18 @@ app.get("/api/chart/:symbol", async (req, res) => {
             `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=usd&days=1`
         );
 
-        const data = await chart.json();
+        const json = await chart.json();
 
-        res.json(
+        const prices = json.prices.map((p, i) => ({
+            time: i + 1,
+            price: p[1]
+        }));
 
-            data.prices.map((p, i) => ({
+        res.json(prices);
 
-                time: i + 1,
+    } catch (e) {
 
-                price: p[1]
-
-            }))
-
-        );
-
-    } catch (err) {
+        console.log(e);
 
         res.json([]);
 
@@ -132,6 +128,6 @@ app.get("/api/chart/:symbol", async (req, res) => {
 
 app.listen(PORT, () => {
 
-    console.log("Pump Scanner Started");
+    console.log("Server Started On Port " + PORT);
 
 });
