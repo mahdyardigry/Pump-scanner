@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
+
 <head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>🚀 Pump Scanner</title>
 
@@ -9,204 +14,131 @@
 <style>
 
 body{
+
 background:#111;
+
 color:white;
+
 font-family:tahoma;
+
 padding:20px;
+
+margin:0;
+
 }
 
 .card{
+
 background:#222;
+
 padding:15px;
-margin:10px 0;
+
+margin:12px 0;
+
 border-radius:12px;
+
 }
 
 button{
-background:#008cff;
+
+background:#0094ff;
+
 color:white;
+
 border:0;
-padding:10px;
+
+padding:10px 15px;
+
 border-radius:8px;
+
+font-size:15px;
+
 }
 
 canvas{
-background:white;
+
+background:#fff;
+
 border-radius:10px;
+
 margin-top:20px;
+
+}
+
+small{
+
+color:#aaa;
+
 }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <h1>🚀 Pump Scanner</h1>
 
+<small id="updateTime">
+آخرین بروزرسانی...
+</small>
 
 <div id="coins"></div>
 
+<h2 id="title">
 
-<h2 id="title">📈 Chart</h2>
+📈 Chart
 
+</h2>
 
 <canvas id="chart"></canvas>
 
-
-
 <script>
-
 
 let chart;
 
-
-
 async function loadCoins(){
 
+try{
 
-let res = await fetch("/api/pumps");
+const res=await fetch("/api/pumps?"+Date.now());
 
-let coins = await res.json();
-
+const coins=await res.json();
 
 let html="";
 
-
 coins.forEach(c=>{
 
-
-html += `
+html+=`
 
 <div class="card">
 
 <h2>${c.symbol}</h2>
 
-قیمت: ${c.price}<br>
-
-تغییر 24h:
-🚀 ${c.change24h}%<br>
-
-حجم:
-📊 ${Number(c.volume).toLocaleString()}<br>
-
-امتیاز:
-🔥 ${c.pumpScore}<br>
-
-سیگنال:
-${c.signal}<br>
-
-ریسک دامپ:
-⚠️ ${c.dumpRisk}%
-
+<b>${c.name}</b>
 
 <br><br>
 
-<button onclick="showChart('${c.symbol}')">
-📈 نمایش چارت
-</button>
+💲 قیمت :
 
+${Number(c.price).toLocaleString()}
 
-</div>
+<br>
 
-`;
+🚀 تغییر 24 ساعت :
 
-});
+${c.change24h}%
 
+<br>
 
-document.getElementById("coins").innerHTML=html;
+📊 حجم :
 
+${Number(c.volume).toLocaleString()}
 
-}
+<br>
 
+🔥 امتیاز پامپ :
 
+${c.pumpScore}
 
-
-
-async function showChart(symbol){
-
-
-document.getElementById("title").innerHTML =
-"📈 "+symbol+" Chart";
-
-
-
-let res = await fetch("/api/chart/"+symbol);
-
-
-let data = await res.json();
-
-
-
-let prices=data.map(x=>x.price);
-
-let labels=data.map(x=>x.time);
-
-
-
-if(chart){
-
-chart.destroy();
-
-}
-
-
-
-chart = new Chart(
-
-document.getElementById("chart"),
-
-{
-
-type:"line",
-
-data:{
-
-
-labels:labels,
-
-
-datasets:[{
-
-label:symbol,
-
-data:prices,
-
-borderWidth:3
-
-}]
-
-
-},
-
-
-options:{
-
-responsive:true
-
-}
-
-
-}
-
-);
-
-
-
-}
-
-
-
-
-
-loadCoins();
-
-
-
-</script>
-
-
-</body>
-</html>
+<br>
