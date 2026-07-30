@@ -4,7 +4,6 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// فایل های html css js از ریشه پروژه
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
@@ -18,17 +17,11 @@ app.get("/api/pumps", async (req, res) => {
 
         const pages = await Promise.all([
 
-            fetch(
-                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false"
-            ),
+            fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false"),
 
-            fetch(
-                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=2&sparkline=false"
-            ),
+            fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=2&sparkline=false"),
 
-            fetch(
-                "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=3&sparkline=false"
-            )
+            fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=3&sparkline=false")
 
         ]);
 
@@ -62,7 +55,7 @@ app.get("/api/pumps", async (req, res) => {
             )
 
 
-            .sort((a,b) =>
+            .sort((a,b)=>
                 b.price_change_percentage_24h -
                 a.price_change_percentage_24h
             )
@@ -71,43 +64,35 @@ app.get("/api/pumps", async (req, res) => {
             .slice(0,20)
 
 
-            .map(c => {
-
+            .map(c=>{
 
                 let score = Math.round(
-
                     Math.min(
-
                         c.price_change_percentage_24h * 2 +
                         (c.total_volume / c.market_cap) * 100,
-
                         100
-
                     )
-
                 );
 
 
                 return {
 
-                    symbol: c.symbol.toUpperCase(),
+                    symbol:c.symbol.toUpperCase(),
 
-                    name: c.name,
+                    name:c.name,
 
-                    price: c.current_price,
+                    price:c.current_price,
 
-                    change24h:
-                        c.price_change_percentage_24h.toFixed(2),
+                    change24h:c.price_change_percentage_24h.toFixed(2),
 
-                    volume: c.total_volume,
+                    volume:c.total_volume,
 
-                    marketcap: c.market_cap,
+                    marketcap:c.market_cap,
 
-                    pumpScore: score,
+                    pumpScore:score,
 
 
                     signal:
-
                         score >= 80
                         ? "🚀 Pump"
                         : score >= 60
@@ -117,14 +102,15 @@ app.get("/api/pumps", async (req, res) => {
 
                     dumpRisk:
 
-                        c.price_change_percentage_24h > 80
-                        ? 80
+                        c.price_change_percentage_24h > 150
+                        ? 90
+                        : c.price_change_percentage_24h > 80
+                        ? 70
                         : c.price_change_percentage_24h > 40
-                        ? 50
+                        ? 40
                         : 10
 
                 };
-
 
             });
 
@@ -132,67 +118,51 @@ app.get("/api/pumps", async (req, res) => {
         res.json(coins);
 
 
-    } catch (e) {
-
+    } catch(e){
 
         console.log(e);
 
-
         res.status(500).json({
-
             error:"CoinGecko Error"
-
         });
 
-
     }
-
 
 });
 
 
 
-app.get("/api/chart/:symbol", async (req, res) => {
+app.get("/api/chart/:symbol", async (req,res)=>{
 
+    const symbol=req.params.symbol.toLowerCase();
 
-    const symbol = req.params.symbol.toLowerCase();
+    try{
 
-
-    try {
-
-
-        const list = await fetch(
-
+        const list=await fetch(
             "https://api.coingecko.com/api/v3/coins/list"
-
         );
 
+        const all=await list.json();
 
-        const all = await list.json();
-
-
-        const coin = all.find(c => c.symbol === symbol);
+        const coin=all.find(c=>c.symbol===symbol);
 
 
-        if (!coin) {
+        if(!coin){
 
             return res.json([]);
 
         }
 
 
-
-        const chart = await fetch(
-
+        const chart=await fetch(
             `https://api.coingecko.com/api/v3/coins/${coin.id}/market_chart?vs_currency=usd&days=1`
-
         );
 
 
-        const json = await chart.json();
+        const json=await chart.json();
 
 
-        const prices = json.prices.map((p,i)=>({
+        const prices=json.prices.map((p,i)=>({
 
             time:i+1,
 
@@ -204,25 +174,20 @@ app.get("/api/chart/:symbol", async (req, res) => {
         res.json(prices);
 
 
-
-    } catch(e) {
-
+    }catch(e){
 
         console.log(e);
 
-
         res.json([]);
 
-
     }
-
 
 });
 
 
 
-app.listen(PORT, () => {
+app.listen(PORT,()=>{
 
-    console.log("Server Started On Port " + PORT);
+    console.log("Server Started On Port "+PORT);
 
 });
