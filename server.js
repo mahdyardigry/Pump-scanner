@@ -63,16 +63,27 @@ app.get("/api/pumps", async (req, res) => {
 
             .slice(0,20)
 
+const changeScore = Math.min(
+    Math.max(c.price_change_percentage_24h, 0),
+    100
+);
 
-            .map(c=>{
+const volumeScore = Math.min(
+    (c.total_volume / (c.market_cap || 1)) * 100,
+    100
+);
 
-                let score = Math.round(
-                    Math.min(
-                        c.price_change_percentage_24h * 2 +
-                        (c.total_volume / c.market_cap) * 100,
-                        100
-                    )
-                );
+const marketScore = Math.min(
+    Math.log10(c.total_volume + 1) * 10,
+    100
+);
+
+let score = Math.round(
+    changeScore * 0.45 +
+    volumeScore * 0.35 +
+    marketScore * 0.20
+);
+                            
 
 
                 return {
