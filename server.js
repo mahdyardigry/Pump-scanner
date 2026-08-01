@@ -62,13 +62,18 @@ app.get("/api/pumps", async (req, res) => {
                 const marketScore = Math.min(
                     Math.log10(c.total_volume + 1) * 10,
                     100
-                );
 
-                const score = Math.round(
-                    changeScore * 0.45 +
-                    volumeScore * 0.35 +
-                    marketScore * 0.20
-                );
+                    const capScore = Math.max(
+    100 - Math.log10(c.market_cap || 1) * 8,
+    0
+);
+
+const score = Math.round(
+    changeScore * 0.40 +
+    volumeScore * 0.30 +
+    marketScore * 0.20 +
+    capScore * 0.10
+);
 
                 return {
                     symbol: c.symbol.toUpperCase(),
