@@ -62,7 +62,8 @@ app.get("/api/pumps", async (req, res) => {
                 const marketScore = Math.min(
                     Math.log10(c.total_volume + 1) * 10,
                     100
-
+                    
+);
                     const capScore = Math.max(
     100 - Math.log10(c.market_cap || 1) * 8,
     0
