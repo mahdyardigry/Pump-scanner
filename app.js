@@ -1,4 +1,4 @@
-const express = require("express");
+خconst express = require("express");
 
 const app = express();
 
@@ -238,15 +238,6 @@ throw new Error(
 let coins = await response.json();
 
 
-const futuresSymbols =
-await getFuturesSymbols();
-
-
-coins = coins.filter(c =>
-    futuresSymbols.includes(
-        c.symbol.toLowerCase()
-    )
-);
 
 
 
