@@ -8,47 +8,134 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(__dirname));
 
 
+// ===============================
+// OI History Memory
+// ===============================
+
+const oiHistory = {};
+
+
+// ===============================
+// Home
+// ===============================
+
 app.get("/", (req,res)=>{
-    res.sendFile(__dirname + "/index.html");
+
+    res.sendFile(
+        __dirname + "/index.html"
+    );
+
 });
 
 
 
 // ===============================
-// Binance Futures Helper
+// Binance Futures Data
 // ===============================
 
 async function getBinanceData(symbol){
 
     try{
 
+
         const oiResponse = await fetch(
+
             `https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}USDT`
+
         );
 
-        const oiData = await oiResponse.json();
+
+        const oiData =
+        await oiResponse.json();
 
 
 
         const lsResponse = await fetch(
+
             `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol}USDT&period=5m&limit=1`
+
         );
 
 
-        const lsData = await lsResponse.json();
+        const lsData =
+        await lsResponse.json();
+
+
+
+        const oi =
+        Number(
+            oiData.openInterest || 0
+        );
+
+
+
+        const ratio =
+
+        lsData[0]
+
+        ?
+
+        Number(
+            lsData[0].longShortRatio
+        )
+
+        :
+
+        1;
+
+
+
+        // ذخیره تاریخچه OI
+
+        if(!oiHistory[symbol]){
+
+            oiHistory[symbol]=[];
+
+        }
+
+
+        oiHistory[symbol].push({
+
+            time:Date.now(),
+
+            oi:oi
+
+        });
+
+
+
+        // فقط 12 رکورد آخر نگه دار
+
+        if(oiHistory[symbol].length > 12){
+
+            oiHistory[symbol].shift();
+
+        }
 
 
 
         return {
 
-            oi:Number(oiData.openInterest || 0),
 
-            ratio:
-            lsData[0]
+            oi:oi,
+
+
+            ratio:ratio,
+
+
+            oldOi:
+
+            oiHistory[symbol].length > 1
+
             ?
-            Number(lsData[0].longShortRatio)
+
+            oiHistory[symbol][0].oi
+
             :
-            1
+
+            oi
+
+
 
         };
 
@@ -58,19 +145,22 @@ async function getBinanceData(symbol){
 
     catch(error){
 
+
         return {
 
             oi:0,
 
-            ratio:1
+            ratio:1,
+
+            oldOi:0
 
         };
 
+
     }
 
+
 }
-
-
 
 
 // ===============================
@@ -95,14 +185,14 @@ const response = await fetch(
 if(!response.ok){
 
 throw new Error(
-"CoinGecko Status: "+response.status
+"CoinGecko Error: " + response.status
 );
 
 }
 
 
 
-let data = await response.json();
+let coins = await response.json();
 
 
 
@@ -120,7 +210,7 @@ const blacklist=[
 
 
 
-data=data.filter(c=>
+coins = coins.filter(c =>
 
 c.price_change_percentage_24h != null &&
 
@@ -132,9 +222,7 @@ c.symbol.toLowerCase()
 
 
 
-// فقط 50 تای اول برای جلوگیری از فشار API
-
-data=data.slice(0,50);
+coins = coins.slice(0,50);
 
 
 
@@ -142,7 +230,8 @@ let results=[];
 
 
 
-for(const c of data){
+for(const c of coins){
+
 
 
 const symbol =
@@ -155,15 +244,121 @@ await getBinanceData(symbol);
 
 
 
-
-const change =
+const priceChange =
 Number(
 c.price_change_percentage_24h
 );
 
 
 
+const oiChange =
+
+futures.oldOi > 0
+
+?
+
+((futures.oi - futures.oldOi)
+/
+futures.oldOi) * 100
+
+:
+
+0;
+
+
+
+
+let signal="➖ Normal";
+
+let reason="";
+
+
+
+
+// ===============================
+// Short Squeeze Detection
+// ===============================
+
+
+if(
+
+priceChange > 3 &&
+
+oiChange < -3 &&
+
+futures.ratio < 0.9
+
+){
+
+
+signal="🚀 Short Squeeze";
+
+
+reason =
+"Price ↑ + OI ↓ + Shorts trapped";
+
+
+}
+
+
+
+
+// ===============================
+// Long Squeeze Detection
+// ===============================
+
+
+else if(
+
+priceChange < -3 &&
+
+oiChange < -3 &&
+
+futures.ratio > 1.3
+
+){
+
+
+signal="🔻 Long Squeeze";
+
+
+reason =
+"Price ↓ + Longs closing";
+
+
+}
+
+
+
+
+// ===============================
+// Smart Money
+// ===============================
+
+
+else if(
+
+priceChange > 5 &&
+
+oiChange > 5
+
+){
+
+
+signal="💰 Smart Money";
+
+
+reason =
+"Price ↑ + New Positions";
+
+
+}
+
+
+
+
 const volumeScore =
+
 Math.min(
 
 (c.total_volume /
@@ -175,10 +370,11 @@ Math.min(
 
 
 
-const changeScore =
+const squeezeScore =
+
 Math.min(
 
-Math.max(change,0),
+Math.abs(oiChange)*5,
 
 100
 
@@ -186,51 +382,13 @@ Math.max(change,0),
 
 
 
-let squeeze="Normal";
+const score = Math.round(
 
+Math.min(priceChange,100) *0.40 +
 
+volumeScore *0.30 +
 
-// تشخیص شورت اسکوئیز
-
-if(
-
-change > 5 &&
-
-futures.ratio < 0.9
-
-){
-
-squeeze="🚀 Short Squeeze";
-
-}
-
-
-
-// تشخیص خطر لانگ اسکوئیز
-
-else if(
-
-change < -5 &&
-
-futures.ratio > 1.4
-
-){
-
-squeeze="🔻 Long Squeeze Risk";
-
-}
-
-
-
-
-const score =
-Math.round(
-
-changeScore*0.45 +
-
-volumeScore*0.35 +
-
-(Math.min(futures.ratio*40,100))*0.20
+squeezeScore *0.30
 
 );
 
@@ -238,15 +396,18 @@ volumeScore*0.35 +
 
 results.push({
 
-symbol,
+
+symbol:symbol,
+
 
 name:c.name,
+
 
 price:c.current_price,
 
 
 change24h:
-change.toFixed(2),
+priceChange.toFixed(2),
 
 
 volume:c.total_volume,
@@ -259,30 +420,25 @@ openInterest:
 futures.oi,
 
 
+oiChange:
+oiChange.toFixed(2),
+
+
 longShort:
 futures.ratio.toFixed(2),
 
 
-pumpScore:score,
+score:score,
 
 
-signal:squeeze,
+signal:signal,
 
 
-dumpRisk:
-
-change>100
-?
-80
-:
-change>50
-?
-50
-:
-10
+reason:reason
 
 
 });
+
 
 
 }
@@ -291,7 +447,7 @@ change>50
 
 results.sort((a,b)=>
 
-b.pumpScore-a.pumpScore
+b.score-a.score
 
 );
 
@@ -304,12 +460,11 @@ res.json(results);
 }
 
 
+
 catch(error){
 
 
-console.error(
-error.message
-);
+console.error(error.message);
 
 
 res.status(500).json({
@@ -323,9 +478,6 @@ error:error.message
 
 
 });
-
-
-
 
 // ===============================
 // Single Coin OI API
@@ -342,16 +494,8 @@ req.params.symbol.toUpperCase();
 
 
 
-const response = await fetch(
-
-`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}USDT`
-
-);
-
-
-
 const data =
-await response.json();
+await getBinanceData(symbol);
 
 
 
@@ -359,8 +503,11 @@ res.json({
 
 symbol:symbol,
 
-openInterest:
-Number(data.openInterest || 0)
+openInterest:data.oi,
+
+oiChange:
+"محاسبه شده در اسکنر"
+
 
 });
 
@@ -390,7 +537,6 @@ error:"OI Error"
 // Health Check
 // ===============================
 
-
 app.get("/health",(req,res)=>{
 
 
@@ -412,7 +558,6 @@ time:new Date()
 // Start Server
 // ===============================
 
-
 app.listen(PORT,()=>{
 
 
@@ -424,3 +569,4 @@ console.log(
 
 
 });
+
