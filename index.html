@@ -368,7 +368,148 @@ document.getElementById("coins").innerHTML =
 
 }
 
+function calculateMA(data, period, type){
 
+    let result = [];
+
+    for(let i=0;i<data.length;i++){
+
+        if(i < period-1){
+            result.push(null);
+            continue;
+        }
+
+
+        let slice = data.slice(i-period+1,i+1);
+
+
+        if(type==="EMA"){
+
+            let k = 2/(period+1);
+
+            if(i===period-1){
+                result.push(
+                    slice.reduce((a,b)=>a+b,0)/period
+                );
+            }
+            else{
+                result.push(
+                    data[i]*k +
+                    result[i-1]*(1-k)
+                );
+            }
+
+        }
+
+        else{
+
+            result.push(
+                slice.reduce((a,b)=>a+b,0)/period
+            );
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+
+function createOIChart(){
+
+let oiData=[
+120,135,128,150,170,160,
+190,210,230,220,260,280,
+300,290,330,360
+];
+
+
+let fast =
+Number(document.getElementById("fastMA").value);
+
+
+let slow =
+Number(document.getElementById("slowMA").value);
+
+
+let type =
+document.getElementById("maType").value;
+
+
+
+let fastMA =
+calculateMA(oiData,fast,type);
+
+
+let slowMA =
+calculateMA(oiData,slow,type);
+
+
+
+if(oiChart){
+    oiChart.destroy();
+}
+
+
+
+oiChart = new Chart(
+document.getElementById("oiChart"),
+{
+
+type:"line",
+
+data:{
+
+labels:oiData.map((x,i)=>i+1),
+
+datasets:[
+
+{
+label:"OI",
+data:oiData
+},
+
+{
+label:"Fast MA",
+data:fastMA
+},
+
+{
+label:"Slow MA",
+data:slowMA
+}
+
+]
+
+},
+
+options:{
+responsive:true
+}
+
+});
+
+
+}
+
+
+
+document.getElementById("fastMA")
+.onchange=createOIChart;
+
+
+document.getElementById("slowMA")
+.onchange=createOIChart;
+
+
+document.getElementById("maType")
+.onchange=createOIChart;
+
+
+
+createOIChart();
 
 loadCoins();
 
