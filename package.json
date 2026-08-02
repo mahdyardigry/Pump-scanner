@@ -2,9 +2,9 @@
   "name": "pump-scanner",
   "version": "1.0.0",
   "description": "Pump Scanner",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "express": "^4.19.2"
