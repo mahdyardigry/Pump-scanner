@@ -40,7 +40,6 @@ app.get("/api/pumps", async (req,res)=>{
         const data = await response.json();
 
 
-
         const blacklist = [
             "usdt",
             "usdc",
@@ -227,6 +226,63 @@ app.get("/api/pumps", async (req,res)=>{
 
 
 
+// ===============================
+// Open Interest API
+// ===============================
+
+app.get("/api/oi/:symbol", async (req,res)=>{
+
+    try{
+
+        const symbol =
+        req.params.symbol.toUpperCase();
+
+
+        const response = await fetch(
+            `https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}USDT`
+        );
+
+
+        const data = await response.json();
+
+
+
+        res.json({
+
+            symbol:symbol,
+
+            oi:Number(data.openInterest)
+
+        });
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.error(
+            "OI ERROR:",
+            error.message
+        );
+
+
+        res.status(500).json({
+
+            error:"OI Error"
+
+        });
+
+
+    }
+
+
+});
+
+
+
 
 // ===============================
 // Health Check
@@ -250,7 +306,6 @@ app.get("/health",(req,res)=>{
 // ===============================
 // Start Server
 // ===============================
-
 
 app.listen(PORT,()=>{
 
