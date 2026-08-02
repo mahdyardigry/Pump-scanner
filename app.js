@@ -15,246 +15,42 @@ app.get("/", (req,res)=>{
 
 
 // ===============================
-// Pump Scanner API
+// Binance Futures Helper
 // ===============================
 
-app.get("/api/pumps", async (req,res)=>{
+async function getBinanceData(symbol){
 
     try{
 
-
-        const response = await fetch(
-            "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false"
-        );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "CoinGecko Status: " + response.status
-            );
-
-        }
-
-
-        const data = await response.json();
-
-
-        const blacklist = [
-            "usdt",
-            "usdc",
-            "dai",
-            "busd",
-            "tusd",
-            "wbtc",
-            "steth"
-        ];
-
-
-
-        const coins = data
-
-        .filter(c =>
-
-            c.price_change_percentage_24h != null &&
-
-            !blacklist.includes(
-                c.symbol.toLowerCase()
-            )
-
-        )
-
-
-        .sort((a,b)=>
-
-            b.price_change_percentage_24h -
-            a.price_change_percentage_24h
-
-        )
-
-
-        .slice(0,20)
-
-
-
-        .map(c=>{
-
-
-            const changeScore =
-            Math.min(
-                Math.max(
-                    c.price_change_percentage_24h,
-                    0
-                ),
-                100
-            );
-
-
-
-            const volumeScore =
-            Math.min(
-                (c.total_volume /
-                (c.market_cap || 1))*100,
-                100
-            );
-
-
-
-            const marketScore =
-            Math.min(
-                Math.log10(
-                    c.total_volume + 1
-                ) * 10,
-                100
-            );
-
-
-
-            const score = Math.round(
-
-                changeScore * 0.45 +
-
-                volumeScore * 0.35 +
-
-                marketScore * 0.20
-
-            );
-
-
-
-            return {
-
-                symbol:
-                c.symbol.toUpperCase(),
-
-
-                name:
-                c.name,
-
-
-                price:
-                c.current_price,
-
-
-                change24h:
-                c.price_change_percentage_24h
-                .toFixed(2),
-
-
-                volume:
-                c.total_volume,
-
-
-                marketcap:
-                c.market_cap,
-
-
-                pumpScore:
-                score,
-
-
-                signal:
-
-                score >=80
-                ? "🚀 Pump"
-
-                :
-
-                score >=60
-                ? "👀 Watch"
-
-                :
-
-                "➖ Normal",
-
-
-
-                dumpRisk:
-
-                c.price_change_percentage_24h >150
-                ?90
-
-                :
-
-                c.price_change_percentage_24h >80
-                ?70
-
-                :
-
-                c.price_change_percentage_24h >40
-                ?40
-
-                :
-
-                10
-
-
-            };
-
-
-        });
-
-
-
-        res.json(coins);
-
-
-
-    }
-
-
-    catch(error){
-
-
-        console.error(
-            "API ERROR:",
-            error.message
-        );
-
-
-        res.status(500).json({
-
-            error:error.message
-
-        });
-
-
-    }
-
-
-});
-
-
-
-// ===============================
-// Open Interest API
-// ===============================
-
-app.get("/api/oi/:symbol", async (req,res)=>{
-
-    try{
-
-        const symbol =
-        req.params.symbol.toUpperCase();
-
-
-        const response = await fetch(
+        const oiResponse = await fetch(
             `https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}USDT`
         );
 
-
-        const data = await response.json();
-
+        const oiData = await oiResponse.json();
 
 
-        res.json({
 
-            symbol:symbol,
+        const lsResponse = await fetch(
+            `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol}USDT&period=5m&limit=1`
+        );
 
-            oi:Number(data.openInterest)
 
-        });
+        const lsData = await lsResponse.json();
 
+
+
+        return {
+
+            oi:Number(oiData.openInterest || 0),
+
+            ratio:
+            lsData[0]
+            ?
+            Number(lsData[0].longShortRatio)
+            :
+            1
+
+        };
 
 
     }
@@ -262,55 +58,268 @@ app.get("/api/oi/:symbol", async (req,res)=>{
 
     catch(error){
 
+        return {
 
-        console.error(
-            "OI ERROR:",
-            error.message
-        );
+            oi:0,
 
+            ratio:1
 
-        res.status(500).json({
-
-            error:"OI Error"
-
-        });
-
+        };
 
     }
 
+}
+
+
+
+
+// ===============================
+// Pump + Squeeze Scanner
+// ===============================
+
+
+app.get("/api/pumps", async(req,res)=>{
+
+
+try{
+
+
+const response = await fetch(
+
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false"
+
+);
+
+
+
+if(!response.ok){
+
+throw new Error(
+"CoinGecko Status: "+response.status
+);
+
+}
+
+
+
+let data = await response.json();
+
+
+
+const blacklist=[
+
+"usdt",
+"usdc",
+"dai",
+"busd",
+"tusd",
+"wbtc",
+"steth"
+
+];
+
+
+
+data=data.filter(c=>
+
+c.price_change_percentage_24h != null &&
+
+!blacklist.includes(
+c.symbol.toLowerCase()
+)
+
+);
+
+
+
+// فقط 50 تای اول برای جلوگیری از فشار API
+
+data=data.slice(0,50);
+
+
+
+let results=[];
+
+
+
+for(const c of data){
+
+
+const symbol =
+c.symbol.toUpperCase();
+
+
+
+const futures =
+await getBinanceData(symbol);
+
+
+
+
+const change =
+Number(
+c.price_change_percentage_24h
+);
+
+
+
+const volumeScore =
+Math.min(
+
+(c.total_volume /
+(c.market_cap || 1))*100,
+
+100
+
+);
+
+
+
+const changeScore =
+Math.min(
+
+Math.max(change,0),
+
+100
+
+);
+
+
+
+let squeeze="Normal";
+
+
+
+// تشخیص شورت اسکوئیز
+
+if(
+
+change > 5 &&
+
+futures.ratio < 0.9
+
+){
+
+squeeze="🚀 Short Squeeze";
+
+}
+
+
+
+// تشخیص خطر لانگ اسکوئیز
+
+else if(
+
+change < -5 &&
+
+futures.ratio > 1.4
+
+){
+
+squeeze="🔻 Long Squeeze Risk";
+
+}
+
+
+
+
+const score =
+Math.round(
+
+changeScore*0.45 +
+
+volumeScore*0.35 +
+
+(Math.min(futures.ratio*40,100))*0.20
+
+);
+
+
+
+results.push({
+
+symbol,
+
+name:c.name,
+
+price:c.current_price,
+
+
+change24h:
+change.toFixed(2),
+
+
+volume:c.total_volume,
+
+
+marketcap:c.market_cap,
+
+
+openInterest:
+futures.oi,
+
+
+longShort:
+futures.ratio.toFixed(2),
+
+
+pumpScore:score,
+
+
+signal:squeeze,
+
+
+dumpRisk:
+
+change>100
+?
+80
+:
+change>50
+?
+50
+:
+10
+
 
 });
 
 
+}
 
 
-// ===============================
-// Health Check
-// ===============================
 
-app.get("/health",(req,res)=>{
+results.sort((a,b)=>
 
-    res.json({
+b.pumpScore-a.pumpScore
 
-        status:"OK",
+);
 
-        time:new Date()
 
-    });
+
+res.json(results);
+
+
+
+}
+
+
+catch(error){
+
+
+console.error(
+error.message
+);
+
+
+res.status(500).json({
+
+error:error.message
 
 });
 
 
+}
 
-
-// ===============================
-// Start Server
-// ===============================
-
-app.listen(PORT,()=>{
-
-    console.log(
-        `Server running on port ${PORT}`
-    );
 
 });
