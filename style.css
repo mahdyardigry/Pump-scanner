@@ -1,54 +1,106 @@
+body {
 
-body{
-margin:0;
-padding:15px;
-background:#101522;
-color:white;
-font-family:Arial;
+    font-family: Arial, sans-serif;
+
+    background:#111;
+
+    color:white;
+
+    margin:20px;
+
 }
 
-h1{
-text-align:center;
-color:#00ff99;
+
+
+h1 {
+
+    text-align:center;
+
+    color:#00ff99;
+
 }
 
-.top{
-display:grid;
-grid-template-columns:1fr;
-gap:15px;
+
+
+#status {
+
+    text-align:center;
+
+    margin:20px;
+
+    font-size:18px;
+
 }
 
-.bottom{
-display:grid;
-grid-template-columns:1fr;
-gap:15px;
-margin-top:15px;
+
+
+table {
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:#1b1b1b;
+
 }
 
-.card{
-background:#1b2338;
-padding:15px;
-border-radius:12px;
+
+
+th {
+
+    background:#222;
+
+    padding:12px;
+
+    border-bottom:1px solid #444;
+
 }
 
-.chartBox{
-background:#1b2338;
-padding:15px;
-margin-top:15px;
-border-radius:12px;
+
+
+td {
+
+    padding:10px;
+
+    text-align:center;
+
+    border-bottom:1px solid #333;
+
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+
+
+tr:hover {
+
+    background:#262626;
+
 }
 
-th,td{
-padding:8px;
-text-align:center;
-border-bottom:1px solid #333;
+
+
+td:nth-child(7){
+
+    font-weight:bold;
+
 }
 
-th{
-color:#00ff99;
+
+
+@media(max-width:900px){
+
+
+table {
+
+    font-size:12px;
+
+}
+
+
+td,th{
+
+    padding:6px;
+
+}
+
+
 }
