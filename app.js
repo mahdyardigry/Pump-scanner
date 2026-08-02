@@ -417,15 +417,15 @@ marketcap:c.market_cap,
 
 
 openInterest:
-futures.oi,
+Number(futures.oi || 0),
 
 
 oiChange:
-oiChange.toFixed(2),
+Number(oiChange).toFixed(2),
 
 
 longShort:
-futures.ratio.toFixed(2),
+Number(futures.ratio).toFixed(2),
 
 
 score:score,
