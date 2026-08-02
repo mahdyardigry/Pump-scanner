@@ -1,95 +1,15 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🚀 Pump Scanner Pro</title>
+<title>Pump Scanner</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-
-body{
-    background:#0b0f14;
-    color:white;
-    font-family:tahoma;
-    padding:15px;
-    margin:0;
-}
-
-h1{
-    text-align:center;
-}
-
-.card{
-
-    background:#151b22;
-    padding:15px;
-    margin:12px 0;
-    border-radius:15px;
-    box-shadow:0 0 10px #000;
-
-}
-
-
-.grid{
-
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:12px;
-
-}
-
-
-button{
-
-    background:#008cff;
-    color:white;
-    border:0;
-    padding:10px;
-    border-radius:8px;
-
-}
-
-
-input,select{
-
-    background:#222;
-    color:white;
-    padding:8px;
-    border-radius:6px;
-    border:1px solid #555;
-
-}
-
-
-canvas{
-
-    background:white;
-    border-radius:12px;
-    margin-top:15px;
-    min-height:250px;
-
-}
-
-.green{
-    color:#00ff88;
-}
-
-.red{
-    color:#ff4444;
-}
-
-.yellow{
-    color:#ffd000;
-}
-
-
-</style>
+<link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -97,141 +17,44 @@ canvas{
 <body>
 
 
-<h1>🚀 Pump Scanner Pro</h1>
+<h1>🚀 Pump & Squeeze Scanner</h1>
 
 
-<div class="card">
-
-🟢 وضعیت:
-<span class="green">
-Live
-</span>
-
-<br>
-
-<small id="updateTime">
-آخرین بروزرسانی...
-</small>
-
+<div id="status">
+Loading...
 </div>
 
 
 
-<div class="grid">
+<table>
 
 
-<div class="card">
-
-<h3>🔥 Top Pumps</h3>
-
-<div id="coins">
-
-در حال دریافت...
-
-</div>
-
-</div>
-
-
-
-<div class="card">
-
-<h3>📈 Price Chart</h3>
-
-<canvas id="chart"></canvas>
-
-</div>
-
-
-</div>
-
-
-
-<div class="card">
-
-<h2>📊 Open Interest</h2>
-
-
-Fast MA:
-
-<input id="fastMA" value="7" type="number">
-
-
-Slow MA:
-
-<input id="slowMA" value="20" type="number">
-
-
-<select id="maType">
-
-<option>
-EMA
-</option>
-
-<option>
-SMA
-</option>
-
-</select>
-
-
-<div style="height:300px">
-<canvas id="oiChart"></canvas>
-</div>
-
-
-<div>
-
-🟢 تقاطع صعودی = احتمال ورود پول
-
-<br>
-
-🔴 تقاطع نزولی = احتمال خروج پول
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="card">
-
-
-<h2>💰 Funding Rate</h2>
-
-
-<canvas id="fundingChart"></canvas>
-
-
-</div>
-
-
-
-
-
-<div class="card">
-
-
-<h2>🧱 Footprint</h2>
-
-
-<table width="100%">
-
+<thead>
 
 <tr>
 
+<th>Coin</th>
+
 <th>Price</th>
-<th>Bid</th>
-<th>Ask</th>
-<th>Delta</th>
+
+<th>24h %</th>
+
+<th>OI Change</th>
+
+<th>Long/Short</th>
+
+<th>Score</th>
+
+<th>Signal</th>
+
+<th>Reason</th>
 
 </tr>
 
+</thead>
 
-<tbody id="footprint">
 
+<tbody id="coins">
 
 </tbody>
 
@@ -239,130 +62,137 @@ SMA
 </table>
 
 
-</div>
- <!-- Signals -->
-
-<div class="card">
-
-<h2>🔔 Signals</h2>
-
-<p id="signalPump">
-🚀 Pump Probability : -
-</p>
-
-<p id="signalDump">
-⚠ Dump Risk : -
-</p>
-
-<p id="signalOI">
-📊 OI Trend : -
-</p>
-
-<p id="signalFunding">
-💰 Funding : -
-</p>
-
-</div>
-
-
-
-<div class="card">
-
-<button onclick="loadCoins()">
-🔄 Refresh
-</button>
-
-</div>
-
-
 
 <script>
-
-let chart;
-let oiChart;
-let fundingChart;
-
 
 
 async function loadCoins(){
 
+
 try{
 
 
-const res = await fetch("/api/pumps?" + Date.now());
+const response =
+await fetch("/api/pumps");
 
-const coins = await res.json();
+
+
+const data =
+await response.json();
+
 
 
 let html="";
 
 
-coins.forEach(c=>{
+
+data.forEach(c=>{
 
 
 html += `
 
-<div class="card">
+<tr>
 
 
-<h3>${c.symbol}</h3>
+<td>
 
-<b>${c.name}</b>
-
-<br><br>
-
-
-💲 قیمت:
-${Number(c.price).toLocaleString()}
-
+<b>${c.symbol}</b>
 
 <br>
 
-🚀 تغییر:
+${c.name}
+
+</td>
+
+
+
+<td>
+
+${c.price}
+
+</td>
+
+
+
+<td>
+
 ${c.change24h}%
 
-
-<br>
-
-📊 حجم:
-${Number(c.volume).toLocaleString()}
+</td>
 
 
-<br>
 
-🔥 Pump Score:
-${c.pumpScore}
+<td>
+
+${c.oiChange}%
+
+</td>
 
 
-<br>
+
+<td>
+
+${c.longShort}
+
+</td>
+
+
+
+<td>
+
+${c.score}
+
+</td>
+
+
+
+<td>
 
 ${c.signal}
 
+</td>
 
-</div>
 
+
+<td>
+
+${c.reason || "-"}
+
+</td>
+
+
+
+</tr>
 
 `;
 
 
+
 });
 
 
-
-document.querySelector("#coins").innerHTML = html;
-
-
-document.querySelector("#updateTime").innerHTML =
-"آخرین بروزرسانی: " + new Date().toLocaleTimeString();
-
-
-
-}
-
-catch(e){
 
 document.getElementById("coins").innerHTML =
-"خطا در دریافت اطلاعات";
+html;
+
+
+
+document.getElementById("status").innerHTML =
+
+"Last Update: " + new Date().toLocaleTimeString();
+
+
+
+}
+
+
+catch(error){
+
+
+document.getElementById("status").innerHTML =
+
+"API Error";
+
 
 }
 
@@ -370,170 +200,26 @@ document.getElementById("coins").innerHTML =
 
 }
 
-function calculateMA(data, period, type){
-
-    let result = [];
-
-    for(let i=0;i<data.length;i++){
-
-        if(i < period-1){
-            result.push(null);
-            continue;
-        }
 
 
-        let slice = data.slice(i-period+1,i+1);
-
-
-        if(type==="EMA"){
-
-            let k = 2/(period+1);
-
-            if(i===period-1){
-                result.push(
-                    slice.reduce((a,b)=>a+b,0)/period
-                );
-            }
-            else{
-                result.push(
-                    data[i]*k +
-                    result[i-1]*(1-k)
-                );
-            }
-
-        }
-
-        else{
-
-            result.push(
-                slice.reduce((a,b)=>a+b,0)/period
-            );
-
-        }
-
-    }
-
-    return result;
-
-}
-
-
-
-function createOIChart(){
-
-let oiData=[
-120,135,128,150,170,160,
-190,210,230,220,260,280,
-300,290,330,360
-];
-
-
-let fast =
-Number(document.getElementById("fastMA").value);
-
-
-let slow =
-Number(document.getElementById("slowMA").value);
-if(fast >= oiData.length){
-    fast = oiData.length - 1;
-}
-
-if(slow >= oiData.length){
-    slow = oiData.length - 1;
-    }
-
-let type =
-document.getElementById("maType").value;
-
-
-
-let fastMA =
-calculateMA(oiData,fast,type);
-
-
-let slowMA =
-calculateMA(oiData,slow,type);
-
-
-
-if(oiChart){
-    oiChart.destroy();
-}
-
-
-
-oiChart = new Chart(
-document.getElementById("oiChart"),
-{
-
-type:"line",
-
-data:{
-
-labels:oiData.map((x,i)=>i+1),
-
-datasets:[
-
-{
-label:"OI",
-data:oiData
-},
-
-{
-label:"Fast MA",
-data:fastMA
-},
-
-{
-label:"Slow MA",
-data:slowMA
-}
-
-]
-
-},
-
-options:{
-responsive:true,
-maintainAspectRatio:false
-}
-
-});
-
-
-}
-
-
-
-document.getElementById("fastMA")
-.onchange=createOIChart;
-
-
-document.getElementById("slowMA")
-.onchange=createOIChart;
-
-
-document.getElementById("maType")
-.onchange=createOIChart;
-
-
-
-createOIChart();
 
 loadCoins();
 
 
-setInterval(loadCoins,60000);
+setInterval(
+
+loadCoins,
+
+60000
+
+);
+
 
 
 </script>
 
 
+
 </body>
 
 </html>
-
-
-
-
-
