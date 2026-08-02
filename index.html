@@ -377,59 +377,5 @@ setInterval(loadCoins,60000);
 
 
 
-</script>
 
 
-</body>
-
-</html> 
-
-<script>
-
-let chart;
-
-async function loadCoins(){
-
-try{
-
-const res=await fetch("/api/pumps?"+Date.now());
-
-const coins=await res.json();
-
-let html="";
-
-coins.forEach(c=>{
-
-html+=`
-
-<div class="card">
-
-<h2>${c.symbol}</h2>
-
-<b>${c.name}</b>
-
-<br><br>
-
-💲 قیمت :
-
-${Number(c.price).toLocaleString()}
-
-<br>
-
-🚀 تغییر 24 ساعت :
-
-${c.change24h}%
-
-<br>
-
-📊 حجم :
-
-${Number(c.volume).toLocaleString()}
-
-<br>
-
-🔥 امتیاز پامپ :
-
-${c.pumpScore}
-
-<br>
