@@ -9,6 +9,49 @@ app.use(express.static(__dirname));
 
 
 // ===============================
+// Binance Futures Symbols
+// ===============================
+
+async function getFuturesSymbols(){
+
+    try{
+
+        const response = await fetch(
+            "https://fapi.binance.com/fapi/v1/exchangeInfo"
+        );
+
+        const data = await response.json();
+
+
+        return data.symbols
+
+        .filter(s =>
+            s.quoteAsset === "USDT" &&
+            s.status === "TRADING"
+        )
+
+        .map(s =>
+            s.baseAsset.toLowerCase()
+        );
+
+
+    }
+
+    catch(error){
+
+        console.log(
+            "Futures symbols error:",
+            error.message
+        );
+
+        return [];
+
+    }
+
+}
+
+
+// ===============================
 // OI History Memory
 // ===============================
 
