@@ -323,3 +323,104 @@ error:error.message
 
 
 });
+
+
+
+
+// ===============================
+// Single Coin OI API
+// ===============================
+
+app.get("/api/oi/:symbol", async(req,res)=>{
+
+
+try{
+
+
+const symbol =
+req.params.symbol.toUpperCase();
+
+
+
+const response = await fetch(
+
+`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}USDT`
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+res.json({
+
+symbol:symbol,
+
+openInterest:
+Number(data.openInterest || 0)
+
+});
+
+
+}
+
+
+catch(error){
+
+
+res.status(500).json({
+
+error:"OI Error"
+
+});
+
+
+}
+
+
+});
+
+
+
+
+// ===============================
+// Health Check
+// ===============================
+
+
+app.get("/health",(req,res)=>{
+
+
+res.json({
+
+status:"OK",
+
+time:new Date()
+
+});
+
+
+});
+
+
+
+
+// ===============================
+// Start Server
+// ===============================
+
+
+app.listen(PORT,()=>{
+
+
+console.log(
+
+`Server running on port ${PORT}`
+
+);
+
+
+});
