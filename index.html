@@ -72,9 +72,9 @@ canvas{
     background:white;
     border-radius:12px;
     margin-top:15px;
+    min-height:250px;
 
 }
-
 
 .green{
     color:#00ff88;
@@ -175,7 +175,9 @@ SMA
 </select>
 
 
+<div style="height:300px">
 <canvas id="oiChart"></canvas>
+</div>
 
 
 <div>
@@ -432,7 +434,13 @@ Number(document.getElementById("fastMA").value);
 
 let slow =
 Number(document.getElementById("slowMA").value);
+if(fast >= oiData.length){
+    fast = oiData.length - 1;
+}
 
+if(slow >= oiData.length){
+    slow = oiData.length - 1;
+    }
 
 let type =
 document.getElementById("maType").value;
@@ -486,7 +494,8 @@ data:slowMA
 },
 
 options:{
-responsive:true
+responsive:true,
+maintainAspectRatio:false
 }
 
 });
