@@ -188,23 +188,19 @@ async function getBinanceData(symbol){
 
     catch(error){
 
+    console.error("Binance API Error:", error);
 
-        return {
+    return {
 
-            oi:0,
+        oi:0,
 
-            ratio:1,
+        ratio:1,
 
-            oldOi:0
+        oldOi:0
 
-        };
-
-
-    }
-
+    };
 
 }
-
 
 // ===============================
 // Pump + Squeeze Scanner
