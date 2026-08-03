@@ -387,7 +387,7 @@ c.symbol.toUpperCase();
 
 
 const futures =
-await getBinanceData(symbol);
+await getBybitData(symbol);
 
 
 
