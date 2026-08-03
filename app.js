@@ -57,6 +57,14 @@ async function getFuturesSymbols(){
 
 const oiHistory = {};
 
+// ===============================
+// CoinGecko Cache
+// ===============================
+
+let coinCache = [];
+let coinCacheTime = 0;
+
+const CACHE_TIME = 5 * 60 * 1000; // 5 دقیقه
 
 // ===============================
 // Home
@@ -214,10 +222,39 @@ app.get("/api/pumps", async(req,res)=>{
 
 try{
 
+let coins;
+
+
+// استفاده از Cache
+if(
+    coinCache.length > 0 &&
+    Date.now() - coinCacheTime < CACHE_TIME
+){
+
+    coins = coinCache;
+
+}
+
+
+// گرفتن اطلاعات جدید از CoinGecko
+else {
+
 
 const response = await fetch(
 
-"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=250&page=1&sparkline=false"
+"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=100&page=1&sparkline=false",
+
+{
+
+headers:{
+
+"accept":"application/json",
+
+"user-agent":"Mozilla/5.0"
+
+}
+
+}
 
 );
 
@@ -233,7 +270,17 @@ throw new Error(
 
 
 
-let coins = await response.json();
+coins = await response.json();
+
+
+// ذخیره در Cache
+
+coinCache = coins;
+
+coinCacheTime = Date.now();
+
+
+}
 
 
 
