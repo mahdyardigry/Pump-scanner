@@ -140,6 +140,109 @@ app.get("/", (req,res)=>{
 // ===============================
 // Binance Futures Data
 // ===============================
+// ===============================
+// Bybit Futures Data
+// ===============================
+
+async function getBybitData(symbol){
+
+    try{
+
+        const response = await fetch(
+        `https://api.bybit.com/v5/market/open-interest?category=linear&symbol=${symbol}USDT&intervalTime=5min`
+        );
+
+
+        const data = await response.json();
+
+
+        let oi = 0;
+
+
+        if(
+            data.result &&
+            data.result.list &&
+            data.result.list.length > 0
+        ){
+
+            oi = Number(
+                data.result.list[0].openInterest
+            );
+
+        }
+
+
+
+        if(!oiHistory[symbol]){
+
+            oiHistory[symbol]=[];
+
+        }
+
+
+        oiHistory[symbol].push({
+
+            time:Date.now(),
+
+            oi:oi
+
+        });
+
+
+
+        if(oiHistory[symbol].length > 12){
+
+            oiHistory[symbol].shift();
+
+        }
+
+
+
+        return {
+
+            oi:oi,
+
+            ratio:1,
+
+            oldOi:
+
+            oiHistory[symbol].length > 1
+
+            ?
+
+            oiHistory[symbol][0].oi
+
+            :
+
+            oi
+
+        };
+
+
+    }
+
+    catch(error){
+
+        console.log(
+            "Bybit Error:",
+            symbol,
+            error.message
+        );
+
+
+        return {
+
+            oi:0,
+
+            ratio:1,
+
+            oldOi:0
+
+        };
+
+    }
+
+}
 
 async function getBinanceData(symbol){
 
