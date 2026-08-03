@@ -56,6 +56,55 @@ async function getFuturesSymbols(){
 // ===============================
 
 const oiHistory = {};
+// ===============================
+// Binance Futures List
+// ===============================
+
+let futuresSymbols = [];
+
+
+async function updateFuturesSymbols(){
+
+    try{
+
+        const response = await fetch(
+            "https://fapi.binance.com/fapi/v1/exchangeInfo"
+        );
+
+
+        const data = await response.json();
+
+
+        futuresSymbols = data.symbols
+
+        .filter(s =>
+            s.quoteAsset === "USDT" &&
+            s.status === "TRADING"
+        )
+
+        .map(s =>
+            s.baseAsset
+        );
+
+
+        console.log(
+            "Futures symbols loaded:",
+            futuresSymbols.length
+        );
+
+
+    }
+
+    catch(error){
+
+        console.log(
+            "Futures list error:",
+            error.message
+        );
+
+    }
+
+}
 
 // ===============================
 // CoinGecko Cache
@@ -647,6 +696,8 @@ time:new Date()
 // ===============================
 // Start Server
 // ===============================
+// Load Binance Futures symbols at startup
+updateFuturesSymbols();
 
 app.listen(PORT,()=>{
 
