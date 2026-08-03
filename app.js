@@ -74,10 +74,18 @@ async function updateFuturesSymbols(){
 
         const data = await response.json();
 
+if (!data.symbols) {
 
-        futuresSymbols = data.symbols
+    console.log("Binance exchangeInfo response:", data);
 
-        .filter(s =>
+    return;
+
+}
+
+futuresSymbols = data.symbols
+
+.filter(s =>
+    
             s.quoteAsset === "USDT" &&
             s.status === "TRADING"
         )
