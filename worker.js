@@ -1,71 +1,57 @@
 const BYBIT = "https://api.bybit.com";
 
 /* =========================================================
-   PUMP SCANNER — BYBIT PULLBACK RADAR
+   PUMP SCANNER — BYBIT PULLBACK RADAR V4
+   15M
    PUMP → RED CANDLE → PULLBACK ZONE → RETEST
-   TIMEFRAME: 15 MINUTES
 ========================================================= */
 
-const VERSION = "PUMP-SCANNER-BYBIT-PPR-V3";
+const VERSION = "PUMP-SCANNER-BYBIT-PPR-V4";
 
-const CATEGORY = "linear";
 const TF = "15";
+const KLINE_LIMIT = 160;
 
-const KLINE_LIMIT = 120;
-
-/*
-  تعداد ارزهایی که بررسی می‌شوند
-*/
+const SCAN_BATCH = 25;
 const MAX_SYMBOLS = 300;
 
-/*
-  تعداد درخواست همزمان
-*/
-const SCAN_BATCH = 15;
+/* ---------- Pump ---------- */
 
-/*
-  Pump باید حداقل 2 و حداکثر 6 کندل
-  ادامه داشته باشد.
-*/
+const MIN_PUMP_PERCENT = 6;
+
 const MIN_PUMP_CANDLES = 2;
 const MAX_PUMP_CANDLES = 6;
 
-/*
-  حداقل رشد Pump
-*/
-const MIN_PUMP_PERCENT = 6;
-
-/*
-  حجم Pump حداقل 1.5 برابر
-  میانگین حجم قبل از Pump
-*/
 const MIN_VOLUME_MULTIPLIER = 1.5;
-
-/*
-  حداقل نسبت کندل‌های سبز Pump
-*/
 const MIN_GREEN_RATIO = 0.60;
 
 /*
-  حداکثر افت بدنه کندل قرمز Pullback
+  برای جلوگیری از اینکه یک حرکت معمولی
+  به اشتباه Pump شناخته شود.
 */
+const MIN_PUMP_RANGE_PERCENT = 5.0;
+
+/*
+  Pump باید از یک محدوده نسبتاً فشرده
+  شروع شده باشد.
+*/
+const MAX_BASE_RANGE_PERCENT = 5.0;
+
+
+/* ---------- Pullback ---------- */
+
 const MAX_PULLBACK_PERCENT = 4.5;
 
-/*
-  فاصله از محدوده Pullback
-*/
+const MIN_PULLBACK_PERCENT = 0.10;
+
+const MAX_PULLBACK_CANDLES = 12;
+
 const NEAR_ZONE_PERCENT = 0.35;
 
-/*
-  حداکثر تعداد کندل بعد از Pump
-  برای پیدا کردن Pullback
-*/
-const MAX_PULLBACK_CANDLES = 8;
 
-/*
-  حداقل حجم Pump
-*/
-const MIN_PUMP_VOLUME = 0;
+/* ---------- Scan ---------- */
+
+const SCAN_INTERVAL_MS = 45000;
+
 
 /* =========================================================
    CORS
@@ -77,11 +63,13 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
+
 /* =========================================================
    RESPONSE
 ========================================================= */
 
 function json(data, status = 200) {
+
   return new Response(
     JSON.stringify(data),
     {
@@ -95,21 +83,28 @@ function json(data, status = 200) {
   );
 }
 
+
 /* =========================================================
-   BYBIT REQUEST
+   BYBIT
 ========================================================= */
 
 async function bybit(path, params = {}) {
 
-  const url = new URL(BYBIT + path);
+  const url = new URL(
+    BYBIT + path
+  );
 
-  for (const [key, value] of Object.entries(params)) {
+  for (
+    const [key, value]
+    of Object.entries(params)
+  ) {
 
     if (
       value !== undefined &&
       value !== null &&
       value !== ""
     ) {
+
       url.searchParams.set(
         key,
         String(value)
@@ -117,17 +112,19 @@ async function bybit(path, params = {}) {
     }
   }
 
-  const response = await fetch(
-    url.toString(),
-    {
-      method: "GET",
-      headers: {
-        "Accept": "application/json"
+  const response =
+    await fetch(
+      url.toString(),
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
       }
-    }
-  );
+    );
 
   if (!response.ok) {
+
     throw new Error(
       `Bybit HTTP ${response.status}`
     );
@@ -137,6 +134,7 @@ async function bybit(path, params = {}) {
     await response.json();
 
   if (data.retCode !== 0) {
+
     throw new Error(
       data.retMsg ||
       "Bybit API error"
@@ -145,6 +143,7 @@ async function bybit(path, params = {}) {
 
   return data.result;
 }
+
 
 /* =========================================================
    SYMBOLS
@@ -157,13 +156,13 @@ async function getSymbols() {
   let cursor = "";
 
   /*
-    Bybit instruments-info ممکن است Pagination داشته باشد.
+    instruments-info ممکن است pagination داشته باشد.
   */
 
   for (let page = 0; page < 3; page++) {
 
     const params = {
-      category: CATEGORY,
+      category: "linear",
       status: "Trading",
       limit: 1000
     };
@@ -186,26 +185,33 @@ async function getSymbols() {
     cursor =
       result.nextPageCursor || "";
 
-    if (!cursor || !list.length) {
+    if (!cursor) {
       break;
     }
   }
 
-  return all
-    .filter(x =>
-      x.status === "Trading" &&
-      x.quoteCoin === "USDT" &&
-      x.contractType ===
-        "LinearPerpetual"
-    )
-    .map(x => x.symbol)
-    .filter(Boolean)
-    .filter(
-      (symbol, index, arr) =>
-        arr.indexOf(symbol) === index
-    )
-    .slice(0, MAX_SYMBOLS);
+  /*
+    فقط USDT Linear Perpetual
+  */
+
+  const symbols =
+    all
+      .filter(x =>
+        x.status === "Trading" &&
+        x.quoteCoin === "USDT" &&
+        x.contractType ===
+          "LinearPerpetual"
+      )
+      .map(x => x.symbol)
+      .filter(Boolean);
+
+  /*
+    حذف Duplicate
+  */
+
+  return [...new Set(symbols)];
 }
+
 
 /* =========================================================
    KLINES
@@ -217,7 +223,7 @@ async function getKlines(symbol) {
     await bybit(
       "/v5/market/kline",
       {
-        category: CATEGORY,
+        category: "linear",
         symbol,
         interval: TF,
         limit: KLINE_LIMIT
@@ -227,21 +233,42 @@ async function getKlines(symbol) {
   const rows =
     result.list || [];
 
-  return rows
-    .map(row => ({
-      time: Number(row[0]),
-      open: Number(row[1]),
-      high: Number(row[2]),
-      low: Number(row[3]),
-      close: Number(row[4]),
-      volume: Number(row[5]),
-      turnover: Number(row[6])
-    }))
-    .sort(
-      (a, b) =>
-        a.time - b.time
-    );
+  /*
+    Bybit:
+    newest → oldest
+
+    تبدیل:
+    oldest → newest
+  */
+
+  const candles =
+    rows
+      .map(row => ({
+        time: Number(row[0]),
+        open: Number(row[1]),
+        high: Number(row[2]),
+        low: Number(row[3]),
+        close: Number(row[4]),
+        volume: Number(row[5]),
+        turnover: Number(row[6])
+      }))
+      .sort(
+        (a, b) =>
+          a.time - b.time
+      );
+
+  /*
+    آخرین کندل ممکن است هنوز باز باشد.
+    برای تحلیل ساختاری آن را حذف می‌کنیم.
+  */
+
+  if (candles.length > 1) {
+    candles.pop();
+  }
+
+  return candles;
 }
+
 
 /* =========================================================
    TICKER
@@ -253,7 +280,7 @@ async function getTicker(symbol) {
     await bybit(
       "/v5/market/tickers",
       {
-        category: CATEGORY,
+        category: "linear",
         symbol
       }
     );
@@ -269,14 +296,17 @@ async function getTicker(symbol) {
     symbol,
     price:
       Number(item.lastPrice),
+
     change24h:
       Number(
         item.price24hPcnt || 0
       ) * 100,
+
     volume24h:
       Number(
         item.volume24h || 0
       ),
+
     turnover24h:
       Number(
         item.turnover24h || 0
@@ -284,20 +314,27 @@ async function getTicker(symbol) {
   };
 }
 
+
 /* =========================================================
    MATH
 ========================================================= */
 
 function percent(a, b) {
 
-  if (!b) {
+  if (
+    !Number.isFinite(a) ||
+    !Number.isFinite(b) ||
+    b === 0
+  ) {
     return 0;
   }
 
   return (
-    ((a - b) / b) * 100
+    ((a - b) / b) *
+    100
   );
 }
+
 
 function average(values) {
 
@@ -310,51 +347,193 @@ function average(values) {
       (sum, value) =>
         sum + value,
       0
-    ) / values.length
+    ) /
+    values.length
   );
 }
 
+
+function clamp(
+  value,
+  min,
+  max
+) {
+
+  return Math.max(
+    min,
+    Math.min(max, value)
+  );
+}
+
+
 /* =========================================================
-   PUMP DETECTION
+   VOLUME BASELINE
 ========================================================= */
 
-function detectPump(candles) {
+function getVolumeRatio(
+  candles,
+  startIndex,
+  pumpIndex
+) {
 
   /*
-    حداقل اطلاعات لازم
+    حجم کندل‌های قبل از شروع Pump
+  */
+
+  const previous =
+    candles
+      .slice(
+        Math.max(
+          0,
+          startIndex - 20
+        ),
+        startIndex
+      )
+      .map(x => x.volume)
+      .filter(
+        x =>
+          Number.isFinite(x) &&
+          x > 0
+      );
+
+  if (!previous.length) {
+    return 0;
+  }
+
+  const avg =
+    average(previous);
+
+  if (!avg) {
+    return 0;
+  }
+
+  /*
+    به جای فقط یک کندل،
+    میانگین حجم کل Pump را بررسی می‌کنیم.
+  */
+
+  const pumpVolumes =
+    candles
+      .slice(
+        startIndex,
+        pumpIndex + 1
+      )
+      .map(x => x.volume)
+      .filter(x => x > 0);
+
+  const pumpAvg =
+    average(pumpVolumes);
+
+  return pumpAvg / avg;
+}
+
+
+/* =========================================================
+   BASE STRUCTURE
+========================================================= */
+
+function baseStructure(
+  candles,
+  startIndex,
+  pumpIndex
+) {
+
+  const baseLookback = 3;
+
+  const from =
+    Math.max(
+      0,
+      startIndex - baseLookback
+    );
+
+  const baseCandles =
+    candles.slice(
+      from,
+      startIndex
+    );
+
+  if (!baseCandles.length) {
+    return null;
+  }
+
+  const highs =
+    baseCandles.map(
+      x => x.high
+    );
+
+  const lows =
+    baseCandles.map(
+      x => x.low
+    );
+
+  const baseHigh =
+    Math.max(...highs);
+
+  const baseLow =
+    Math.min(...lows);
+
+  const baseRange =
+    percent(
+      baseHigh,
+      baseLow
+    );
+
+  /*
+    محدوده قبل از Pump نباید
+    خودش یک حرکت بزرگ باشد.
   */
 
   if (
-    candles.length <
-    MAX_PUMP_CANDLES + 20
+    baseRange >
+    MAX_BASE_RANGE_PERCENT
   ) {
     return null;
   }
 
-  /*
-    آخرین کندل ممکن است هنوز باز باشد.
-    پس آخرین کندل بسته‌شده:
-  */
+  return {
+    baseHigh,
+    baseLow,
+    baseRange
+  };
+}
 
-  const lastClosed =
-    candles.length - 2;
+
+/* =========================================================
+   PUMP DETECTION V4
+========================================================= */
+
+function detectPump(candles) {
+
+  if (
+    candles.length <
+    MIN_PUMP_CANDLES + 10
+  ) {
+    return null;
+  }
 
   let best = null;
 
   /*
-    فقط Pumpهای نسبتاً جدید را می‌خواهیم.
-    حداکثر 40 کندل عقب.
+    فقط ساختارهای بسته‌شده
+    بررسی می‌شوند.
   */
 
-  const searchStart =
+  const last =
+    candles.length - 1;
+
+  /*
+    حداکثر تا 40 کندل اخیر
+  */
+
+  const earliest =
     Math.max(
-      10,
-      lastClosed - 40
+      5,
+      last - 45
     );
 
   for (
-    let end = searchStart;
-    end <= lastClosed - 1;
+    let end = earliest;
+    end <= last;
     end++
   ) {
 
@@ -365,52 +544,46 @@ function detectPump(candles) {
     for (
       let count =
         MIN_PUMP_CANDLES;
+
       count <= MAX_PUMP_CANDLES;
+
       count++
     ) {
 
       const start =
         end - count + 1;
 
-      if (start < searchStart) {
-        continue;
-      }
-
-      const base =
-        candles[start - 1];
-
-      if (!base) {
-        continue;
-      }
-
-      const segment =
-        candles.slice(
-          start,
-          end + 1
-        );
-
-      if (
-        segment.length !== count
-      ) {
+      if (start < 5) {
         continue;
       }
 
       /*
-        تمام Pump باید بعد از Base
-        اتفاق افتاده باشد.
+        بعد از Pump باید حداقل
+        یک کندل برای Pullback وجود داشته باشد.
       */
 
+      if (end >= last) {
+        continue;
+      }
+
+      const first =
+        candles[start];
+
       const final =
-        segment[segment.length - 1];
+        candles[end];
+
+      if (!first || !final) {
+        continue;
+      }
 
       /*
-        رشد از Base تا پایان Pump
+        حرکت کل Pump
       */
 
       const move =
         percent(
           final.close,
-          base.close
+          first.open
         );
 
       if (
@@ -421,18 +594,64 @@ function detectPump(candles) {
       }
 
       /*
-        حداقل نسبت کندل سبز
+        High واقعی Pump
       */
 
-      const greenCount =
-        segment.filter(
-          c =>
-            c.close > c.open
-        ).length;
+      const pumpCandles =
+        candles.slice(
+          start,
+          end + 1
+        );
+
+      const pumpHigh =
+        Math.max(
+          ...pumpCandles.map(
+            x => x.high
+          )
+        );
+
+      const pumpLow =
+        Math.min(
+          ...pumpCandles.map(
+            x => x.low
+          )
+        );
+
+      const totalRange =
+        percent(
+          pumpHigh,
+          first.open
+        );
+
+      if (
+        totalRange <
+        MIN_PUMP_RANGE_PERCENT
+      ) {
+        continue;
+      }
+
+      /*
+        تعداد کندل‌های سبز
+      */
+
+      let green = 0;
+
+      for (
+        const c
+        of pumpCandles
+      ) {
+
+        if (
+          c.close >
+          c.open
+        ) {
+          green++;
+        }
+      }
 
       const greenRatio =
-        greenCount /
-        segment.length;
+        green /
+        pumpCandles.length;
 
       if (
         greenRatio <
@@ -442,68 +661,50 @@ function detectPump(candles) {
       }
 
       /*
-        High کل Pump
+        Pump نباید با یک کندل قرمز
+        بزرگ ساخته شده باشد.
       */
 
-      const pumpHigh =
-        Math.max(
-          ...segment.map(
-            c => c.high
-          )
+      if (
+        final.close <=
+        final.open
+      ) {
+        continue;
+      }
+
+      /*
+        ساختار Base
+      */
+
+      const base =
+        baseStructure(
+          candles,
+          start,
+          end
         );
 
-      const pumpLow =
-        Math.min(
-          ...segment.map(
-            c => c.low
-          )
-        );
+      if (!base) {
+        continue;
+      }
 
       /*
         حجم Pump
       */
 
-      const previousVolumes =
-        candles
-          .slice(
-            Math.max(
-              0,
-              start - 10
-            ),
-            start
-          )
-          .map(
-            c => c.volume
-          )
-          .filter(
-            v => v > 0
-          );
-
-      const avgVolume =
-        average(
-          previousVolumes
-        );
-
-      const pumpVolume =
-        average(
-          segment.map(
-            c => c.volume
-          )
-        );
-
       const volumeRatio =
-        avgVolume > 0
-          ? pumpVolume /
-            avgVolume
-          : 0;
+        getVolumeRatio(
+          candles,
+          start,
+          end
+        );
 
       /*
-        اگر حجم تاریخی موجود است،
-        Pump باید Volume واقعی داشته باشد.
+        اگر baseline داریم،
+        حجم Pump باید حداقل 1.5 برابر باشد.
       */
 
       if (
-        avgVolume > 0 &&
+        volumeRatio > 0 &&
         volumeRatio <
           MIN_VOLUME_MULTIPLIER
       ) {
@@ -511,60 +712,69 @@ function detectPump(candles) {
       }
 
       /*
-        حجم صفر یا غیرواقعی
+        امتیاز Pump
       */
 
-      if (
-        pumpVolume <
-        MIN_PUMP_VOLUME
-      ) {
-        continue;
-      }
+      const priceScore =
+        clamp(
+          (
+            move /
+            15
+          ) * 40,
+          0,
+          40
+        );
 
-      /*
-        Score
-      */
+      const volumeScore =
+        clamp(
+          (
+            Math.max(
+              volumeRatio,
+              1
+            ) /
+            5
+          ) * 30,
+          0,
+          30
+        );
 
-      let score = 0;
+      const greenScore =
+        clamp(
+          (
+            greenRatio -
+            MIN_GREEN_RATIO
+          ) /
+          (1 -
+            MIN_GREEN_RATIO ||
+            1) *
+          30,
+          0,
+          30
+        );
 
-      score += Math.min(
-        40,
-        move * 2.5
-      );
-
-      score += Math.min(
-        30,
-        volumeRatio * 5
-      );
-
-      score +=
-        greenRatio * 30;
-
-      score = Math.min(
-        100,
-        Number(
-          score.toFixed(2)
-        )
-      );
-
-      /*
-        فقط Pump معتبر
-      */
+      const score =
+        Math.round(
+          (
+            priceScore +
+            volumeScore +
+            greenScore
+          ) * 100
+        ) / 100;
 
       const candidate = {
-        pumpIndex: end,
 
-        baseIndex:
-          start - 1,
+        startIndex: start,
+
+        endIndex: end,
 
         startTime:
-          base.time,
+          first.time,
 
         endTime:
           final.time,
 
         basePrice:
-          base.close,
+          first.open,
 
         pumpPrice:
           final.close,
@@ -575,19 +785,24 @@ function detectPump(candles) {
         low:
           pumpLow,
 
-        move,
+        percent:
+          move,
 
-        candles: count,
+        rangePercent:
+          totalRange,
 
-        volumeRatio,
+        candles:
+          pumpCandles.length,
 
         greenRatio,
+
+        volumeRatio,
 
         score
       };
 
       /*
-        Pump بزرگ‌تر و قوی‌تر اولویت دارد.
+        قوی‌ترین Pump را انتخاب می‌کنیم.
       */
 
       if (
@@ -595,7 +810,9 @@ function detectPump(candles) {
         candidate.score >
           best.score
       ) {
-        best = candidate;
+
+        best =
+          candidate;
       }
     }
   }
@@ -603,11 +820,12 @@ function detectPump(candles) {
   return best;
 }
 
+
 /* =========================================================
    PULLBACK DETECTION
 ========================================================= */
 
-function findPullbackCandle(
+function findPullback(
   candles,
   pump
 ) {
@@ -617,13 +835,14 @@ function findPullbackCandle(
   }
 
   const from =
-    pump.pumpIndex + 1;
+    pump.endIndex + 1;
 
   const to =
     Math.min(
-      candles.length - 2,
+      candles.length - 1,
       from +
-        MAX_PULLBACK_CANDLES
+        MAX_PULLBACK_CANDLES -
+        1
     );
 
   for (
@@ -640,11 +859,12 @@ function findPullbackCandle(
     }
 
     /*
-      حتماً قرمز باشد
+      حتماً قرمز
     */
 
     if (
-      c.close >= c.open
+      c.close >=
+      c.open
     ) {
       continue;
     }
@@ -653,7 +873,7 @@ function findPullbackCandle(
       اندازه بدنه
     */
 
-    const bodyPercent =
+    const body =
       Math.abs(
         percent(
           c.close,
@@ -662,45 +882,34 @@ function findPullbackCandle(
       );
 
     if (
-      bodyPercent >
+      body <
+      MIN_PULLBACK_PERCENT
+    ) {
+      continue;
+    }
+
+    if (
+      body >
       MAX_PULLBACK_PERCENT
     ) {
       continue;
     }
 
     /*
-      Pullback نباید کل Pump
-      را خراب کرده باشد.
+      کندل قرمز باید هنوز
+      داخل ساختار Pump باشد.
     */
 
     if (
-      c.low <=
+      c.high <
       pump.basePrice
     ) {
       continue;
     }
 
     /*
-      باید بخشی از محدوده Pump
-      را لمس کرده باشد.
-    */
-
-    if (
-      c.high <
-      pump.pumpPrice
-    ) {
-      /*
-        اگر Pullback حتی به ناحیه
-        انتهایی Pump نرسیده باشد،
-        آن را Setup نمی‌دانیم.
-      */
-
-      continue;
-    }
-
-    /*
-      محدوده Retest:
-      Low تا Open کندل قرمز
+      Pullback Zone:
+      Low تا Open
     */
 
     const zoneLow =
@@ -716,18 +925,29 @@ function findPullbackCandle(
       );
 
     return {
+
       index: i,
 
-      time: c.time,
+      time:
+        c.time,
 
-      open: c.open,
-      high: c.high,
-      low: c.low,
-      close: c.close,
+      open:
+        c.open,
 
-      bodyPercent,
+      high:
+        c.high,
+
+      low:
+        c.low,
+
+      close:
+        c.close,
+
+      bodyPercent:
+        body,
 
       zoneLow,
+
       zoneHigh
     };
   }
@@ -735,8 +955,9 @@ function findPullbackCandle(
   return null;
 }
 
+
 /* =========================================================
-   BUILD SETUP
+   SETUP
 ========================================================= */
 
 function buildSetup(
@@ -748,42 +969,45 @@ function buildSetup(
   const pump =
     detectPump(candles);
 
-  /*
-    اگر Pump نداریم:
-    هیچ نتیجه‌ای نده.
-  */
-
   if (!pump) {
     return null;
   }
 
   const pullback =
-    findPullbackCandle(
+    findPullback(
       candles,
       pump
     );
 
   /*
-    Pump هست ولی Pullback معتبر
-    هنوز تشکیل نشده.
-    این ارز نباید سیگنال شود.
+    Pump واقعی پیدا شده ولی
+    هنوز Pullback نداریم.
   */
 
   if (!pullback) {
     return null;
   }
 
-  const currentPrice =
-    ticker?.price ??
+  const lastCandle =
     candles[
       candles.length - 1
-    ].close;
+    ];
+
+  const currentPrice =
+    ticker?.price ??
+    lastCandle.close;
 
   const zoneLow =
-    pullback.zoneLow;
+    Math.min(
+      pullback.zoneLow,
+      pullback.zoneHigh
+    );
 
   const zoneHigh =
-    pullback.zoneHigh;
+    Math.max(
+      pullback.zoneLow,
+      pullback.zoneHigh
+    );
 
   let distancePercent = 0;
 
@@ -816,22 +1040,30 @@ function buildSetup(
       ) * 100;
   }
 
-  /*
-    وضعیت Setup
-  */
-
   let state =
     "WAITING";
 
+  /*
+    قیمت داخل Zone
+  */
+
   if (
-    currentPrice >= zoneLow &&
-    currentPrice <= zoneHigh
+    currentPrice >=
+      zoneLow &&
+    currentPrice <=
+      zoneHigh
   ) {
 
     state =
       "REACHED";
 
-  } else if (
+  }
+
+  /*
+    بالای Zone ولی نزدیک
+  */
+
+  else if (
     currentPrice >
       zoneHigh &&
     distancePercent <=
@@ -841,7 +1073,13 @@ function buildSetup(
     state =
       "NEAR";
 
-  } else if (
+  }
+
+  /*
+    بالای Zone
+  */
+
+  else if (
     currentPrice >
     zoneHigh
   ) {
@@ -849,56 +1087,76 @@ function buildSetup(
     state =
       "APPROACHING";
 
-  } else {
+  }
+
+  /*
+    زیر Zone
+  */
+
+  else {
 
     state =
       "BELOW_ZONE";
   }
 
   /*
-    اگر قیمت Base Pump را از دست داده:
-    Setup باطل
+    اگر قیمت زیر Base Pump رفته،
+    ساختار خراب شده.
   */
 
   if (
     currentPrice <
     pump.basePrice
   ) {
+
     state =
       "INVALID";
   }
 
   /*
-    اگر قیمت بیش از حد از Zone دور شده
-    و هنوز به آن نرسیده،
-    سیگنال فعال نیست.
+    اگر قیمت بعد از Pullback
+    دوباره High Pump را شکسته،
+    Setup دیگر Pullback Retest
+    فعلی نیست.
   */
 
-  const setupId = [
-    symbol,
-    pump.baseIndex,
-    pump.pumpIndex,
-    pullback.index
-  ].join("-");
+  if (
+    currentPrice >
+    pump.high &&
+    currentPrice >
+    pullback.zoneHigh
+  ) {
+
+    state =
+      "INVALID";
+  }
+
+  const setupId =
+    [
+      symbol,
+      pump.startIndex,
+      pump.endIndex,
+      pullback.index
+    ].join("-");
 
   return {
-    id: setupId,
+
+    id:
+      setupId,
 
     symbol,
 
-    timeframe: "15m",
+    timeframe:
+      "15m",
 
     state,
 
     currentPrice,
 
-    distancePercent:
-
-      Number(
-        distancePercent.toFixed(4)
-      ),
+    distancePercent,
 
     pump: {
+
       startTime:
         pump.startTime,
 
@@ -918,28 +1176,26 @@ function buildSetup(
         pump.low,
 
       percent:
-        Number(
-          pump.move.toFixed(2)
-        ),
+        pump.percent,
+
+      rangePercent:
+        pump.rangePercent,
 
       candles:
         pump.candles,
 
-      volumeRatio:
-        Number(
-          pump.volumeRatio.toFixed(2)
-        ),
-
       greenRatio:
-        Number(
-          pump.greenRatio.toFixed(2)
-        ),
+        pump.greenRatio,
+
+      volumeRatio:
+        pump.volumeRatio,
 
       score:
         pump.score
     },
 
     pullback: {
+
       time:
         pullback.time,
 
@@ -956,19 +1212,20 @@ function buildSetup(
         pullback.close,
 
       bodyPercent:
-        Number(
-          pullback.bodyPercent.toFixed(2)
-        ),
+        pullback.bodyPercent,
 
-      zoneLow,
+      zoneLow:
+        zoneLow,
 
-      zoneHigh
+      zoneHigh:
+        zoneHigh
     },
 
     detectedAt:
       Date.now()
   };
 }
+
 
 /* =========================================================
    ANALYZE SYMBOL
@@ -991,6 +1248,39 @@ async function analyzeSymbol(
     ) {
       return null;
     }
+
+    /*
+      ابتدا Pump را پیدا می‌کنیم.
+      اگر Pump نبود، ticker هم نمی‌گیریم.
+    */
+
+    const pump =
+      detectPump(
+        candles
+      );
+
+    if (!pump) {
+      return null;
+    }
+
+    /*
+      بعد Pullback
+    */
+
+    const pullback =
+      findPullback(
+        candles,
+        pump
+      );
+
+    if (!pullback) {
+      return null;
+    }
+
+    /*
+      فقط Setup معتبر:
+      ticker
+    */
 
     const ticker =
       await getTicker(
@@ -1015,6 +1305,7 @@ async function analyzeSymbol(
   }
 }
 
+
 /* =========================================================
    SCAN MARKET
 ========================================================= */
@@ -1024,6 +1315,10 @@ async function scanMarket() {
   const symbols =
     await getSymbols();
 
+  /*
+    حداکثر 300 ارز
+  */
+
   const selected =
     symbols.slice(
       0,
@@ -1031,6 +1326,8 @@ async function scanMarket() {
     );
 
   const results = [];
+
+  let candidates = 0;
 
   /*
     Batch
@@ -1048,36 +1345,90 @@ async function scanMarket() {
         i + SCAN_BATCH
       );
 
+    /*
+      ابتدا تحلیل Pump
+      برای کاهش درخواست‌ها
+    */
+
     const batchResults =
       await Promise.all(
         batch.map(
-          analyzeSymbol
+          async symbol => {
+
+            try {
+
+              const candles =
+                await getKlines(
+                  symbol
+                );
+
+              if (
+                candles.length <
+                30
+              ) {
+                return null;
+              }
+
+              const pump =
+                detectPump(
+                  candles
+                );
+
+              if (!pump) {
+                return null;
+              }
+
+              candidates++;
+
+              const pullback =
+                findPullback(
+                  candles,
+                  pump
+                );
+
+              if (!pullback) {
+                return null;
+              }
+
+              const ticker =
+                await getTicker(
+                  symbol
+                );
+
+              return buildSetup(
+                symbol,
+                candles,
+                ticker
+              );
+
+            } catch (error) {
+
+              console.error(
+                "Scan error:",
+                symbol,
+                error.message
+              );
+
+              return null;
+            }
+          }
         )
       );
 
     for (
-      const result of
-      batchResults
+      const result
+      of batchResults
     ) {
 
-      /*
-        فقط Setup معتبر
-      */
-
-      if (
-        result &&
-        result.pump &&
-        result.pullback
-      ) {
-        results.push(
-          result
-        );
+      if (result) {
+        results.push(result);
       }
     }
   }
 
+
   /*
-    اولویت
+    اول قوی‌ترین وضعیت
   */
 
   const priority = {
@@ -1095,21 +1446,25 @@ async function scanMarket() {
     INVALID: 5
   };
 
+
   results.sort(
     (a, b) => {
 
-      const p =
-        (priority[a.state] ?? 9) -
-        (priority[b.state] ?? 9);
+      const stateDiff =
+        (
+          priority[a.state] ??
+          99
+        ) -
+        (
+          priority[b.state] ??
+          99
+        );
 
-      if (p !== 0) {
-        return p;
+      if (
+        stateDiff !== 0
+      ) {
+        return stateDiff;
       }
-
-      /*
-        اگر وضعیت یکی بود،
-        Pump قوی‌تر بالاتر.
-      */
 
       return (
         (b.pump?.score || 0) -
@@ -1117,6 +1472,7 @@ async function scanMarket() {
       );
     }
   );
+
 
   return {
 
@@ -1137,16 +1493,10 @@ async function scanMarket() {
     scannedSymbols:
       selected.length,
 
-    candidates:
-      results.length,
+    candidates,
 
     setups:
       results.length,
-
-    /*
-      سیگنال واقعی فقط وقتی است
-      که قیمت داخل Pullback Zone باشد.
-    */
 
     signals:
       results.filter(
@@ -1183,8 +1533,9 @@ async function scanMarket() {
   };
 }
 
+
 /* =========================================================
-   LAST RESULT
+   CACHE
 ========================================================= */
 
 let lastScan = {
@@ -1203,24 +1554,34 @@ let lastScan = {
   mode:
     "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
 
-  scannedSymbols: 0,
+  scannedSymbols:
+    0,
 
-  candidates: 0,
+  candidates:
+    0,
 
-  setups: 0,
+  setups:
+    0,
 
-  signals: 0,
+  signals:
+    0,
 
-  near: 0,
+  near:
+    0,
 
-  approaching: 0,
+  approaching:
+    0,
 
-  invalid: 0,
+  invalid:
+    0,
 
-  timestamp: 0,
+  timestamp:
+    0,
 
-  results: []
+  results:
+    []
 };
+
 
 /* =========================================================
    REQUEST HANDLER
@@ -1229,10 +1590,6 @@ let lastScan = {
 async function handleRequest(
   request
 ) {
-
-  /*
-    CORS
-  */
 
   if (
     request.method ===
@@ -1256,9 +1613,10 @@ async function handleRequest(
   const path =
     url.pathname;
 
-  /* =====================================================
+
+  /* =======================================================
      HEALTH
-  ===================================================== */
+  ======================================================= */
 
   if (
     path === "/health" ||
@@ -1284,14 +1642,39 @@ async function handleRequest(
       strategy:
         "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
 
+      rules: {
+
+        minPumpPercent:
+          MIN_PUMP_PERCENT,
+
+        minPumpVolume:
+          MIN_VOLUME_MULTIPLIER,
+
+        minPumpCandles:
+          MIN_PUMP_CANDLES,
+
+        maxPumpCandles:
+          MAX_PUMP_CANDLES,
+
+        minGreenRatio:
+          MIN_GREEN_RATIO,
+
+        maxPullbackPercent:
+          MAX_PULLBACK_PERCENT,
+
+        nearZonePercent:
+          NEAR_ZONE_PERCENT
+      },
+
       timestamp:
         Date.now()
     });
   }
 
-  /* =====================================================
+
+  /* =======================================================
      SCAN
-  ===================================================== */
+  ======================================================= */
 
   if (
     path === "/scan" ||
@@ -1312,23 +1695,32 @@ async function handleRequest(
 
     } catch (error) {
 
+      console.error(
+        "Scan failed:",
+        error.message
+      );
+
       return json({
 
         ok: false,
 
+        version:
+          VERSION,
+
         error:
           error.message,
 
-        version:
-          VERSION
+        timestamp:
+          Date.now()
 
       }, 500);
     }
   }
 
-  /* =====================================================
+
+  /* =======================================================
      RESULTS
-  ===================================================== */
+  ======================================================= */
 
   if (
     path === "/results" ||
@@ -1340,9 +1732,10 @@ async function handleRequest(
     );
   }
 
-  /* =====================================================
+
+  /* =======================================================
      ANALYZE
-  ===================================================== */
+  ======================================================= */
 
   if (
     path === "/analyze" ||
@@ -1362,7 +1755,10 @@ async function handleRequest(
         ok: false,
 
         error:
-          "symbol required"
+          "symbol required",
+
+        example:
+          "/analyze?symbol=BTCUSDT"
 
       }, 400);
     }
@@ -1404,9 +1800,10 @@ async function handleRequest(
     }
   }
 
-  /* =====================================================
+
+  /* =======================================================
      ROOT
-  ===================================================== */
+  ======================================================= */
 
   return json({
 
@@ -1466,6 +1863,7 @@ async function handleRequest(
   });
 }
 
+
 /* =========================================================
    CLOUDFLARE WORKER
 ========================================================= */
@@ -1482,4 +1880,5 @@ export default {
       request
     );
   }
+
 };
