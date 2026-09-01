@@ -1,0 +1,1672 @@
+<!DOCTYPE html><html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Pump Scanner — Bybit Pullback Radar</title><style>
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:#07111f;
+  color:#eef5ff;
+  font-family:
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+.container{
+  width:min(1200px,94%);
+  margin:auto;
+  padding:22px 0 50px;
+}
+
+header{
+  background:linear-gradient(
+    135deg,
+    #0d1c31,
+    #0a1627
+  );
+
+  border:1px solid #1d3553;
+  border-radius:22px;
+
+  padding:24px;
+
+  box-shadow:
+    0 15px 45px rgba(0,0,0,.25);
+}
+
+h1{
+  margin:0 0 8px;
+  font-size:28px;
+}
+
+.subtitle{
+  color:#9eb1c9;
+  line-height:1.9;
+}
+
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:15px;
+}
+
+.badge{
+  background:#112842;
+  border:1px solid #234567;
+  color:#cfe5ff;
+  padding:7px 12px;
+  border-radius:999px;
+  font-size:13px;
+}
+
+.panel{
+  margin-top:18px;
+
+  background:#0b192b;
+
+  border:1px solid #1a304a;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.18);
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  flex-wrap:wrap;
+}
+
+.status-main{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-weight:bold;
+}
+
+.dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#64748b;
+  box-shadow:0 0 12px rgba(255,255,255,.12);
+}
+
+.dot.online{
+  background:#22c55e;
+  box-shadow:0 0 15px rgba(34,197,94,.65);
+}
+
+.dot.offline{
+  background:#ef4444;
+  box-shadow:0 0 15px rgba(239,68,68,.5);
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+}
+
+button{
+  border:0;
+  border-radius:13px;
+  padding:12px 18px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+
+  transition:
+    transform .15s,
+    opacity .15s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.start{
+  background:#16a34a;
+  color:white;
+}
+
+.stop{
+  background:#dc2626;
+  color:white;
+}
+
+.sound{
+  background:#334155;
+  color:white;
+}
+
+.test{
+  background:#2563eb;
+  color:white;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+
+  gap:10px;
+
+  margin-top:18px;
+}
+
+.stat{
+  background:#0d2138;
+  border:1px solid #1b3958;
+  border-radius:15px;
+  padding:15px;
+}
+
+.stat-label{
+  color:#8fa6c1;
+  font-size:12px;
+  margin-bottom:7px;
+}
+
+.stat-value{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.green{
+  color:#4ade80;
+}
+
+.yellow{
+  color:#facc15;
+}
+
+.red{
+  color:#fb7185;
+}
+
+.blue{
+  color:#60a5fa;
+}
+
+.settings{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+
+  gap:14px;
+  margin-top:18px;
+}
+
+.setting{
+  background:#0d2138;
+  border:1px solid #1b3958;
+  border-radius:15px;
+  padding:15px;
+}
+
+.setting-title{
+  font-size:13px;
+  color:#a7bad0;
+  margin-bottom:10px;
+}
+
+input[type="range"]{
+  width:100%;
+  accent-color:#38bdf8;
+}
+
+.value{
+  font-weight:bold;
+  color:#60a5fa;
+}
+
+.scan-info{
+  margin-top:15px;
+  color:#8fa6c1;
+  font-size:13px;
+  line-height:1.9;
+}
+
+.signal-list{
+  display:grid;
+  gap:12px;
+  margin-top:15px;
+}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#71859f;
+  border:1px dashed #28415d;
+  border-radius:15px;
+}
+
+.signal{
+  background:#0d2138;
+  border:1px solid #254564;
+  border-radius:18px;
+  padding:17px;
+}
+
+.signal.reached{
+  border-color:#22c55e;
+  box-shadow:
+    0 0 0 1px rgba(34,197,94,.15),
+    0 0 25px rgba(34,197,94,.08);
+}
+
+.signal.near{
+  border-color:#facc15;
+}
+
+.signal.approaching{
+  border-color:#38bdf8;
+}
+
+.signal.invalid{
+  opacity:.55;
+}
+
+.signal-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.symbol{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.state{
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:bold;
+  background:#172b43;
+}
+
+.signal-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+
+  gap:9px;
+  margin-top:14px;
+}
+
+.metric{
+  background:#09182a;
+  border-radius:11px;
+  padding:10px;
+}
+
+.metric-label{
+  color:#7187a2;
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+.metric-value{
+  font-size:13px;
+  font-weight:bold;
+}
+
+.zone{
+  margin-top:13px;
+  padding:12px;
+
+  border-radius:13px;
+
+  background:#101f33;
+  border:1px solid #263f5c;
+}
+
+.zone-title{
+  color:#94a9c0;
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+.zone-value{
+  font-size:16px;
+  font-weight:bold;
+}
+
+footer{
+  text-align:center;
+  color:#647991;
+  margin-top:25px;
+  font-size:12px;
+  line-height:1.8;
+}
+
+@media(max-width:850px){
+
+  .stats{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
+
+  .signal-grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
+
+  .settings{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:520px){
+
+  h1{
+    font-size:23px;
+  }
+
+  .container{
+    width:95%;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .signal-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  button{
+    flex:1;
+  }
+}
+</style></head><body><div class="container"><header>  <h1>🚀 Pump Scanner</h1>  <div class="subtitle">
+    Bybit Pullback Radar — شناسایی پامپ، پیدا کردن کندل قرمز
+    و تشخیص رسیدن قیمت به محدوده Pullback در تایم‌فریم ۱۵ دقیقه
+  </div>  <div class="badges">
+    <span class="badge">🟢 منبع داده: Bybit</span>
+    <span class="badge">🕐 تایم‌فریم: 15M</span>
+    <span class="badge">🎯 PPR Strategy</span>
+    <span class="badge">🔄 اسکن خودکار</span>
+  </div></header><div class="panel">  <div class="status"><div class="status-main">
+
+  <span
+    id="statusDot"
+    class="dot"
+  ></span>
+
+  <span id="statusText">
+    در حال بررسی اتصال...
+  </span>
+
+</div>
+
+<div id="scanState">
+  ⏹ اسکن متوقف است
+</div>
+
+  </div>  <div class="controls"><button
+  id="startBtn"
+  class="start"
+  onclick="startScanner()"
+>
+  ▶️ شروع اسکن
+</button>
+
+<button
+  id="stopBtn"
+  class="stop"
+  onclick="stopScanner()"
+  disabled
+>
+  ⏹ توقف اسکن
+</button>
+
+<button
+  id="soundBtn"
+  class="sound"
+  onclick="toggleSound()"
+>
+  🔊 صدا روشن
+</button>
+
+<button
+  class="test"
+  onclick="testSound()"
+>
+  🔔 تست صدا
+</button>
+
+  </div>  <div class="settings"><div class="setting">
+
+  <div class="setting-title">
+    🔊 شدت صدای هشدار
+  </div>
+
+  <input
+    id="volume"
+    type="range"
+    min="0"
+    max="100"
+    value="70"
+    oninput="updateVolume()"
+  >
+
+  <div class="scan-info">
+    ولوم:
+    <span
+      id="volumeValue"
+      class="value"
+    >
+      70%
+    </span>
+  </div>
+
+</div>
+
+
+<div class="setting">
+
+  <div class="setting-title">
+    🕐 وضعیت موتور اسکن
+  </div>
+
+  <div class="scan-info">
+    تایم‌فریم تحلیل:
+    <span class="value">
+      15 دقیقه
+    </span>
+    <br>
+    منبع:
+    <span class="value">
+      Bybit
+    </span>
+    <br>
+    دوره بررسی:
+    <span class="value">
+      45 ثانیه
+    </span>
+  </div>
+
+</div>
+
+  </div>  <div class="stats"><div class="stat">
+  <div class="stat-label">
+    ارزهای بررسی‌شده
+  </div>
+  <div
+    id="scanned"
+    class="stat-value blue"
+  >
+    0
+  </div>
+</div>
+
+<div class="stat">
+  <div class="stat-label">
+    Setupهای پیدا شده
+  </div>
+  <div
+    id="setups"
+    class="stat-value"
+  >
+    0
+  </div>
+</div>
+
+<div class="stat">
+  <div class="stat-label">
+    نزدیک محدوده
+  </div>
+  <div
+    id="near"
+    class="stat-value yellow"
+  >
+    0
+  </div>
+</div>
+
+<div class="stat">
+  <div class="stat-label">
+    🚨 سیگنال رسیدن
+  </div>
+  <div
+    id="signals"
+    class="stat-value green"
+  >
+    0
+  </div>
+</div>
+
+  </div>  <div
+    id="scanInfo"
+    class="scan-info"
+  >
+    هنوز اسکن انجام نشده است.
+  </div></div><div class="panel">  <h2>
+    🎯 سیگنال‌های Pump Pullback
+  </h2>  <div
+    id="signalList"
+    class="signal-list"
+  ><div class="empty">
+  برای شروع، روی «شروع اسکن» بزنید.
+</div>
+
+  </div></div><footer>Pump Scanner — Bybit Pullback Radar<br>
+
+تحلیل بر اساس داده‌های بازار Bybit و تایم‌فریم 15 دقیقه
+
+</footer></div><script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+/*
+  آدرس Worker را بعد از Deploy اینجا قرار می‌دهیم.
+
+  مثال:
+  https://pump-scanner.xxx.workers.dev
+
+  فعلاً صفحه به صورت خودکار از همان Origin استفاده می‌کند.
+*/
+
+const WORKER_URL =
+  window.WORKER_URL ||
+  "";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let scanning = false;
+
+let scanTimer = null;
+
+let soundEnabled =
+  localStorage.getItem(
+    "pump_sound_enabled"
+  ) !== "false";
+
+let volume =
+  Number(
+    localStorage.getItem(
+      "pump_sound_volume"
+    )
+  );
+
+if (
+  !Number.isFinite(volume)
+) {
+  volume = 70;
+}
+
+let alertedSetups =
+  new Set();
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const startBtn =
+  document.getElementById(
+    "startBtn"
+  );
+
+const stopBtn =
+  document.getElementById(
+    "stopBtn"
+  );
+
+const soundBtn =
+  document.getElementById(
+    "soundBtn"
+  );
+
+const statusDot =
+  document.getElementById(
+    "statusDot"
+  );
+
+const statusText =
+  document.getElementById(
+    "statusText"
+  );
+
+const scanState =
+  document.getElementById(
+    "scanState"
+  );
+
+const volumeInput =
+  document.getElementById(
+    "volume"
+  );
+
+const volumeValue =
+  document.getElementById(
+    "volumeValue"
+  );
+
+const signalList =
+  document.getElementById(
+    "signalList"
+  );
+
+
+/* =========================================================
+   WORKER URL
+========================================================= */
+
+function api(path){
+
+  /*
+    اگر Worker روی همان دامنه باشد:
+    /scan
+
+    اگر Worker جدا باشد:
+    WORKER_URL + /scan
+  */
+
+  if(WORKER_URL){
+
+    return (
+      WORKER_URL.replace(/\/+$/,"") +
+      path
+    );
+  }
+
+  return path;
+}
+
+
+/* =========================================================
+   SOUND
+========================================================= */
+
+let audioContext = null;
+
+
+function ensureAudio(){
+
+  if(!audioContext){
+
+    const AudioCtx =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AudioCtx){
+      return null;
+    }
+
+    audioContext =
+      new AudioCtx();
+  }
+
+  if(
+    audioContext.state ===
+    "suspended"
+  ){
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+
+function beep(
+  frequency = 880,
+  duration = 180
+){
+
+  if(!soundEnabled){
+    return;
+  }
+
+  const ctx =
+    ensureAudio();
+
+  if(!ctx){
+    return;
+  }
+
+  const oscillator =
+    ctx.createOscillator();
+
+  const gain =
+    ctx.createGain();
+
+  oscillator.type =
+    "sine";
+
+  oscillator.frequency.value =
+    frequency;
+
+  const level =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        volume / 100
+      )
+    );
+
+  gain.gain.setValueAtTime(
+    0,
+    ctx.currentTime
+  );
+
+  gain.gain.linearRampToValueAtTime(
+    level * 0.18,
+    ctx.currentTime + 0.01
+  );
+
+  gain.gain.linearRampToValueAtTime(
+    0,
+    ctx.currentTime +
+      duration / 1000
+  );
+
+  oscillator.connect(gain);
+
+  gain.connect(
+    ctx.destination
+  );
+
+  oscillator.start();
+
+  oscillator.stop(
+    ctx.currentTime +
+    duration / 1000 +
+    0.02
+  );
+}
+
+
+function alertSound(){
+
+  if(!soundEnabled){
+    return;
+  }
+
+  beep(880,160);
+
+  setTimeout(
+    () => beep(1100,180),
+    190
+  );
+
+  setTimeout(
+    () => beep(1320,240),
+    400
+  );
+}
+
+
+function testSound(){
+
+  soundEnabled = true;
+
+  localStorage.setItem(
+    "pump_sound_enabled",
+    "true"
+  );
+
+  updateSoundButton();
+
+  alertSound();
+}
+
+
+/* =========================================================
+   SOUND TOGGLE
+========================================================= */
+
+function toggleSound(){
+
+  soundEnabled =
+    !soundEnabled;
+
+  localStorage.setItem(
+    "pump_sound_enabled",
+    String(soundEnabled)
+  );
+
+  updateSoundButton();
+
+  if(soundEnabled){
+    ensureAudio();
+    beep(900,150);
+  }
+}
+
+
+function updateSoundButton(){
+
+  soundBtn.textContent =
+    soundEnabled
+      ? "🔊 صدا روشن"
+      : "🔇 صدا خاموش";
+
+  soundBtn.style.opacity =
+    soundEnabled
+      ? "1"
+      : ".65";
+}
+
+
+/* =========================================================
+   VOLUME
+========================================================= */
+
+function updateVolume(){
+
+  volume =
+    Number(
+      volumeInput.value
+    );
+
+  localStorage.setItem(
+    "pump_sound_volume",
+    String(volume)
+  );
+
+  volumeValue.textContent =
+    volume + "%";
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setOnline(){
+
+  statusDot.className =
+    "dot online";
+
+  statusText.textContent =
+    "🟢 اتصال به Bybit Worker برقرار است";
+}
+
+
+function setOffline(message){
+
+  statusDot.className =
+    "dot offline";
+
+  statusText.textContent =
+    message ||
+    "🔴 اتصال به Worker برقرار نیست";
+}
+
+
+/* =========================================================
+   HEALTH CHECK
+========================================================= */
+
+async function checkHealth(){
+
+  try{
+
+    const response =
+      await fetch(
+        api("/health"),
+        {
+          cache:"no-store"
+        }
+      );
+
+    if(!response.ok){
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+    }
+
+    const data =
+      await response.json();
+
+    if(data.ok){
+
+      setOnline();
+
+      return true;
+    }
+
+    throw new Error(
+      "Worker not ready"
+    );
+
+  }catch(error){
+
+    setOffline(
+      "🔴 اتصال به Worker برقرار نیست"
+    );
+
+    return false;
+  }
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+async function startScanner(){
+
+  if(scanning){
+    return;
+  }
+
+  ensureAudio();
+
+  const online =
+    await checkHealth();
+
+  if(!online){
+
+    alert(
+      "Worker در دسترس نیست.\n\n" +
+      "ابتدا Worker را Deploy کنید."
+    );
+
+    return;
+  }
+
+  scanning = true;
+
+  startBtn.disabled =
+    true;
+
+  stopBtn.disabled =
+    false;
+
+  scanState.textContent =
+    "🟢 اسکن فعال است";
+
+  scanInfo.textContent =
+    "اسکن بازار Bybit شروع شد...";
+
+  /*
+    بلافاصله یک اسکن.
+  */
+
+  await performScan();
+
+  /*
+    ادامه اسکن تا زمانی که
+    کاربر Stop نزده است.
+  */
+
+  if(scanning){
+
+    scanTimer =
+      setTimeout(
+        scannerLoop,
+        45000
+      );
+  }
+}
+
+
+/* =========================================================
+   LOOP
+========================================================= */
+
+async function scannerLoop(){
+
+  if(!scanning){
+    return;
+  }
+
+  await performScan();
+
+  if(scanning){
+
+    scanTimer =
+      setTimeout(
+        scannerLoop,
+        45000
+      );
+  }
+}
+
+
+/* =========================================================
+   STOP
+========================================================= */
+
+function stopScanner(){
+
+  scanning = false;
+
+  if(scanTimer){
+
+    clearTimeout(
+      scanTimer
+    );
+
+    scanTimer = null;
+  }
+
+  startBtn.disabled =
+    false;
+
+  stopBtn.disabled =
+    true;
+
+  scanState.textContent =
+    "⏹ اسکن متوقف است";
+
+  scanInfo.textContent +=
+    " — اسکن توسط کاربر متوقف شد.";
+}
+
+
+/* =========================================================
+   PERFORM SCAN
+========================================================= */
+
+async function performScan(){
+
+  if(!scanning){
+    return;
+  }
+
+  scanState.textContent =
+    "🔄 در حال اسکن بازار Bybit...";
+
+  try{
+
+    const response =
+      await fetch(
+        api("/scan"),
+        {
+          cache:"no-store"
+        }
+      );
+
+    if(!response.ok){
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+    }
+
+    const data =
+      await response.json();
+
+    if(
+      !data ||
+      !Array.isArray(
+        data.results
+      )
+    ){
+
+      throw new Error(
+        "پاسخ نامعتبر Worker"
+      );
+    }
+
+    setOnline();
+
+    updateStats(data);
+
+    renderSignals(
+      data.results
+    );
+
+    processAlerts(
+      data.results
+    );
+
+    scanState.textContent =
+      "🟢 اسکن فعال است";
+
+  }catch(error){
+
+    console.error(
+      "Scan error:",
+      error
+    );
+
+    setOffline(
+      "🔴 خطا در ارتباط با Worker"
+    );
+
+    scanState.textContent =
+      "⚠️ خطا در اسکن — تلاش مجدد خودکار";
+
+    scanInfo.textContent =
+      "خطا: " +
+      error.message;
+  }
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(data){
+
+  document.getElementById(
+    "scanned"
+  ).textContent =
+    data.scannedSymbols ??
+    0;
+
+  document.getElementById(
+    "setups"
+  ).textContent =
+    data.setups ??
+    0;
+
+  document.getElementById(
+    "near"
+  ).textContent =
+    data.near ??
+    0;
+
+  document.getElementById(
+    "signals"
+  ).textContent =
+    data.signals ??
+    0;
+
+  const time =
+    data.timestamp
+      ? new Date(
+          data.timestamp
+        ).toLocaleTimeString(
+          "fa-IR"
+        )
+      : "-";
+
+  scanInfo.textContent =
+    `آخرین اسکن: ${time} | ` +
+    `بررسی: ${data.scannedSymbols ?? 0} ارز | ` +
+    `Setup: ${data.setups ?? 0} | ` +
+    `رسیده به محدوده: ${data.signals ?? 0}`;
+}
+
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+function processAlerts(results){
+
+  for(
+    const item of results
+  ){
+
+    if(
+      item.state !==
+      "REACHED"
+    ){
+      continue;
+    }
+
+    if(
+      alertedSetups.has(
+        item.id
+      )
+    ){
+      continue;
+    }
+
+    alertedSetups.add(
+      item.id
+    );
+
+    alertSound();
+
+    /*
+      Browser Notification
+      فقط اگر قبلاً اجازه داده شده باشد.
+    */
+
+    notifyBrowser(item);
+  }
+}
+
+
+/* =========================================================
+   BROWSER NOTIFICATION
+========================================================= */
+
+async function requestNotificationPermission(){
+
+  if(
+    "Notification" in window &&
+    Notification.permission ===
+      "default"
+  ){
+
+    try{
+
+      await Notification.requestPermission();
+
+    }catch(e){}
+  }
+}
+
+
+function notifyBrowser(item){
+
+  if(
+    !("Notification" in window)
+  ){
+    return;
+  }
+
+  if(
+    Notification.permission !==
+      "granted"
+  ){
+    return;
+  }
+
+  try{
+
+    new Notification(
+      "🚨 Pump Pullback Signal",
+      {
+        body:
+          `${item.symbol} به محدوده Pullback رسید\n` +
+          `قیمت: ${formatPrice(item.currentPrice)}`,
+        tag:
+          "pump-" +
+          item.id
+      }
+    );
+
+  }catch(e){}
+}
+
+
+/* =========================================================
+   RENDER SIGNALS
+========================================================= */
+
+function renderSignals(results){
+
+  /*
+    فقط Setupهای معتبر و فعال
+    را نمایش می‌دهیم.
+  */
+
+  const visible =
+    results.filter(
+      x =>
+        x.state !==
+        "INVALID"
+    );
+
+  if(!visible.length){
+
+    signalList.innerHTML = `
+      <div class="empty">
+        🔎 در این اسکن هنوز Setup معتبر
+        Pump Pullback پیدا نشد.
+      </div>
+    `;
+
+    return;
+  }
+
+  signalList.innerHTML =
+    visible
+      .map(renderSignal)
+      .join("");
+}
+
+
+/* =========================================================
+   SIGNAL CARD
+========================================================= */
+
+function renderSignal(item){
+
+  const stateInfo =
+    getStateInfo(
+      item.state
+    );
+
+  const pump =
+    item.pump || {};
+
+  const pullback =
+    item.pullback || {};
+
+  return `
+    <div class="signal ${stateInfo.class}">
+
+      <div class="signal-top">
+
+        <div class="symbol">
+          ${escapeHtml(
+            item.symbol
+          )}
+        </div>
+
+        <div
+          class="state"
+        >
+          ${stateInfo.text}
+        </div>
+
+      </div>
+
+
+      <div class="signal-grid">
+
+        <div class="metric">
+          <div class="metric-label">
+            قیمت فعلی
+          </div>
+
+          <div class="metric-value">
+            ${formatPrice(
+              item.currentPrice
+            )}
+          </div>
+        </div>
+
+
+        <div class="metric">
+          <div class="metric-label">
+            رشد Pump
+          </div>
+
+          <div class="metric-value green">
+            +${formatNumber(
+              pump.percent
+            )}%
+          </div>
+        </div>
+
+
+        <div class="metric">
+          <div class="metric-label">
+            حجم Pump
+          </div>
+
+          <div class="metric-value">
+            ${
+              pump.volumeRatio
+                ? formatNumber(
+                    pump.volumeRatio
+                  ) + "x"
+                : "—"
+            }
+          </div>
+        </div>
+
+
+        <div class="metric">
+          <div class="metric-label">
+            فاصله تا Zone
+          </div>
+
+          <div class="metric-value">
+            ${
+              item.state ===
+              "REACHED"
+                ? "رسیده"
+                :
+                  formatNumber(
+                    item.distancePercent
+                  ) + "%"
+            }
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="zone">
+
+        <div class="zone-title">
+          🎯 محدوده Pullback
+        </div>
+
+        <div class="zone-value">
+          ${formatPrice(
+            pullback.zoneLow
+          )}
+          تا
+          ${formatPrice(
+            pullback.zoneHigh
+          )}
+        </div>
+
+      </div>
+
+
+      <div class="scan-info">
+
+        🔴 کندل اصلاحی:
+        Open
+        ${formatPrice(
+          pullback.open
+        )}
+        · Close
+        ${formatPrice(
+          pullback.close
+        )}
+
+        <br>
+
+        📈 سقف Pump:
+        ${formatPrice(
+          pump.high
+        )}
+
+        <br>
+
+        🕐 تایم‌فریم:
+        15 دقیقه
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   STATE INFO
+========================================================= */
+
+function getStateInfo(state){
+
+  switch(state){
+
+    case "REACHED":
+
+      return {
+        class:"reached",
+        text:"🚨 رسید به محدوده"
+      };
+
+    case "NEAR":
+
+      return {
+        class:"near",
+        text:"🟡 نزدیک محدوده"
+      };
+
+    case "APPROACHING":
+
+      return {
+        class:"approaching",
+        text:"🔵 در مسیر محدوده"
+      };
+
+    case "BELOW_ZONE":
+
+      return {
+        class:"",
+        text:"⬇️ زیر محدوده"
+      };
+
+    default:
+
+      return {
+        class:"",
+        text:"⏳ در انتظار"
+      };
+  }
+}
+
+
+/* =========================================================
+   FORMAT
+========================================================= */
+
+function formatNumber(value){
+
+  const n =
+    Number(value);
+
+  if(
+    !Number.isFinite(n)
+  ){
+    return "0";
+  }
+
+  if(
+    Math.abs(n) >= 100
+  ){
+    return n.toFixed(1);
+  }
+
+  if(
+    Math.abs(n) >= 1
+  ){
+    return n.toFixed(2);
+  }
+
+  return n.toFixed(4);
+}
+
+
+function formatPrice(value){
+
+  const n =
+    Number(value);
+
+  if(
+    !Number.isFinite(n)
+  ){
+    return "—";
+  }
+
+  if(
+    n >= 1000
+  ){
+    return n.toLocaleString(
+      "en-US",
+      {
+        maximumFractionDigits:2
+      }
+    );
+  }
+
+  if(
+    n >= 1
+  ){
+    return n.toFixed(4);
+  }
+
+  if(
+    n >= .01
+  ){
+    return n.toFixed(6);
+  }
+
+  return n.toPrecision(6);
+}
+
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+volumeInput.value =
+  volume;
+
+volumeValue.textContent =
+  volume + "%";
+
+updateSoundButton();
+
+checkHealth();
+
+requestNotificationPermission();
+
+</script></body>
+</html>
