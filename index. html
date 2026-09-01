@@ -1,332 +1,532 @@
 <!DOCTYPE html><html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pump Scanner — Bybit 15M</title><style>
-*{box-sizing:border-box}
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Pump Scanner — Bybit</title><style>
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
-  background:#07111f;
-  color:#eaf2ff;
   font-family:Tahoma,Arial,sans-serif;
+  background:#07111f;
+  color:#eef5ff;
 }
 
 .container{
   max-width:1100px;
   margin:auto;
-  padding:20px;
-}
-
-.header{
-  background:linear-gradient(135deg,#10243c,#0b1729);
-  border:1px solid #1e3b5d;
-  border-radius:22px;
-  padding:24px;
-  margin-bottom:18px;
-}
-
-h1{margin:0 0 8px;font-size:28px}
-.sub{color:#91a8c2;line-height:1.8}
-
-.status{
-  margin-top:15px;
-  padding:12px 15px;
-  border-radius:12px;
-  background:#0d1d30;
-  border:1px solid #244564;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:16px;
-}
-
-.card{
-  background:#0c1a2b;
-  border:1px solid #1b3652;
-  border-radius:18px;
   padding:18px;
 }
 
-.card h2{
-  margin-top:0;
-  font-size:18px;
+.header{
+  background:#0d1b2d;
+  border:1px solid #203651;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:15px;
+}
+
+h1{
+  margin:0 0 8px;
+  font-size:24px;
+}
+
+.subtitle{
+  color:#9eb2c9;
+  font-size:13px;
+  line-height:1.8;
+}
+
+.status{
+  margin-top:15px;
+  padding:12px;
+  border-radius:12px;
+  background:#101f32;
+  border:1px solid #24405d;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:15px;
 }
 
 button{
   border:0;
   border-radius:12px;
-  padding:12px 18px;
+  padding:13px 10px;
+  font-size:14px;
+  font-weight:bold;
   cursor:pointer;
-  font-weight:bold;
-  margin:4px;
 }
 
-.start{background:#19c37d;color:#04140d}
-.stop{background:#ef5350;color:white}
-.test{background:#34495e;color:white}
-
-input[type="text"]{
-  width:100%;
-  padding:13px;
-  border-radius:11px;
-  border:1px solid #294763;
-  background:#071525;
+.start{
+  background:#16834b;
   color:white;
-  outline:none;
-  margin-bottom:10px;
 }
 
-input[type="range"]{width:100%}
-
-.value{
-  color:#55d6ff;
-  font-weight:bold;
+.stop{
+  background:#b83232;
+  color:white;
 }
 
-#results{
+.sound{
+  background:#245d9c;
+  color:white;
+}
+
+.test{
+  background:#6746a5;
+  color:white;
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.stats{
   display:grid;
-  gap:12px;
-}
-
-.signal{
-  border:1px solid #285273;
-  background:#0a1828;
-  border-radius:16px;
-  padding:16px;
-}
-
-.signal.strong{
-  border-color:#19c37d;
-}
-
-.signal h3{
-  margin:0 0 8px;
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
+  grid-template-columns:repeat(5,1fr);
   gap:10px;
-  padding:6px 0;
-  border-bottom:1px solid #152c42;
+  margin-bottom:15px;
 }
 
-.row:last-child{border-bottom:0}
+.stat{
+  background:#0d1b2d;
+  border:1px solid #203651;
+  border-radius:14px;
+  padding:15px;
+  text-align:center;
+}
 
-.good{color:#32df96}
-.warn{color:#ffc857}
-.bad{color:#ff7070}
+.stat b{
+  display:block;
+  font-size:22px;
+  margin-top:7px;
+}
+
+.panel{
+  background:#0d1b2d;
+  border:1px solid #203651;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:15px;
+}
+
+.panel-title{
+  font-size:17px;
+  font-weight:bold;
+  margin-bottom:14px;
+}
 
 .empty{
   text-align:center;
-  color:#7890a8;
-  padding:30px;
+  color:#8297ad;
+  padding:30px 10px;
 }
 
-.small{
-  font-size:13px;
-  color:#7f96ae;
-  line-height:1.8;
+.card{
+  background:#0a1626;
+  border:1px solid #25425f;
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:12px;
 }
 
-footer{
+.card:last-child{
+  margin-bottom:0;
+}
+
+.card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.symbol{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.badge{
+  padding:6px 10px;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.reached{
+  background:#145d3a;
+  color:#7ff0b0;
+}
+
+.near{
+  background:#685515;
+  color:#ffe78a;
+}
+
+.approaching{
+  background:#174b69;
+  color:#82d9ff;
+}
+
+.below{
+  background:#3a354c;
+  color:#cfc2ff;
+}
+
+.invalid{
+  background:#542525;
+  color:#ffaaaa;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.info{
+  background:#101f32;
+  border-radius:10px;
+  padding:10px;
+}
+
+.info small{
+  display:block;
+  color:#849bb2;
+  margin-bottom:5px;
+  font-size:11px;
+}
+
+.info strong{
+  font-size:14px;
+}
+
+.pump-box{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background:#10233a;
+}
+
+.pump-title{
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.footer{
   text-align:center;
-  color:#60758d;
-  padding:25px 0;
+  color:#71869c;
+  font-size:11px;
+  padding:10px;
 }
 
-@media(max-width:600px){
-  .container{padding:12px}
-  h1{font-size:22px}
-  button{width:100%;margin:4px 0}
+@media(max-width:800px){
+
+  .controls{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 }
-</style></head><body><div class="container">  <section class="header">
-    <h1>🚀 Pump Scanner</h1><div class="sub">
-  اسکنر هوشمند پامپ بر پایه داده واقعی Bybit<br>
-  تایم‌فریم اصلی: <b>15 دقیقه</b><br>
-  شناسایی پامپ → کندل قرمز اصلاحی → برگشت قیمت به محدوده کندل
+
+@media(max-width:500px){
+
+  .container{
+    padding:10px;
+  }
+
+  h1{
+    font-size:20px;
+  }
+
+  .controls{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .card-head{
+    align-items:flex-start;
+  }
+}
+</style></head><body><div class="container">  <div class="header"><h1>🚀 اسکنر Pump Bybit</h1>
+
+<div class="subtitle">
+  شناسایی ارزهای واقعاً پامپ‌شده در تایم‌فریم ۱۵ دقیقه
+  <br>
+  PUMP → RED CANDLE → PULLBACK ZONE → RETEST
 </div>
 
 <div id="status" class="status">
-  🟡 در حال بررسی اتصال به Worker...
+  🟡 در حال بررسی اتصال...
 </div>
 
-  </section>  <div class="grid"><section class="card">
-  <h2>🎛 کنترل اسکن</h2>
+  </div>  <div class="controls"><button
+  id="startBtn"
+  class="start"
+  onclick="startScanner()">
+  ▶️ شروع اسکن
+</button>
 
-  <button class="start" onclick="startScanner()">
-    ▶️ شروع اسکن
-  </button>
+<button
+  id="stopBtn"
+  class="stop"
+  onclick="stopScanner()"
+  disabled>
+  ⏹ توقف
+</button>
 
-  <button class="stop" onclick="stopScanner()">
-    ⏹ توقف
-  </button>
+<button
+  id="soundBtn"
+  class="sound"
+  onclick="toggleSound()">
+  🔊 صدا: روشن
+</button>
 
-  <div class="small">
-    اسکن تا زمانی که دکمه «توقف» زده نشود ادامه پیدا می‌کند.
-  </div>
+<button
+  class="test"
+  onclick="testSound()">
+  🔔 تست صدا
+</button>
 
-  <div style="margin-top:15px">
-    وضعیت:
-    <span id="scanState" class="value">متوقف</span>
-  </div>
+  </div>  <div class="stats"><div class="stat">
+  ارز اسکن‌شده
+  <b id="scanned">0</b>
+</div>
 
-  <div style="margin-top:10px">
-    آخرین اسکن:
-    <span id="lastScan" class="value">—</span>
-  </div>
-</section>
+<div class="stat">
+  Setup
+  <b id="setups">0</b>
+</div>
 
-<section class="card">
-  <h2>🔊 هشدار صوتی</h2>
+<div class="stat">
+  🎯 سیگنال
+  <b id="signals">0</b>
+</div>
 
-  <button id="soundButton" class="test" onclick="toggleSound()">
-    🔇 صدا خاموش
-  </button>
+<div class="stat">
+  🟡 نزدیک
+  <b id="near">0</b>
+</div>
 
-  <button class="test" onclick="testSound()">
-    🔔 تست صدا
-  </button>
+<div class="stat">
+  🔵 در مسیر
+  <b id="approaching">0</b>
+</div>
 
-  <div style="margin-top:15px">
-    شدت صدا:
-    <span id="volumeValue" class="value">70%</span>
-  </div>
+  </div>  <div class="panel"><div class="panel-title">
+  🎯 سیگنال‌های Pump + Pullback
+</div>
 
-  <input
-    id="volume"
-    type="range"
-    min="0"
-    max="100"
-    value="70"
-    oninput="updateVolume()"
-  >
-</section>
+<div id="signalsList">
 
-<section class="card">
-  <h2>🔎 تحلیل دستی</h2>
-
-  <input
-    id="symbol"
-    type="text"
-    placeholder="مثلاً BTCUSDT"
-  >
-
-  <button class="test" onclick="analyzeSymbol()">
-    🔎 تحلیل ارز
-  </button>
-
-  <div id="manualResult" class="small">
-    نماد موردنظر را وارد کنید.
-  </div>
-</section>
-
-  </div>  <section class="card" style="margin-top:16px"><h2>📡 سیگنال‌های شناسایی‌شده</h2>
-
-<div id="results">
   <div class="empty">
-    هنوز سیگنالی شناسایی نشده است.
+    هنوز اسکن شروع نشده است.
   </div>
+
 </div>
 
-  </section>  <footer>
-    Pump Scanner · Bybit · 15M
-  </footer></div><script>
+  </div>  <div class="panel"><div class="panel-title">
+  📡 وضعیت اسکن
+</div>
+
+<div id="scanInfo" class="empty">
+  آماده شروع
+</div>
+
+  </div>  <div class="footer">
+    Bybit Pump Scanner · 15M · PPR
+  </div></div><script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
 
 const WORKER_URL =
   "https://pump-scanner.29mah12.workers.dev";
 
-let scanning = false;
-let timer = null;
+const SCAN_INTERVAL =
+  45000;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let scannerRunning = false;
+
+let scanTimer = null;
 
 let soundEnabled =
-  localStorage.getItem("pump_sound") !== "0";
+  localStorage.getItem(
+    "pump_sound"
+  ) !== "off";
 
-let volume =
-  Number(localStorage.getItem("pump_volume") || 70);
+let audioContext = null;
 
-const seenSignals = new Set();
+let knownSignals =
+  new Set();
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
 const statusEl =
-  document.getElementById("status");
+  document.getElementById(
+    "status"
+  );
 
-const scanState =
-  document.getElementById("scanState");
+const scanInfoEl =
+  document.getElementById(
+    "scanInfo"
+  );
 
-const lastScan =
-  document.getElementById("lastScan");
-
-const resultsEl =
-  document.getElementById("results");
-
-const manualResult =
-  document.getElementById("manualResult");
-
-const volumeEl =
-  document.getElementById("volume");
-
-const volumeValue =
-  document.getElementById("volumeValue");
-
-const soundButton =
-  document.getElementById("soundButton");
+const signalsListEl =
+  document.getElementById(
+    "signalsList"
+  );
 
 
-/* =========================
-   اتصال Worker
-========================= */
+/* =========================================================
+   SOUND
+========================================================= */
 
-async function checkHealth(){
+function getAudioContext(){
+
+  if(!audioContext){
+
+    audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+  }
+
+  return audioContext;
+}
+
+
+function playAlert(){
+
+  if(!soundEnabled){
+    return;
+  }
 
   try{
 
-    const r =
-      await fetch(
-        WORKER_URL + "/health",
-        {cache:"no-store"}
-      );
+    const ctx =
+      getAudioContext();
 
-    if(!r.ok)
-      throw new Error("HTTP " + r.status);
+    if(ctx.state === "suspended"){
+      ctx.resume();
+    }
 
-    const data =
-      await r.json();
+    const now =
+      ctx.currentTime;
 
-    statusEl.innerHTML =
-      "🟢 اتصال برقرار است — " +
-      (data.source || "Bybit") +
-      " · " +
-      (data.timeframe || "15m");
+    /*
+      سه بوق برای سیگنال
+    */
 
-  }catch(e){
+    [0,0.18,0.36].forEach(
+      offset => {
 
-    statusEl.innerHTML =
-      "🔴 اتصال به Worker برقرار نیست";
+        const oscillator =
+          ctx.createOscillator();
 
-    console.error(e);
+        const gain =
+          ctx.createGain();
+
+        oscillator.type =
+          "sine";
+
+        oscillator.frequency
+          .setValueAtTime(
+            880,
+            now + offset
+          );
+
+        gain.gain
+          .setValueAtTime(
+            0.0001,
+            now + offset
+          );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.35,
+          now + offset + 0.02
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          now + offset + 0.15
+        );
+
+        oscillator.connect(gain);
+
+        gain.connect(
+          ctx.destination
+        );
+
+        oscillator.start(
+          now + offset
+        );
+
+        oscillator.stop(
+          now + offset + 0.16
+        );
+
+      }
+    );
+
+  }catch(error){
+
+    console.error(
+      "Sound error:",
+      error
+    );
+
   }
+
 }
 
 
-/* =========================
-   صدا
-========================= */
+function testSound(){
 
-function updateSoundUI(){
+  soundEnabled = true;
 
-  soundButton.textContent =
-    soundEnabled
-      ? "🔊 صدا روشن"
-      : "🔇 صدا خاموش";
+  localStorage.setItem(
+    "pump_sound",
+    "on"
+  );
 
-  volumeEl.value = volume;
+  updateSoundButton();
 
-  volumeValue.textContent =
-    volume + "%";
+  playAlert();
+
 }
+
 
 function toggleSound(){
 
@@ -335,415 +535,765 @@ function toggleSound(){
 
   localStorage.setItem(
     "pump_sound",
-    soundEnabled ? "1" : "0"
+    soundEnabled
+      ? "on"
+      : "off"
   );
 
-  updateSoundUI();
+  updateSoundButton();
 
-  if(soundEnabled)
-    testSound();
 }
 
-function updateVolume(){
 
-  volume =
-    Number(volumeEl.value);
+function updateSoundButton(){
 
-  localStorage.setItem(
-    "pump_volume",
-    String(volume)
-  );
+  const btn =
+    document.getElementById(
+      "soundBtn"
+    );
 
-  volumeValue.textContent =
-    volume + "%";
+  btn.textContent =
+    soundEnabled
+      ? "🔊 صدا: روشن"
+      : "🔇 صدا: خاموش";
+
 }
 
-function beep(
-  frequency=880,
-  duration=180
-){
 
-  if(!soundEnabled || volume <= 0)
-    return;
+/* =========================================================
+   HEALTH
+========================================================= */
+
+async function checkHealth(){
 
   try{
 
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
+    const response =
+      await fetch(
+        WORKER_URL +
+        "/health",
+        {
+          cache:"no-store"
+        }
+      );
 
-    const ctx =
-      new AudioContext();
+    if(!response.ok){
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+    }
 
-    const osc =
-      ctx.createOscillator();
+    const data =
+      await response.json();
 
-    const gain =
-      ctx.createGain();
+    statusEl.textContent =
+      "🟢 اتصال برقرار است — " +
+      data.source +
+      " · تایم‌فریم " +
+      data.timeframe;
 
-    osc.frequency.value =
-      frequency;
+  }catch(error){
 
-    osc.type = "sine";
+    statusEl.textContent =
+      "🔴 اتصال به Worker برقرار نیست";
 
-    gain.gain.value =
-      (volume / 100) * 0.15;
+    console.error(error);
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-
-    setTimeout(()=>{
-
-      osc.stop();
-      ctx.close();
-
-    }, duration);
-
-  }catch(e){
-
-    console.error(e);
   }
-}
 
-function testSound(){
-
-  beep(880,180);
-
-  setTimeout(
-    ()=>beep(1100,220),
-    220
-  );
 }
 
 
-/* =========================
-   شروع اسکن
-========================= */
+/* =========================================================
+   START
+========================================================= */
 
 async function startScanner(){
 
-  if(scanning)
+  if(scannerRunning){
     return;
+  }
 
-  scanning = true;
+  scannerRunning =
+    true;
 
-  scanState.textContent =
-    "در حال اسکن...";
+  document.getElementById(
+    "startBtn"
+  ).disabled = true;
 
-  scanState.className =
-    "value good";
+  document.getElementById(
+    "stopBtn"
+  ).disabled = false;
+
+  statusEl.textContent =
+    "🟢 اسکنر فعال است — جستجوی Pump واقعی...";
+
+  /*
+    اولین اسکن بلافاصله
+  */
 
   await runScan();
 
-  timer =
-    setInterval(
-      runScan,
-      15000
-    );
+  /*
+    سپس هر 45 ثانیه
+  */
+
+  if(scannerRunning){
+
+    scanTimer =
+      setInterval(
+        runScan,
+        SCAN_INTERVAL
+      );
+
+  }
+
 }
 
 
-/* =========================
-   توقف
-========================= */
+/* =========================================================
+   STOP
+========================================================= */
 
 function stopScanner(){
 
-  scanning = false;
+  scannerRunning =
+    false;
 
-  if(timer){
+  if(scanTimer){
 
-    clearInterval(timer);
-    timer = null;
+    clearInterval(
+      scanTimer
+    );
+
+    scanTimer = null;
+
   }
 
-  scanState.textContent =
-    "متوقف";
+  document.getElementById(
+    "startBtn"
+  ).disabled = false;
 
-  scanState.className =
-    "value bad";
+  document.getElementById(
+    "stopBtn"
+  ).disabled = true;
+
+  statusEl.textContent =
+    "⏹ اسکن متوقف شد";
+
+  scanInfoEl.textContent =
+    "اسکنر متوقف است.";
+
 }
 
 
-/* =========================
-   اسکن Worker
-========================= */
+/* =========================================================
+   SCAN
+========================================================= */
 
 async function runScan(){
 
-  if(!scanning)
+  if(!scannerRunning){
     return;
+  }
+
+  const started =
+    Date.now();
+
+  scanInfoEl.textContent =
+    "🔎 در حال اسکن 300 ارز Futures در تایم‌فریم 15M...";
 
   try{
 
-    const r =
+    const response =
       await fetch(
         WORKER_URL +
         "/scan?t=" +
         Date.now(),
-        {cache:"no-store"}
+        {
+          method:"GET",
+          cache:"no-store"
+        }
       );
 
-    if(!r.ok)
+    if(!response.ok){
+
       throw new Error(
-        "HTTP " + r.status
+        "HTTP " +
+        response.status
       );
+
+    }
 
     const data =
-      await r.json();
+      await response.json();
 
-    lastScan.textContent =
+    if(!data.ok){
+
+      throw new Error(
+        data.error ||
+        "Scan failed"
+      );
+
+    }
+
+    updateStats(data);
+
+    renderResults(
+      data.results || []
+    );
+
+    /*
+      فقط سیگنال‌های جدید
+      باعث صدا می‌شوند.
+    */
+
+    const reached =
+      (data.results || [])
+        .filter(
+          x =>
+            x.state ===
+            "REACHED"
+        );
+
+    let newSignal = false;
+
+    for(
+      const signal of reached
+    ){
+
+      if(
+        !knownSignals.has(
+          signal.id
+        )
+      ){
+
+        knownSignals.add(
+          signal.id
+        );
+
+        newSignal = true;
+
+      }
+
+    }
+
+    /*
+      جلوگیری از رشد بی‌نهایت حافظه
+    */
+
+    if(
+      knownSignals.size > 300
+    ){
+
+      const arr =
+        Array.from(
+          knownSignals
+        );
+
+      knownSignals =
+        new Set(
+          arr.slice(-150)
+        );
+
+    }
+
+    if(newSignal){
+
+      playAlert();
+
+      statusEl.textContent =
+        "🚨 سیگنال جدید Pump + Pullback پیدا شد!";
+
+    }else{
+
+      statusEl.textContent =
+        "🟢 اسکن فعال است — آخرین بررسی موفق";
+
+    }
+
+    const elapsed =
+      Date.now() -
+      started;
+
+    scanInfoEl.textContent =
+      "آخرین اسکن: " +
       new Date().toLocaleTimeString(
         "fa-IR"
-      );
+      ) +
+      " · زمان پردازش: " +
+      elapsed +
+      "ms" +
+      " · اسکن بعدی تا حدود 45 ثانیه";
 
-    renderScan(data);
+  }catch(error){
 
-  }catch(e){
-
-    console.error(e);
-
-    statusEl.innerHTML =
-      "🟠 Worker متصل است ولی اسکن با خطا مواجه شد";
-  }
-}
-
-
-/* =========================
-   نمایش نتایج
-========================= */
-
-function renderScan(data){
-
-  let items = [];
-
-  if(Array.isArray(data))
-    items = data;
-
-  else if(Array.isArray(data.results))
-    items = data.results;
-
-  else if(Array.isArray(data.signals))
-    items = data.signals;
-
-  if(!items.length)
-    return;
-
-  for(const item of items){
-
-    const symbol =
-      String(
-        item.symbol ||
-        item.ticker ||
-        ""
-      ).toUpperCase();
-
-    if(!symbol)
-      continue;
-
-    const signalId =
-      symbol +
-      "_" +
-      (
-        item.signalTime ||
-        item.timestamp ||
-        item.time ||
-        ""
-      );
-
-    if(seenSignals.has(signalId))
-      continue;
-
-    seenSignals.add(signalId);
-
-    addSignal(item);
-
-    beep(1000,180);
-
-    setTimeout(
-      ()=>beep(1300,250),
-      200
+    console.error(
+      "Scan error:",
+      error
     );
+
+    statusEl.textContent =
+      "🔴 خطا در اتصال به Worker";
+
+    scanInfoEl.textContent =
+      "خطا: " +
+      error.message;
+
   }
+
 }
 
 
-/* =========================
-   کارت سیگنال
-========================= */
+/* =========================================================
+   STATS
+========================================================= */
 
-function addSignal(item){
+function updateStats(data){
 
-  const symbol =
-    String(
-      item.symbol ||
-      item.ticker ||
-      "UNKNOWN"
-    ).toUpperCase();
+  document.getElementById(
+    "scanned"
+  ).textContent =
+    data.scannedSymbols ??
+    0;
 
-  const pump =
-    item.pumpPercent ??
-    item.pump ??
-    item.changePercent ??
-    "—";
+  document.getElementById(
+    "setups"
+  ).textContent =
+    data.setups ??
+    data.candidates ??
+    0;
 
-  const red =
-    item.redCandlePercent ??
-    item.pullbackPercent ??
-    item.correctionPercent ??
-    "—";
+  document.getElementById(
+    "signals"
+  ).textContent =
+    data.signals ??
+    0;
 
-  const target =
-    item.targetPrice ??
-    item.retestPrice ??
-    item.candlePrice ??
-    "—";
+  document.getElementById(
+    "near"
+  ).textContent =
+    data.near ??
+    0;
 
-  const price =
-    item.price ??
-    item.currentPrice ??
-    "—";
+  document.getElementById(
+    "approaching"
+  ).textContent =
+    data.approaching ??
+    0;
 
-  const score =
-    item.score ??
-    item.confidence ??
-    "—";
+}
 
-  const div =
-    document.createElement("div");
 
-  div.className =
-    "signal strong";
+/* =========================================================
+   STATE
+========================================================= */
 
-  div.innerHTML = `
+function stateText(state){
 
-    <h3>🚨 ${escapeHtml(symbol)}</h3>
+  switch(state){
 
-    <div class="row">
-      <span>پامپ</span>
-      <b class="good">
-        ${escapeHtml(pump)}%
-      </b>
-    </div>
+    case "REACHED":
+      return "🎯 رسید به Zone";
 
-    <div class="row">
-      <span>کندل قرمز</span>
-      <b class="warn">
-        ${escapeHtml(red)}
-      </b>
-    </div>
+    case "NEAR":
+      return "🟡 نزدیک Zone";
 
-    <div class="row">
-      <span>قیمت فعلی</span>
-      <b>
-        ${escapeHtml(price)}
-      </b>
-    </div>
+    case "APPROACHING":
+      return "🔵 در حال نزدیک شدن";
 
-    <div class="row">
-      <span>محدوده بازگشت</span>
-      <b>
-        ${escapeHtml(target)}
-      </b>
-    </div>
+    case "BELOW_ZONE":
+      return "🟣 زیر Zone";
 
-    <div class="row">
-      <span>امتیاز</span>
-      <b class="good">
-        ${escapeHtml(score)}
-      </b>
-    </div>
+    case "INVALID":
+      return "🔴 نامعتبر";
 
-    <div class="small">
-      🕒 ${new Date().toLocaleString("fa-IR")}
-    </div>
-  `;
+    default:
+      return "⚪ انتظار";
+
+  }
+
+}
+
+
+function stateClass(state){
+
+  switch(state){
+
+    case "REACHED":
+      return "reached";
+
+    case "NEAR":
+      return "near";
+
+    case "APPROACHING":
+      return "approaching";
+
+    case "BELOW_ZONE":
+      return "below";
+
+    case "INVALID":
+      return "invalid";
+
+    default:
+      return "below";
+
+  }
+
+}
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+function fmt(value, digits = 2){
 
   if(
-    resultsEl.firstElementChild &&
-    resultsEl.firstElementChild.classList.contains("empty")
+    value === null ||
+    value === undefined ||
+    !Number.isFinite(
+      Number(value)
+    )
   ){
-    resultsEl.innerHTML = "";
+
+    return "-";
+
   }
 
-  resultsEl.prepend(div);
+  return Number(value)
+    .toLocaleString(
+      "en-US",
+      {
+        maximumFractionDigits:
+          digits
+      }
+    );
+
 }
 
 
-/* =========================
-   تحلیل دستی
-========================= */
+/* =========================================================
+   TIME
+========================================================= */
 
-async function analyzeSymbol(){
+function formatTime(timestamp){
 
-  let symbol =
-    document
-      .getElementById("symbol")
-      .value
-      .trim()
-      .toUpperCase();
+  if(!timestamp){
+    return "-";
+  }
 
-  if(!symbol)
+  return new Date(
+    timestamp
+  ).toLocaleString(
+    "fa-IR",
+    {
+      hour:"2-digit",
+      minute:"2-digit",
+      month:"2-digit",
+      day:"2-digit"
+    }
+  );
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function renderResults(results){
+
+  if(!results.length){
+
+    signalsListEl.innerHTML = `
+      <div class="empty">
+        🔎 در آخرین اسکن هیچ Pump معتبر
+        همراه با Pullback پیدا نشد.
+        <br><br>
+        اسکنر همچنان در حال جستجو است.
+      </div>
+    `;
+
     return;
+  }
 
-  manualResult.innerHTML =
-    "⏳ در حال تحلیل " +
-    escapeHtml(symbol) +
-    "...";
-
-  try{
-
-    const r =
-      await fetch(
-        WORKER_URL +
-        "/analyze?symbol=" +
-        encodeURIComponent(symbol),
-        {cache:"no-store"}
-      );
-
-    const data =
-      await r.json();
-
-    manualResult.innerHTML =
-      "<pre style='white-space:pre-wrap;direction:ltr;text-align:left'>" +
-      escapeHtml(
-        JSON.stringify(
-          data,
-          null,
-          2
-        )
-      ) +
-      "</pre>";}catch(e){
-
-manualResult.innerHTML =
-  "❌ خطا در تحلیل ارز";
-
-console.error(e);
+  signalsListEl.innerHTML =
+    results.map(
+      item => renderCard(item)
+    ).join("");
 
 }
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+function renderCard(item){
+
+  const pump =
+    item.pump || {};
+
+  const pullback =
+    item.pullback || {};
+
+  const isSignal =
+    item.state ===
+    "REACHED";
+
+  return `
+
+    <div class="card">
+
+      <div class="card-head">
+
+        <div class="symbol">
+          ${escapeHtml(
+            item.symbol
+          )}
+
+          ${
+            isSignal
+              ? " 🚨"
+              : ""
+          }
+        </div>
+
+        <div class="badge ${
+          stateClass(
+            item.state
+          )
+        }">
+
+          ${stateText(
+            item.state
+          )}
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+        <div class="info">
+          <small>قیمت فعلی</small>
+          <strong>
+            ${fmt(
+              item.currentPrice,
+              8
+            )}
+          </strong>
+        </div>
+
+        <div class="info">
+          <small>درصد Pump</small>
+          <strong>
+            ${fmt(
+              pump.percent,
+              2
+            )}%
+          </strong>
+        </div>
+
+        <div class="info">
+          <small>حجم Pump</small>
+          <strong>
+            ${fmt(
+              pump.volumeRatio,
+              2
+            )}x
+          </strong>
+        </div>
+
+        <div class="info">
+          <small>امتیاز Pump</small>
+          <strong>
+            ${fmt(
+              pump.score,
+              0
+            )}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="pump-box">
+
+        <div class="pump-title">
+          🚀 اطلاعات Pump
+        </div>
+
+        <div class="grid">
+
+          <div class="info">
+            <small>قیمت پایه</small>
+            <strong>
+              ${fmt(
+                pump.basePrice,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>قیمت پایان Pump</small>
+            <strong>
+              ${fmt(
+                pump.price,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>بیشترین قیمت</small>
+            <strong>
+              ${fmt(
+                pump.high,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>تعداد کندل</small>
+            <strong>
+              ${pump.candles ?? "-"}
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="pump-box">
+
+        <div class="pump-title">
+          🔴 Pullback Zone
+        </div>
+
+        <div class="grid">
+
+          <div class="info">
+            <small>Zone پایین</small>
+            <strong>
+              ${fmt(
+                pullback.zoneLow,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>Zone بالا</small>
+            <strong>
+              ${fmt(
+                pullback.zoneHigh,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>قیمت بسته شدن</small>
+            <strong>
+              ${fmt(
+                pullback.close,
+                8
+              )}
+            </strong>
+          </div>
+
+          <div class="info">
+            <small>بدنه قرمز</small>
+            <strong>
+              ${fmt(
+                pullback.bodyPercent,
+                2
+              )}%
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div style="
+        margin-top:10px;
+        color:#8197ad;
+        font-size:11px;
+      ">
+
+        Pump:
+        ${formatTime(
+          pump.startTime
+        )}
+        →
+        ${formatTime(
+          pump.endTime
+        )}
+
+        ·
+
+        Pullback:
+        ${formatTime(
+          pullback.time
+        )}
+
+      </div>
+
+    </div>
+
+  `;
+
 }
 
-/* =========================
-امنیت نمایش متن
-========================= */
+
+/* =========================================================
+   ESCAPE
+========================================================= */
 
 function escapeHtml(value){
 
-return String(value)
-.replaceAll("&","&")
-.replaceAll("<","<")
-.replaceAll(">",">")
-.replaceAll('"',""")
-.replaceAll("'","'");
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
 }
 
-/* =========================
-شروع اولیه
-========================= */
 
-updateSoundUI();
+/* =========================================================
+   INIT
+========================================================= */
+
+updateSoundButton();
+
 checkHealth();
 
 </script></body>
