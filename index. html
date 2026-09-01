@@ -1,562 +1,394 @@
-<!DOCTYPE html><html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>Pump Scanner — Bybit</title><style>
-*{
-  box-sizing:border-box;
-}
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump Scanner — Bybit PPR</title>
+
+<style>
+*{box-sizing:border-box}
 
 body{
   margin:0;
+  background:#080b12;
+  color:#e8edf7;
   font-family:Tahoma,Arial,sans-serif;
-  background:#07111f;
-  color:#eef5ff;
 }
 
 .container{
-  max-width:1100px;
-  margin:auto;
-  padding:18px;
+  width:min(1100px,94%);
+  margin:25px auto;
 }
 
 .header{
-  background:#0d1b2d;
-  border:1px solid #203651;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:15px;
+  background:linear-gradient(145deg,#111827,#0b1220);
+  border:1px solid #202b3d;
+  border-radius:22px;
+  padding:24px;
+  box-shadow:0 15px 45px rgba(0,0,0,.3);
 }
 
 h1{
   margin:0 0 8px;
-  font-size:24px;
+  font-size:27px;
 }
 
 .subtitle{
-  color:#9eb2c9;
-  font-size:13px;
+  color:#9aa7bb;
   line-height:1.8;
 }
 
 .status{
   margin-top:15px;
-  padding:12px;
+  padding:12px 15px;
   border-radius:12px;
-  background:#101f32;
-  border:1px solid #24405d;
+  background:#111827;
+  color:#9aa7bb;
 }
 
 .controls{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
+  display:flex;
   gap:10px;
-  margin-bottom:15px;
+  flex-wrap:wrap;
+  margin-top:18px;
 }
 
 button{
   border:0;
   border-radius:12px;
-  padding:13px 10px;
-  font-size:14px;
-  font-weight:bold;
+  padding:12px 18px;
   cursor:pointer;
-}
-
-.start{
-  background:#16834b;
   color:white;
+  background:#2563eb;
+  font-weight:bold;
 }
 
-.stop{
-  background:#b83232;
-  color:white;
+button.stop{
+  background:#991b1b;
 }
 
-.sound{
-  background:#245d9c;
-  color:white;
-}
-
-.test{
-  background:#6746a5;
-  color:white;
-}
-
-button:disabled{
-  opacity:.45;
-  cursor:not-allowed;
+button.secondary{
+  background:#374151;
 }
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  margin-bottom:15px;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;
+  margin-top:18px;
 }
 
 .stat{
-  background:#0d1b2d;
-  border:1px solid #203651;
-  border-radius:14px;
-  padding:15px;
-  text-align:center;
+  background:#0d1420;
+  border:1px solid #202b3d;
+  border-radius:16px;
+  padding:17px;
 }
 
-.stat b{
-  display:block;
-  font-size:22px;
-  margin-top:7px;
-}
-
-.panel{
-  background:#0d1b2d;
-  border:1px solid #203651;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:15px;
-}
-
-.panel-title{
-  font-size:17px;
+.stat .num{
+  font-size:25px;
   font-weight:bold;
-  margin-bottom:14px;
+  margin-top:5px;
 }
 
-.empty{
-  text-align:center;
-  color:#8297ad;
-  padding:30px 10px;
+.stat .label{
+  color:#8d9ab0;
+  font-size:13px;
+}
+
+.section{
+  margin-top:20px;
+}
+
+.section-title{
+  font-size:19px;
+  margin-bottom:12px;
+}
+
+.results{
+  display:grid;
+  gap:14px;
 }
 
 .card{
-  background:#0a1626;
-  border:1px solid #25425f;
-  border-radius:15px;
-  padding:15px;
-  margin-bottom:12px;
+  background:#0d1420;
+  border:1px solid #202b3d;
+  border-radius:18px;
+  padding:18px;
 }
 
-.card:last-child{
-  margin-bottom:0;
+.card.reached{
+  border-color:#16a34a;
 }
 
-.card-head{
+.card.near{
+  border-color:#eab308;
+}
+
+.card.approaching{
+  border-color:#3b82f6;
+}
+
+.top{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   gap:10px;
-  margin-bottom:12px;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
 .symbol{
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
 }
 
 .badge{
-  padding:6px 10px;
-  border-radius:9px;
+  padding:7px 11px;
+  border-radius:999px;
   font-size:12px;
   font-weight:bold;
 }
 
-.reached{
-  background:#145d3a;
-  color:#7ff0b0;
+.badge.reached{
+  background:#064e3b;
+  color:#6ee7b7;
 }
 
-.near{
-  background:#685515;
-  color:#ffe78a;
+.badge.near{
+  background:#713f12;
+  color:#fde68a;
 }
 
-.approaching{
-  background:#174b69;
-  color:#82d9ff;
+.badge.approaching{
+  background:#172554;
+  color:#93c5fd;
 }
 
-.below{
-  background:#3a354c;
-  color:#cfc2ff;
+.badge.below{
+  background:#3f3f46;
+  color:#d4d4d8;
 }
 
-.invalid{
-  background:#542525;
-  color:#ffaaaa;
+.badge.invalid{
+  background:#450a0a;
+  color:#fca5a5;
+}
+
+.price{
+  font-size:25px;
+  font-weight:bold;
+  margin-top:14px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:10px;
+  margin-top:14px;
 }
 
-.info{
-  background:#101f32;
-  border-radius:10px;
-  padding:10px;
-}
-
-.info small{
-  display:block;
-  color:#849bb2;
-  margin-bottom:5px;
-  font-size:11px;
-}
-
-.info strong{
-  font-size:14px;
-}
-
-.pump-box{
-  margin-top:10px;
-  padding:12px;
+.item{
+  background:#111827;
   border-radius:12px;
-  background:#10233a;
+  padding:12px;
 }
 
-.pump-title{
+.item small{
+  display:block;
+  color:#7f8ca1;
+  margin-bottom:5px;
+}
+
+.item strong{
+  font-size:15px;
+}
+
+.zone{
+  margin-top:14px;
+  border:1px dashed #475569;
+  border-radius:14px;
+  padding:14px;
+}
+
+.zone-title{
   font-weight:bold;
   margin-bottom:8px;
 }
 
+.zone-value{
+  font-size:20px;
+}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#8d9ab0;
+  background:#0d1420;
+  border:1px dashed #263348;
+  border-radius:18px;
+}
+
 .footer{
   text-align:center;
-  color:#71869c;
-  font-size:11px;
-  padding:10px;
+  color:#667085;
+  font-size:12px;
+  padding:25px;
 }
 
-@media(max-width:800px){
-
-  .controls{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .stats{
-    grid-template-columns:repeat(3,1fr);
-  }
-
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
+@media(max-width:600px){
+  .container{width:95%}
+  h1{font-size:22px}
+  .symbol{font-size:19px}
 }
+</style>
+</head>
 
-@media(max-width:500px){
+<body>
 
-  .container{
-    padding:10px;
-  }
+<div class="container">
 
-  h1{
-    font-size:20px;
-  }
+  <div class="header">
 
-  .controls{
-    grid-template-columns:1fr 1fr;
-  }
+    <h1>🚀 Pump Scanner — Bybit</h1>
 
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
+    <div class="subtitle">
+      شناسایی واقعی:
+      <b>PUMP → کندل قرمز → Pullback Zone → Retest</b>
+      <br>
+      تایم‌فریم اصلی: <b>15M</b>
+    </div>
 
-  .grid{
-    grid-template-columns:1fr 1fr;
-  }
+    <div id="status" class="status">
+      🟡 در حال اتصال به Worker...
+    </div>
 
-  .card-head{
-    align-items:flex-start;
-  }
-}
-</style></head><body><div class="container">  <div class="header"><h1>🚀 اسکنر Pump Bybit</h1>
+    <div class="controls">
+      <button onclick="scanNow()">🔎 اسکن بازار</button>
+      <button class="stop" onclick="stopScan()">⏹ توقف خودکار</button>
+      <button class="secondary" onclick="checkHealth()">❤️ تست اتصال</button>
+    </div>
 
-<div class="subtitle">
-  شناسایی ارزهای واقعاً پامپ‌شده در تایم‌فریم ۱۵ دقیقه
-  <br>
-  PUMP → RED CANDLE → PULLBACK ZONE → RETEST
-</div>
+    <div class="stats">
 
-<div id="status" class="status">
-  🟡 در حال بررسی اتصال...
-</div>
+      <div class="stat">
+        <div class="label">ارزهای اسکن‌شده</div>
+        <div id="scanned" class="num">0</div>
+      </div>
 
-  </div>  <div class="controls"><button
-  id="startBtn"
-  class="start"
-  onclick="startScanner()">
-  ▶️ شروع اسکن
-</button>
+      <div class="stat">
+        <div class="label">Pump Setup</div>
+        <div id="setups" class="num">0</div>
+      </div>
 
-<button
-  id="stopBtn"
-  class="stop"
-  onclick="stopScanner()"
-  disabled>
-  ⏹ توقف
-</button>
+      <div class="stat">
+        <div class="label">رسیده به Zone</div>
+        <div id="signals" class="num">0</div>
+      </div>
 
-<button
-  id="soundBtn"
-  class="sound"
-  onclick="toggleSound()">
-  🔊 صدا: روشن
-</button>
+      <div class="stat">
+        <div class="label">نزدیک Zone</div>
+        <div id="near" class="num">0</div>
+      </div>
 
-<button
-  class="test"
-  onclick="testSound()">
-  🔔 تست صدا
-</button>
+      <div class="stat">
+        <div class="label">در حال نزدیک شدن</div>
+        <div id="approaching" class="num">0</div>
+      </div>
 
-  </div>  <div class="stats"><div class="stat">
-  ارز اسکن‌شده
-  <b id="scanned">0</b>
-</div>
+    </div>
 
-<div class="stat">
-  Setup
-  <b id="setups">0</b>
-</div>
+  </div>
 
-<div class="stat">
-  🎯 سیگنال
-  <b id="signals">0</b>
-</div>
+  <div class="section">
 
-<div class="stat">
-  🟡 نزدیک
-  <b id="near">0</b>
-</div>
+    <div class="section-title">
+      🎯 فرصت‌های واقعی Pump
+    </div>
 
-<div class="stat">
-  🔵 در مسیر
-  <b id="approaching">0</b>
-</div>
+    <div id="results" class="results">
+      <div class="empty">
+        هنوز اسکن انجام نشده است.
+      </div>
+    </div>
 
-  </div>  <div class="panel"><div class="panel-title">
-  🎯 سیگنال‌های Pump + Pullback
-</div>
+  </div>
 
-<div id="signalsList">
-
-  <div class="empty">
-    هنوز اسکن شروع نشده است.
+  <div class="footer">
+    Pump Scanner · Bybit · PUMP-SCANNER-BYBIT-PPR-V3
   </div>
 
 </div>
 
-  </div>  <div class="panel"><div class="panel-title">
-  📡 وضعیت اسکن
-</div>
-
-<div id="scanInfo" class="empty">
-  آماده شروع
-</div>
-
-  </div>  <div class="footer">
-    Bybit Pump Scanner · 15M · PPR
-  </div></div><script>
+<script>
 
 /* =========================================================
-   CONFIG
+   WORKER
 ========================================================= */
 
-const WORKER_URL =
+const WORKER =
   "https://pump-scanner.29mah12.workers.dev";
-
-const SCAN_INTERVAL =
-  45000;
 
 
 /* =========================================================
    STATE
 ========================================================= */
 
-let scannerRunning = false;
-
-let scanTimer = null;
-
-let soundEnabled =
-  localStorage.getItem(
-    "pump_sound"
-  ) !== "off";
-
-let audioContext = null;
-
-let knownSignals =
-  new Set();
+let autoScan = false;
+let timer = null;
+let busy = false;
 
 
 /* =========================================================
-   ELEMENTS
+   HELPERS
 ========================================================= */
 
-const statusEl =
-  document.getElementById(
-    "status"
-  );
-
-const scanInfoEl =
-  document.getElementById(
-    "scanInfo"
-  );
-
-const signalsListEl =
-  document.getElementById(
-    "signalsList"
-  );
+const $ = id =>
+  document.getElementById(id);
 
 
-/* =========================================================
-   SOUND
-========================================================= */
+function number(value, digits=6){
 
-function getAudioContext(){
-
-  if(!audioContext){
-
-    audioContext =
-      new (
-        window.AudioContext ||
-        window.webkitAudioContext
-      )();
-
+  if(
+    value === null ||
+    value === undefined ||
+    Number.isNaN(Number(value))
+  ){
+    return "-";
   }
 
-  return audioContext;
-}
-
-
-function playAlert(){
-
-  if(!soundEnabled){
-    return;
-  }
-
-  try{
-
-    const ctx =
-      getAudioContext();
-
-    if(ctx.state === "suspended"){
-      ctx.resume();
+  return Number(value).toLocaleString(
+    "en-US",
+    {
+      maximumFractionDigits:digits
     }
+  );
+}
 
-    const now =
-      ctx.currentTime;
 
-    /*
-      سه بوق برای سیگنال
-    */
+function percent(value){
 
-    [0,0.18,0.36].forEach(
-      offset => {
-
-        const oscillator =
-          ctx.createOscillator();
-
-        const gain =
-          ctx.createGain();
-
-        oscillator.type =
-          "sine";
-
-        oscillator.frequency
-          .setValueAtTime(
-            880,
-            now + offset
-          );
-
-        gain.gain
-          .setValueAtTime(
-            0.0001,
-            now + offset
-          );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.35,
-          now + offset + 0.02
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          now + offset + 0.15
-        );
-
-        oscillator.connect(gain);
-
-        gain.connect(
-          ctx.destination
-        );
-
-        oscillator.start(
-          now + offset
-        );
-
-        oscillator.stop(
-          now + offset + 0.16
-        );
-
-      }
-    );
-
-  }catch(error){
-
-    console.error(
-      "Sound error:",
-      error
-    );
-
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return "-";
   }
 
+  return Number(value).toFixed(2) + "%";
 }
 
 
-function testSound(){
+function time(value){
 
-  soundEnabled = true;
+  if(!value) return "-";
 
-  localStorage.setItem(
-    "pump_sound",
-    "on"
+  return new Date(value).toLocaleString(
+    "fa-IR",
+    {
+      dateStyle:"short",
+      timeStyle:"short"
+    }
   );
-
-  updateSoundButton();
-
-  playAlert();
-
-}
-
-
-function toggleSound(){
-
-  soundEnabled =
-    !soundEnabled;
-
-  localStorage.setItem(
-    "pump_sound",
-    soundEnabled
-      ? "on"
-      : "off"
-  );
-
-  updateSoundButton();
-
-}
-
-
-function updateSoundButton(){
-
-  const btn =
-    document.getElementById(
-      "soundBtn"
-    );
-
-  btn.textContent =
-    soundEnabled
-      ? "🔊 صدا: روشن"
-      : "🔇 صدا: خاموش";
-
 }
 
 
@@ -566,12 +398,14 @@ function updateSoundButton(){
 
 async function checkHealth(){
 
+  $("status").textContent =
+    "🟡 در حال بررسی Worker...";
+
   try{
 
     const response =
       await fetch(
-        WORKER_URL +
-        "/health",
+        WORKER + "/health",
         {
           cache:"no-store"
         }
@@ -579,112 +413,22 @@ async function checkHealth(){
 
     if(!response.ok){
       throw new Error(
-        "HTTP " +
-        response.status
+        "HTTP " + response.status
       );
     }
 
     const data =
       await response.json();
 
-    statusEl.textContent =
-      "🟢 اتصال برقرار است — " +
-      data.source +
-      " · تایم‌فریم " +
-      data.timeframe;
+    $("status").textContent =
+      `🟢 Worker متصل است — ${data.version}`;
 
   }catch(error){
 
-    statusEl.textContent =
-      "🔴 اتصال به Worker برقرار نیست";
-
-    console.error(error);
-
+    $("status").textContent =
+      "🔴 اتصال به Worker برقرار نیست — " +
+      error.message;
   }
-
-}
-
-
-/* =========================================================
-   START
-========================================================= */
-
-async function startScanner(){
-
-  if(scannerRunning){
-    return;
-  }
-
-  scannerRunning =
-    true;
-
-  document.getElementById(
-    "startBtn"
-  ).disabled = true;
-
-  document.getElementById(
-    "stopBtn"
-  ).disabled = false;
-
-  statusEl.textContent =
-    "🟢 اسکنر فعال است — جستجوی Pump واقعی...";
-
-  /*
-    اولین اسکن بلافاصله
-  */
-
-  await runScan();
-
-  /*
-    سپس هر 45 ثانیه
-  */
-
-  if(scannerRunning){
-
-    scanTimer =
-      setInterval(
-        runScan,
-        SCAN_INTERVAL
-      );
-
-  }
-
-}
-
-
-/* =========================================================
-   STOP
-========================================================= */
-
-function stopScanner(){
-
-  scannerRunning =
-    false;
-
-  if(scanTimer){
-
-    clearInterval(
-      scanTimer
-    );
-
-    scanTimer = null;
-
-  }
-
-  document.getElementById(
-    "startBtn"
-  ).disabled = false;
-
-  document.getElementById(
-    "stopBtn"
-  ).disabled = true;
-
-  statusEl.textContent =
-    "⏹ اسکن متوقف شد";
-
-  scanInfoEl.textContent =
-    "اسکنر متوقف است.";
-
 }
 
 
@@ -692,27 +436,21 @@ function stopScanner(){
    SCAN
 ========================================================= */
 
-async function runScan(){
+async function scanNow(){
 
-  if(!scannerRunning){
-    return;
-  }
+  if(busy) return;
 
-  const started =
-    Date.now();
+  busy = true;
 
-  scanInfoEl.textContent =
-    "🔎 در حال اسکن 300 ارز Futures در تایم‌فریم 15M...";
+  $("status").textContent =
+    "🟡 در حال اسکن 15M بازار Bybit...";
 
   try{
 
     const response =
       await fetch(
-        WORKER_URL +
-        "/scan?t=" +
-        Date.now(),
+        WORKER + "/scan",
         {
-          method:"GET",
           cache:"no-store"
         }
       );
@@ -720,129 +458,39 @@ async function runScan(){
     if(!response.ok){
 
       throw new Error(
-        "HTTP " +
-        response.status
+        "HTTP " + response.status
       );
-
     }
 
     const data =
       await response.json();
 
-    if(!data.ok){
-
-      throw new Error(
-        data.error ||
-        "Scan failed"
-      );
-
+    if(!data.ok && data.error){
+      throw new Error(data.error);
     }
 
     updateStats(data);
 
     renderResults(
-      data.results || []
+      Array.isArray(data.results)
+        ? data.results
+        : []
     );
 
-    /*
-      فقط سیگنال‌های جدید
-      باعث صدا می‌شوند.
-    */
-
-    const reached =
-      (data.results || [])
-        .filter(
-          x =>
-            x.state ===
-            "REACHED"
-        );
-
-    let newSignal = false;
-
-    for(
-      const signal of reached
-    ){
-
-      if(
-        !knownSignals.has(
-          signal.id
-        )
-      ){
-
-        knownSignals.add(
-          signal.id
-        );
-
-        newSignal = true;
-
-      }
-
-    }
-
-    /*
-      جلوگیری از رشد بی‌نهایت حافظه
-    */
-
-    if(
-      knownSignals.size > 300
-    ){
-
-      const arr =
-        Array.from(
-          knownSignals
-        );
-
-      knownSignals =
-        new Set(
-          arr.slice(-150)
-        );
-
-    }
-
-    if(newSignal){
-
-      playAlert();
-
-      statusEl.textContent =
-        "🚨 سیگنال جدید Pump + Pullback پیدا شد!";
-
-    }else{
-
-      statusEl.textContent =
-        "🟢 اسکن فعال است — آخرین بررسی موفق";
-
-    }
-
-    const elapsed =
-      Date.now() -
-      started;
-
-    scanInfoEl.textContent =
-      "آخرین اسکن: " +
-      new Date().toLocaleTimeString(
-        "fa-IR"
-      ) +
-      " · زمان پردازش: " +
-      elapsed +
-      "ms" +
-      " · اسکن بعدی تا حدود 45 ثانیه";
+    $("status").textContent =
+      `🟢 اسکن انجام شد — ` +
+      `${data.scannedSymbols || 0} ارز بررسی شد`;
 
   }catch(error){
 
-    console.error(
-      "Scan error:",
-      error
-    );
-
-    statusEl.textContent =
-      "🔴 خطا در اتصال به Worker";
-
-    scanInfoEl.textContent =
-      "خطا: " +
+    $("status").textContent =
+      "🔴 خطا در اسکن: " +
       error.message;
 
-  }
+  }finally{
 
+    busy = false;
+  }
 }
 
 
@@ -852,150 +500,67 @@ async function runScan(){
 
 function updateStats(data){
 
-  document.getElementById(
-    "scanned"
-  ).textContent =
-    data.scannedSymbols ??
-    0;
+  $("scanned").textContent =
+    data.scannedSymbols || 0;
 
-  document.getElementById(
-    "setups"
-  ).textContent =
-    data.setups ??
-    data.candidates ??
-    0;
+  $("setups").textContent =
+    data.setups || 0;
 
-  document.getElementById(
-    "signals"
-  ).textContent =
-    data.signals ??
-    0;
+  $("signals").textContent =
+    data.signals || 0;
 
-  document.getElementById(
-    "near"
-  ).textContent =
-    data.near ??
-    0;
+  $("near").textContent =
+    data.near || 0;
 
-  document.getElementById(
-    "approaching"
-  ).textContent =
-    data.approaching ??
-    0;
-
+  $("approaching").textContent =
+    data.approaching || 0;
 }
 
 
 /* =========================================================
-   STATE
+   STATE LABEL
 ========================================================= */
 
-function stateText(state){
+function stateInfo(state){
 
   switch(state){
 
     case "REACHED":
-      return "🎯 رسید به Zone";
+      return {
+        text:"🔥 قیمت به Zone رسیده",
+        cls:"reached"
+      };
 
     case "NEAR":
-      return "🟡 نزدیک Zone";
+      return {
+        text:"🟡 نزدیک Zone",
+        cls:"near"
+      };
 
     case "APPROACHING":
-      return "🔵 در حال نزدیک شدن";
+      return {
+        text:"🔵 در حال نزدیک شدن",
+        cls:"approaching"
+      };
 
     case "BELOW_ZONE":
-      return "🟣 زیر Zone";
+      return {
+        text:"⚪ زیر Zone",
+        cls:"below"
+      };
 
     case "INVALID":
-      return "🔴 نامعتبر";
+      return {
+        text:"🔴 نامعتبر",
+        cls:"invalid"
+      };
 
     default:
-      return "⚪ انتظار";
-
+      return {
+        text:"⏳ انتظار",
+        cls:"below"
+      };
   }
-
-}
-
-
-function stateClass(state){
-
-  switch(state){
-
-    case "REACHED":
-      return "reached";
-
-    case "NEAR":
-      return "near";
-
-    case "APPROACHING":
-      return "approaching";
-
-    case "BELOW_ZONE":
-      return "below";
-
-    case "INVALID":
-      return "invalid";
-
-    default:
-      return "below";
-
-  }
-
-}
-
-
-/* =========================================================
-   NUMBER
-========================================================= */
-
-function fmt(value, digits = 2){
-
-  if(
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(
-      Number(value)
-    )
-  ){
-
-    return "-";
-
-  }
-
-  return Number(value)
-    .toLocaleString(
-      "en-US",
-      {
-        maximumFractionDigits:
-          digits
-      }
-    );
-
-}
-
-
-/* =========================================================
-   TIME
-========================================================= */
-
-function formatTime(timestamp){
-
-  if(!timestamp){
-    return "-";
-  }
-
-  return new Date(
-    timestamp
-  ).toLocaleString(
-    "fa-IR",
-    {
-      hour:"2-digit",
-      minute:"2-digit",
-      month:"2-digit",
-      day:"2-digit"
-    }
-  );
-
 }
 
 
@@ -1005,25 +570,37 @@ function formatTime(timestamp){
 
 function renderResults(results){
 
+  const box =
+    $("results");
+
   if(!results.length){
 
-    signalsListEl.innerHTML = `
+    box.innerHTML = `
       <div class="empty">
-        🔎 در آخرین اسکن هیچ Pump معتبر
-        همراه با Pullback پیدا نشد.
+        <div style="font-size:28px">🔎</div>
+        <br>
+        در این اسکن هیچ
+        <b>Pump Setup</b>
+        معتبری پیدا نشد.
         <br><br>
-        اسکنر همچنان در حال جستجو است.
+        یعنی فیلتر Pump → Red Candle → Pullback
+        در این لحظه مورد معتبری تأیید نکرده است.
       </div>
     `;
 
     return;
   }
 
-  signalsListEl.innerHTML =
-    results.map(
-      item => renderCard(item)
-    ).join("");
 
+  box.innerHTML =
+    results
+      .filter(x =>
+        x &&
+        x.pump &&
+        x.pullback
+      )
+      .map(renderCard)
+      .join("");
 }
 
 
@@ -1033,43 +610,95 @@ function renderResults(results){
 
 function renderCard(item){
 
+  const state =
+    stateInfo(item.state);
+
   const pump =
     item.pump || {};
 
   const pullback =
     item.pullback || {};
 
-  const isSignal =
-    item.state ===
-    "REACHED";
-
   return `
 
-    <div class="card">
+    <div class="card ${state.cls}">
 
-      <div class="card-head">
+      <div class="top">
 
         <div class="symbol">
-          ${escapeHtml(
-            item.symbol
-          )}
-
-          ${
-            isSignal
-              ? " 🚨"
-              : ""
-          }
+          🚀 ${item.symbol}
         </div>
 
-        <div class="badge ${
-          stateClass(
-            item.state
-          )
-        }">
+        <div class="badge ${state.cls}">
+          ${state.text}
+        </div>
 
-          ${stateText(
-            item.state
-          )}
+      </div>
+
+      <div class="price">
+        ${number(item.currentPrice,8)}
+      </div>
+
+      <div class="grid">
+
+        <div class="item">
+          <small>قدرت Pump</small>
+          <strong>
+            ${percent(pump.percent)}
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>حجم Pump</small>
+          <strong>
+            ${number(pump.volumeRatio,2)}x
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>تعداد کندل Pump</small>
+          <strong>
+            ${pump.candles ?? "-"}
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>امتیاز Pump</small>
+          <strong>
+            ${number(pump.score,2)}
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>فاصله از Zone</small>
+          <strong>
+            ${percent(item.distancePercent)}
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>درصد بدنه قرمز</small>
+          <strong>
+            ${percent(pullback.bodyPercent)}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="zone">
+
+        <div class="zone-title">
+          🎯 Pullback Zone
+        </div>
+
+        <div class="zone-value">
+
+          ${number(pullback.zoneLow,8)}
+
+          →
+
+          ${number(pullback.zoneHigh,8)}
 
         </div>
 
@@ -1078,223 +707,118 @@ function renderCard(item){
 
       <div class="grid">
 
-        <div class="info">
-          <small>قیمت فعلی</small>
+        <div class="item">
+          <small>قیمت شروع Pump</small>
           <strong>
-            ${fmt(
-              item.currentPrice,
-              8
-            )}
+            ${number(pump.basePrice,8)}
           </strong>
         </div>
 
-        <div class="info">
-          <small>درصد Pump</small>
+        <div class="item">
+          <small>قیمت Pump</small>
           <strong>
-            ${fmt(
-              pump.percent,
-              2
-            )}%
+            ${number(pump.price,8)}
           </strong>
         </div>
 
-        <div class="info">
-          <small>حجم Pump</small>
+        <div class="item">
+          <small>High Pump</small>
           <strong>
-            ${fmt(
-              pump.volumeRatio,
-              2
-            )}x
+            ${number(pump.high,8)}
           </strong>
         </div>
 
-        <div class="info">
-          <small>امتیاز Pump</small>
+        <div class="item">
+          <small>Open کندل قرمز</small>
           <strong>
-            ${fmt(
-              pump.score,
-              0
-            )}
+            ${number(pullback.open,8)}
           </strong>
         </div>
 
-      </div>
-
-
-      <div class="pump-box">
-
-        <div class="pump-title">
-          🚀 اطلاعات Pump
+        <div class="item">
+          <small>Low کندل قرمز</small>
+          <strong>
+            ${number(pullback.low,8)}
+          </strong>
         </div>
 
-        <div class="grid">
-
-          <div class="info">
-            <small>قیمت پایه</small>
-            <strong>
-              ${fmt(
-                pump.basePrice,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>قیمت پایان Pump</small>
-            <strong>
-              ${fmt(
-                pump.price,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>بیشترین قیمت</small>
-            <strong>
-              ${fmt(
-                pump.high,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>تعداد کندل</small>
-            <strong>
-              ${pump.candles ?? "-"}
-            </strong>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="pump-box">
-
-        <div class="pump-title">
-          🔴 Pullback Zone
-        </div>
-
-        <div class="grid">
-
-          <div class="info">
-            <small>Zone پایین</small>
-            <strong>
-              ${fmt(
-                pullback.zoneLow,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>Zone بالا</small>
-            <strong>
-              ${fmt(
-                pullback.zoneHigh,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>قیمت بسته شدن</small>
-            <strong>
-              ${fmt(
-                pullback.close,
-                8
-              )}
-            </strong>
-          </div>
-
-          <div class="info">
-            <small>بدنه قرمز</small>
-            <strong>
-              ${fmt(
-                pullback.bodyPercent,
-                2
-              )}%
-            </strong>
-          </div>
-
+        <div class="item">
+          <small>Close کندل قرمز</small>
+          <strong>
+            ${number(pullback.close,8)}
+          </strong>
         </div>
 
       </div>
 
 
       <div style="
-        margin-top:10px;
-        color:#8197ad;
-        font-size:11px;
+        margin-top:14px;
+        color:#77849a;
+        font-size:12px;
       ">
 
-        Pump:
-        ${formatTime(
-          pump.startTime
-        )}
+        ⏱ Pump:
+        ${time(pump.startTime)}
         →
-        ${formatTime(
-          pump.endTime
-        )}
+        ${time(pump.endTime)}
 
-        ·
+        <br>
 
-        Pullback:
-        ${formatTime(
-          pullback.time
-        )}
+        🔴 Pullback:
+        ${time(pullback.time)}
 
       </div>
 
     </div>
 
   `;
-
 }
 
 
 /* =========================================================
-   ESCAPE
+   AUTO SCAN
 ========================================================= */
 
-function escapeHtml(value){
+function startScan(){
 
-  return String(
-    value ?? ""
-  )
-  .replace(
-    /&/g,
-    "&amp;"
-  )
-  .replace(
-    /</g,
-    "&lt;"
-  )
-  .replace(
-    />/g,
-    "&gt;"
-  )
-  .replace(
-    /"/g,
-    "&quot;"
-  )
-  .replace(
-    /'/g,
-    "&#039;"
-  );
+  if(autoScan) return;
 
+  autoScan = true;
+
+  scanNow();
+
+  timer =
+    setInterval(
+      scanNow,
+      45000
+    );
+}
+
+
+function stopScan(){
+
+  autoScan = false;
+
+  if(timer){
+
+    clearInterval(timer);
+
+    timer = null;
+  }
+
+  $("status").textContent =
+    "⏹ اسکن خودکار متوقف شد";
 }
 
 
 /* =========================================================
-   INIT
+   START
 ========================================================= */
-
-updateSoundButton();
 
 checkHealth();
 
-</script></body>
+</script>
+
+</body>
 </html>
