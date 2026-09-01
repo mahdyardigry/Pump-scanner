@@ -1,138 +1,103 @@
 const BYBIT = "https://api.bybit.com";
 
-/* =========================================================
-   PUMP SCANNER — BYBIT PULLBACK RADAR V6
-   15M
-   PUMP → RED CANDLE → PULLBACK ZONE → RETEST
-========================================================= */
-
-const VERSION = "PUMP-SCANNER-BYBIT-PPR-V6";
+const VERSION = "PUMP-SCANNER-BYBIT-PPR-V7";
 
 const TF = "15";
+const TF_MS = 15 * 60 * 1000;
+
 const KLINE_LIMIT = 120;
 
-const SYMBOL_PAGE_LIMIT = 1000;
-const BATCH_SIZE = 20;
+const SCAN_BATCH = 20;
 
-/* =========================
-   PUMP RULES
-========================= */
+// =========================
+// قوانین اصلی
+// =========================
 
 const MIN_PUMP_PERCENT = 6;
+
+const MIN_VOLUME_MULTIPLIER = 1.5;
 
 const MIN_PUMP_CANDLES = 2;
 const MAX_PUMP_CANDLES = 6;
 
 const MIN_GREEN_RATIO = 0.60;
 
-const MIN_VOLUME_MULTIPLIER = 1.5;
-
-/*
-  Pump باید تازه باشد.
-  24 ساعت = 96 کندل 15M
-*/
-const MAX_PUMP_AGE_MS =
-  24 * 60 * 60 * 1000;
-
-/* =========================
-   PULLBACK RULES
-========================= */
-
 const MAX_PULLBACK_PERCENT = 4.5;
 
 const NEAR_ZONE_PERCENT = 0.35;
 
+const MAX_PUMP_AGE_HOURS = 12;
 
-/* =========================================================
-   CORS
-========================================================= */
+const MAX_PUMP_AGE_MS =
+  MAX_PUMP_AGE_HOURS * 60 * 60 * 1000;
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type"
+
+// =========================
+// Runtime
+// =========================
+
+let lastScan = {
+  ok: true,
+  version: VERSION,
+  source: "Bybit",
+  timeframe: "15m",
+  mode: "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
+  scannedSymbols: 0,
+  candidates: 0,
+  setups: 0,
+  signals: 0,
+  near: 0,
+  approaching: 0,
+  invalid: 0,
+  timestamp: 0,
+  results: []
 };
 
 
-/* =========================================================
-   JSON
-========================================================= */
+// =========================
+// Helpers
+// =========================
 
 function json(data, status = 200) {
-
   return new Response(
     JSON.stringify(data),
     {
       status,
       headers: {
-        ...CORS_HEADERS,
-        "Content-Type":
-          "application/json; charset=utf-8"
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
       }
     }
   );
 }
 
 
-/* =========================================================
-   BYBIT REQUEST
-========================================================= */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-async function bybit(
-  path,
-  params = {}
-) {
 
-  const url =
-    new URL(BYBIT + path);
-
-  for (
-    const [key, value]
-    of Object.entries(params)
-  ) {
-
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== ""
-    ) {
-
-      url.searchParams.set(
-        key,
-        String(value)
-      );
-    }
-  }
-
-  const response =
-    await fetch(
-      url.toString(),
-      {
-        method: "GET",
-        headers: {
-          "Accept":
-            "application/json"
-        }
+async function bybit(path) {
+  const response = await fetch(
+    BYBIT + path,
+    {
+      headers: {
+        "accept": "application/json"
       }
-    );
+    }
+  );
 
   if (!response.ok) {
-
     throw new Error(
       `Bybit HTTP ${response.status}`
     );
   }
 
-  const data =
-    await response.json();
+  const data = await response.json();
 
-  if (
-    data.retCode !== 0
-  ) {
-
+  if (data.retCode !== 0) {
     throw new Error(
-      data.retMsg ||
-      "Bybit API error"
+      data.retMsg || "Bybit API error"
     );
   }
 
@@ -140,742 +105,686 @@ async function bybit(
 }
 
 
-/* =========================================================
-   SYMBOLS
-   تمام USDT Linear Perpetual
-========================================================= */
+function percent(a, b) {
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b === 0) {
+    return 0;
+  }
+
+  return ((a - b) / b) * 100;
+}
+
+
+function average(values) {
+  const valid = values.filter(
+    Number.isFinite
+  );
+
+  if (!valid.length) {
+    return 0;
+  }
+
+  return (
+    valid.reduce(
+      (sum, value) => sum + value,
+      0
+    ) / valid.length
+  );
+}
+
+
+function clamp(value, min, max) {
+  return Math.max(
+    min,
+    Math.min(max, value)
+  );
+}
+
+
+// =========================
+// Symbols
+// =========================
 
 async function getSymbols() {
 
-  const symbols = [];
-
-  let cursor = "";
-
-  do {
-
-    const result =
-      await bybit(
-        "/v5/market/instruments-info",
-        {
-          category: "linear",
-          status: "Trading",
-          limit:
-            SYMBOL_PAGE_LIMIT,
-          cursor
-        }
-      );
-
-    const list =
-      result.list || [];
-
-    for (
-      const item
-      of list
-    ) {
-
-      if (
-        item.status ===
-          "Trading" &&
-
-        item.quoteCoin ===
-          "USDT" &&
-
-        item.contractType ===
-          "LinearPerpetual" &&
-
-        item.symbol
-      ) {
-
-        symbols.push(
-          item.symbol
-        );
-      }
-    }
-
-    cursor =
-      result.nextPageCursor || "";
-
-  } while (
-    cursor
+  const result = await bybit(
+    "/v5/market/instruments-info" +
+    "?category=linear" +
+    "&status=Trading" +
+    "&limit=1000"
   );
 
-  return [
-    ...new Set(symbols)
-  ];
+  const list =
+    Array.isArray(result.list)
+      ? result.list
+      : [];
+
+  return list
+    .filter(item =>
+      item.status === "Trading" &&
+      item.quoteCoin === "USDT" &&
+      item.contractType === "LinearPerpetual"
+    )
+    .map(item => item.symbol)
+    .filter(Boolean);
 }
 
 
-/* =========================================================
-   KLINES
-========================================================= */
+// =========================
+// Klines
+// =========================
 
-async function getKlines(
-  symbol
-) {
+async function getKlines(symbol) {
 
-  const result =
-    await bybit(
-      "/v5/market/kline",
-      {
-        category: "linear",
-        symbol,
-        interval: TF,
-        limit: KLINE_LIMIT
-      }
-    );
+  const result = await bybit(
+    "/v5/market/kline" +
+    `?category=linear` +
+    `&symbol=${encodeURIComponent(symbol)}` +
+    `&interval=${TF}` +
+    `&limit=${KLINE_LIMIT}`
+  );
 
   const rows =
-    result.list || [];
+    Array.isArray(result.list)
+      ? result.list
+      : [];
 
   return rows
     .map(row => ({
-
-      time:
-        Number(row[0]),
-
-      open:
-        Number(row[1]),
-
-      high:
-        Number(row[2]),
-
-      low:
-        Number(row[3]),
-
-      close:
-        Number(row[4]),
-
-      volume:
-        Number(row[5]),
-
-      turnover:
-        Number(row[6])
-
+      time: Number(row[0]),
+      open: Number(row[1]),
+      high: Number(row[2]),
+      low: Number(row[3]),
+      close: Number(row[4]),
+      volume: Number(row[5]),
+      turnover: Number(row[6])
     }))
+    .filter(c =>
+      Number.isFinite(c.time) &&
+      Number.isFinite(c.open) &&
+      Number.isFinite(c.high) &&
+      Number.isFinite(c.low) &&
+      Number.isFinite(c.close) &&
+      Number.isFinite(c.volume)
+    )
     .sort(
-      (a, b) =>
-        a.time - b.time
+      (a, b) => a.time - b.time
     );
 }
 
 
-/* =========================================================
-   TICKER
-========================================================= */
+// =========================
+// All tickers
+// =========================
 
-async function getTicker(
-  symbol
-) {
+async function getAllTickers() {
 
-  const result =
-    await bybit(
-      "/v5/market/tickers",
+  const result = await bybit(
+    "/v5/market/tickers?category=linear"
+  );
+
+  const list =
+    Array.isArray(result.list)
+      ? result.list
+      : [];
+
+  const map = new Map();
+
+  for (const item of list) {
+
+    const symbol = item.symbol;
+
+    if (!symbol) continue;
+
+    map.set(
+      symbol,
       {
-        category: "linear",
-        symbol
+        lastPrice: Number(item.lastPrice),
+        volume24h: Number(item.volume24h),
+        turnover24h: Number(item.turnover24h),
+        price24hPcnt:
+          Number(item.price24hPcnt) * 100
       }
     );
-
-  const item =
-    result.list?.[0];
-
-  if (!item) {
-    return null;
   }
 
-  return {
-
-    symbol,
-
-    price:
-      Number(
-        item.lastPrice
-      ),
-
-    change24h:
-      Number(
-        item.price24hPcnt || 0
-      ) * 100,
-
-    volume24h:
-      Number(
-        item.volume24h || 0
-      ),
-
-    turnover24h:
-      Number(
-        item.turnover24h || 0
-      )
-  };
+  return map;
 }
 
 
-/* =========================================================
-   MATH
-========================================================= */
+// =========================
+// Closed candles
+// =========================
 
-function percent(
-  a,
-  b
-) {
+function getClosedCandles(candles) {
 
-  if (
-    !Number.isFinite(a) ||
-    !Number.isFinite(b) ||
-    b === 0
-  ) {
+  const now = Date.now();
 
-    return 0;
-  }
-
-  return (
-    (a - b) /
-    b
-  ) * 100;
-}
-
-
-function average(
-  values
-) {
-
-  if (
-    !values.length
-  ) {
-
-    return 0;
-  }
-
-  return (
-    values.reduce(
-      (sum, x) =>
-        sum + x,
-      0
-    ) /
-    values.length
+  return candles.filter(
+    candle =>
+      candle.time + TF_MS <= now
   );
 }
 
 
-/* =========================================================
-   PUMP DETECTION V6
-========================================================= */
+// =========================
+// Pump sequence detection
+// =========================
+//
+// مهم:
+// این تابع دنبال یک پامپ واقعی و متوالی است.
+//
+// شرایط:
+// 1. حداقل 2 کندل
+// 2. حداکثر 6 کندل
+// 3. رشد حداقل 6٪
+// 4. حداقل 60٪ کندل‌ها سبز
+// 5. حجم پامپ حداقل 1.5 برابر حجم قبل از پامپ
+//
+// خروجی:
+// تمام پامپ‌های معتبر
+// سپس جدیدترین آنها انتخاب می‌شود.
+//
 
-function detectPump(
-  candles
-) {
+function detectPumpSequences(candles) {
 
-  /*
-    آخرین کندل معمولاً در حال تشکیل است.
-  */
+  const pumps = [];
 
-  if (
-    candles.length <
-    40
-  ) {
-
-    return null;
+  if (candles.length < 30) {
+    return pumps;
   }
 
   const lastClosedIndex =
-    candles.length - 2;
+    candles.length - 1;
 
-  const now =
-    Date.now();
-
-  let best =
-    null;
-
-  /*
-    فقط 24 ساعت اخیر
-  */
-
-  const earliest =
-    Math.max(
-      5,
-      lastClosedIndex - 96
-    );
-
-  /*
-    end = آخرین کندل Pump
-  */
+  // فقط حدود 12 ساعت اخیر + حاشیه
+  const minimumTime =
+    Date.now() -
+    MAX_PUMP_AGE_MS -
+    TF_MS;
 
   for (
-    let end =
-      lastClosedIndex - 1;
-
-    end >= earliest;
-
-    end--
+    let end = 1;
+    end <= lastClosedIndex;
+    end++
   ) {
 
-    /*
-      اگر بعد از Pump هیچ کندلی
-      برای Pullback وجود نداشته باشد
-      این Pump را بررسی نمی‌کنیم.
-    */
+    const endCandle =
+      candles[end];
 
-    if (
-      end >=
-      lastClosedIndex
-    ) {
+    const endTime =
+      endCandle.time + TF_MS;
 
+    if (endTime < minimumTime) {
       continue;
     }
 
+    // طول‌های مختلف پامپ
     for (
-      let count =
-        MIN_PUMP_CANDLES;
-
-      count <=
-        MAX_PUMP_CANDLES;
-
-      count++
+      let length = MIN_PUMP_CANDLES;
+      length <= MAX_PUMP_CANDLES;
+      length++
     ) {
 
       const start =
-        end - count + 1;
+        end - length + 1;
 
-      if (
-        start < 5
-      ) {
-
+      if (start < 10) {
         continue;
       }
 
-      const pumpCandles =
+      const sequence =
         candles.slice(
           start,
           end + 1
         );
 
       if (
-        pumpCandles.length !==
-        count
+        sequence.length !== length
       ) {
-
         continue;
       }
 
-      const base =
-        candles[
-          start - 1
-        ];
+      // تمام کندل‌های پامپ
+      const first =
+        sequence[0];
 
-      if (!base) {
-        continue;
-      }
+      const last =
+        sequence[sequence.length - 1];
 
-      /*
-        سن Pump
-      */
-
-      const pumpEnd =
-        pumpCandles[
-          pumpCandles.length - 1
-        ];
-
-      const age =
-        now -
-        pumpEnd.time;
+      // پایه پامپ
+      const basePrice =
+        first.open;
 
       if (
-        age < 0 ||
-        age >
-        MAX_PUMP_AGE_MS
+        !Number.isFinite(basePrice) ||
+        basePrice <= 0
       ) {
-
         continue;
       }
 
-      /*
-        درصد کندل‌های سبز
-      */
+      // قیمت پایان پامپ
+      const endPrice =
+        last.close;
 
-      const greenCount =
-        pumpCandles.filter(
-          c =>
-            c.close >
-            c.open
-        ).length;
+      // رشد کل
+      const pumpPercent =
+        percent(
+          endPrice,
+          basePrice
+        );
+
+      if (
+        pumpPercent <
+        MIN_PUMP_PERCENT
+      ) {
+        continue;
+      }
+
+      // تعداد کندل‌های سبز
+      let greenCount = 0;
+
+      for (const candle of sequence) {
+
+        if (
+          candle.close >
+          candle.open
+        ) {
+          greenCount++;
+        }
+      }
 
       const greenRatio =
         greenCount /
-        count;
+        sequence.length;
 
       if (
         greenRatio <
         MIN_GREEN_RATIO
       ) {
-
         continue;
       }
 
-      /*
-        درصد Pump
-      */
-
-      const move =
-        percent(
-          pumpEnd.close,
-          base.close
-        );
-
-      if (
-        move <
-        MIN_PUMP_PERCENT
-      ) {
-
-        continue;
-      }
-
-      /*
-        High کل Pump
-      */
-
-      const pumpHigh =
+      // دامنه پامپ
+      const high =
         Math.max(
-          ...pumpCandles.map(
-            c =>
-              c.high
+          ...sequence.map(
+            c => c.high
           )
         );
 
-      const pumpLow =
+      const low =
         Math.min(
-          ...pumpCandles.map(
-            c =>
-              c.low
+          ...sequence.map(
+            c => c.low
           )
         );
 
-      /*
-        باید حرکت واقعی باشد.
-      */
+      const rangePercent =
+        percent(
+          high,
+          low
+        );
+
+      // حجم قبل از پامپ
+      const beforeStart =
+        Math.max(
+          0,
+          start - 12
+        );
+
+      const beforeEnd =
+        start;
+
+      const beforeCandles =
+        candles.slice(
+          beforeStart,
+          beforeEnd
+        );
 
       if (
-        pumpHigh <=
-        base.close
+        beforeCandles.length < 6
       ) {
-
         continue;
       }
 
-      /*
-        حجم قبل از Pump
-      */
-
-      const previousVolumes =
-        candles
-          .slice(
-            Math.max(
-              0,
-              start - 12
-            ),
-            start
-          )
-          .map(
-            c =>
-              c.volume
-          )
-          .filter(
-            v =>
-              Number.isFinite(v) &&
-              v > 0
-          );
-
-      const avgVolume =
+      const baselineVolume =
         average(
-          previousVolumes
+          beforeCandles.map(
+            c => c.volume
+          )
         );
 
-      const pumpVolumes =
-        pumpCandles
-          .map(
-            c =>
-              c.volume
-          )
-          .filter(
-            v =>
-              Number.isFinite(v) &&
-              v > 0
-          );
+      if (
+        baselineVolume <= 0
+      ) {
+        continue;
+      }
 
-      const pumpAverageVolume =
+      // میانگین حجم خود پامپ
+      const pumpVolume =
         average(
-          pumpVolumes
+          sequence.map(
+            c => c.volume
+          )
         );
 
       const volumeRatio =
-        avgVolume > 0
-          ? pumpAverageVolume /
-            avgVolume
-          : 0;
+        pumpVolume /
+        baselineVolume;
 
       if (
-        avgVolume > 0 &&
         volumeRatio <
-          MIN_VOLUME_MULTIPLIER
+        MIN_VOLUME_MULTIPLIER
       ) {
-
         continue;
       }
 
-      /*
-        Score
-      */
+      // تایید ساختاری:
+      // نباید وسط sequence یک ریزش شدید داشته باشد.
+      let structuralBreak =
+        false;
 
-      let score = 0;
+      for (
+        let j = 1;
+        j < sequence.length;
+        j++
+      ) {
 
-      score +=
-        Math.min(
-          40,
-          move * 2.5
+        const previous =
+          sequence[j - 1];
+
+        const current =
+          sequence[j];
+
+        const drop =
+          percent(
+            current.close,
+            previous.close
+          );
+
+        if (drop < -3.5) {
+          structuralBreak = true;
+          break;
+        }
+      }
+
+      if (structuralBreak) {
+        continue;
+      }
+
+      // امتیاز
+      const pumpScore =
+        clamp(
+          pumpPercent * 5,
+          0,
+          40
         );
 
-      score +=
-        Math.min(
-          30,
-          volumeRatio * 5
+      const volumeScore =
+        clamp(
+          (volumeRatio - 1) * 15,
+          0,
+          25
         );
 
-      score +=
-        greenRatio * 20;
-
-      score +=
-        count >= 4
-          ? 10
-          : 5;
-
-      score =
-        Math.min(
-          100,
-          Number(
-            score.toFixed(2)
-          )
+      const greenScore =
+        clamp(
+          greenRatio * 25,
+          0,
+          25
         );
 
-      const candidate = {
+      const candleScore =
+        clamp(
+          sequence.length * 2,
+          0,
+          10
+        );
 
-        startIndex:
-          start,
+      const score =
+        clamp(
+          pumpScore +
+          volumeScore +
+          greenScore +
+          candleScore,
+          0,
+          100
+        );
 
-        endIndex:
-          end,
+      pumps.push({
+
+        startIndex: start,
+        endIndex: end,
 
         startTime:
-          base.time,
+          first.time,
 
-        endTime:
-          pumpEnd.time,
+        // زمان واقعی بسته شدن آخرین کندل
+        endTime,
 
-        basePrice:
-          base.close,
+        basePrice,
 
-        pumpPrice:
-          pumpEnd.close,
+        price:
+          endPrice,
 
-        high:
-          pumpHigh,
+        high,
 
-        low:
-          pumpLow,
+        low,
 
         percent:
-          move,
+          Number(
+            pumpPercent.toFixed(4)
+          ),
 
         rangePercent:
-          percent(
-            pumpHigh,
-            base.close
+          Number(
+            rangePercent.toFixed(4)
           ),
 
         candles:
-          count,
+          sequence.length,
 
-        greenRatio,
+        greenRatio:
+          Number(
+            greenRatio.toFixed(4)
+          ),
 
-        volumeRatio,
+        volumeRatio:
+          Number(
+            volumeRatio.toFixed(4)
+          ),
 
-        score
-      };
-
-      /*
-        جدیدترین Pump را ترجیح می‌دهیم.
-        اگر سن برابر بود، Score بالاتر.
-      */
-
-      if (
-        !best
-      ) {
-
-        best =
-          candidate;
-
-      } else if (
-        candidate.endTime >
-        best.endTime
-      ) {
-
-        best =
-          candidate;
-
-      } else if (
-        candidate.endTime ===
-          best.endTime &&
-        candidate.score >
-          best.score
-      ) {
-
-        best =
-          candidate;
-      }
+        score:
+          Number(
+            score.toFixed(2)
+          )
+      });
     }
   }
 
-  return best;
+  return pumps;
 }
 
 
-/* =========================================================
-   PULLBACK DETECTION
-========================================================= */
+// =========================
+// انتخاب بهترین پامپ
+// =========================
+//
+// اولویت:
+// 1. جدیدترین پامپ
+// 2. امتیاز بالاتر
+// 3. رشد بیشتر
+//
+// نه صرفاً بزرگ‌ترین پامپ تاریخی.
+//
+
+function selectBestPump(pumps) {
+
+  if (!pumps.length) {
+    return null;
+  }
+
+  pumps.sort(
+    (a, b) => {
+
+      if (
+        b.endTime !==
+        a.endTime
+      ) {
+        return (
+          b.endTime -
+          a.endTime
+        );
+      }
+
+      if (
+        b.score !==
+        a.score
+      ) {
+        return (
+          b.score -
+          a.score
+        );
+      }
+
+      return (
+        b.percent -
+        a.percent
+      );
+    }
+  );
+
+  return pumps[0];
+}
+
+
+// =========================
+// RED CANDLE
+// =========================
+//
+// اولین کندل قرمز بعد از پامپ
+//
 
 function findPullbackCandle(
   candles,
   pump
 ) {
 
-  if (!pump) {
-    return null;
-  }
-
-  const from =
+  const start =
     pump.endIndex + 1;
 
-  /*
-    حداکثر 8 کندل بعد از Pump
-  */
-
-  const to =
+  const end =
     Math.min(
-      candles.length - 2,
-      from + 8
+      candles.length - 1,
+      start + 12
     );
 
   for (
-    let i = from;
-    i <= to;
+    let i = start;
+    i <= end;
     i++
   ) {
 
-    const c =
+    const candle =
       candles[i];
 
-    if (!c) {
-      continue;
-    }
-
-    /*
-      حتماً قرمز
-    */
-
+    // فقط کندل قرمز
     if (
-      c.close >=
-      c.open
+      candle.close >=
+      candle.open
     ) {
-
       continue;
     }
-
-    /*
-      اندازه بدنه
-    */
 
     const bodyPercent =
       Math.abs(
         percent(
-          c.close,
-          c.open
+          candle.close,
+          candle.open
         )
       );
 
+    // قرمز خیلی بزرگ = سقوط، نه پولبک سالم
     if (
       bodyPercent >
       MAX_PULLBACK_PERCENT
     ) {
-
       continue;
     }
 
-    /*
-      Pullback نباید Base را بشکند.
-    */
-
+    // باید هنوز ساختار پامپ حفظ شده باشد
     if (
-      c.low <
+      candle.low <
       pump.basePrice
     ) {
-
       continue;
     }
 
-    /*
-      Pullback نباید از Pump
-      بیشتر از 4.5٪ فاصله بگیرد.
-    */
+    const zoneLow =
+      Math.min(
+        candle.low,
+        candle.close
+      );
 
+    const zoneHigh =
+      candle.open;
+
+    if (
+      zoneHigh <= zoneLow
+    ) {
+      continue;
+    }
+
+    // میزان retrace از قیمت پایان پامپ
     const retracePercent =
-      (
-        (
-          pump.pumpPrice -
-          c.low
-        ) /
-        pump.pumpPrice
-      ) * 100;
+      Math.max(
+        0,
+        percent(
+          pump.price,
+          candle.close
+        )
+      );
 
+    // پولبک نباید بیشتر از حد مجاز باشد
     if (
       retracePercent >
       MAX_PULLBACK_PERCENT
     ) {
-
       continue;
     }
 
-    /*
-      Zone:
-      Low تا Open
-    */
-
     return {
 
-      index:
-        i,
+      index: i,
 
       time:
-        c.time,
+        candle.time,
 
       open:
-        c.open,
+        candle.open,
 
       high:
-        c.high,
+        candle.high,
 
       low:
-        c.low,
+        candle.low,
 
       close:
-        c.close,
+        candle.close,
 
-      bodyPercent,
+      bodyPercent:
+        Number(
+          bodyPercent.toFixed(4)
+        ),
 
-      retracePercent,
+      retracePercent:
+        Number(
+          retracePercent.toFixed(4)
+        ),
 
-      zoneLow:
-        c.low,
+      zoneLow,
 
-      zoneHigh:
-        c.open
+      zoneHigh
     };
   }
 
@@ -883,142 +792,145 @@ function findPullbackCandle(
 }
 
 
-/* =========================================================
-   BUILD SETUP
-========================================================= */
+// =========================
+// وضعیت فعلی
+// =========================
 
-function buildSetup(
-  symbol,
-  candles,
-  ticker
+function calculateState(
+  currentPrice,
+  pump,
+  pullback
 ) {
 
-  const pump =
-    detectPump(
-      candles
-    );
-
-  if (!pump) {
-    return null;
-  }
-
-  const pullback =
-    findPullbackCandle(
-      candles,
-      pump
-    );
-
-  if (!pullback) {
-    return null;
-  }
-
-  const last =
-    candles[
-      candles.length - 1
-    ];
-
-  const currentPrice =
-    ticker?.price ??
-    last.close;
-
   const zoneLow =
-    Math.min(
-      pullback.zoneLow,
-      pullback.zoneHigh
-    );
+    pullback.zoneLow;
 
   const zoneHigh =
-    Math.max(
-      pullback.zoneLow,
-      pullback.zoneHigh
-    );
+    pullback.zoneHigh;
 
-  let distancePercent = 0;
-
-  let state =
-    "WAITING";
-
-  /*
-    قیمت داخل Zone
-  */
-
+  // ساختار کاملاً خراب شده
   if (
-    currentPrice >=
-      zoneLow &&
-    currentPrice <=
-      zoneHigh
+    currentPrice <
+    pump.basePrice
   ) {
+    return {
+      state: "INVALID",
+      distancePercent:
+        Number(
+          Math.abs(
+            percent(
+              currentPrice,
+              zoneLow
+            )
+          ).toFixed(4)
+        )
+    };
+  }
 
-    state =
-      "REACHED";
+  // داخل زون
+  if (
+    currentPrice >= zoneLow &&
+    currentPrice <= zoneHigh
+  ) {
+    return {
+      state: "REACHED",
+      distancePercent: 0
+    };
+  }
 
-  } else if (
+  // بالاتر از زون
+  if (
     currentPrice >
-      zoneHigh
+    zoneHigh
   ) {
 
-    distancePercent =
-      (
-        (
-          currentPrice -
-          zoneHigh
-        ) /
+    const distancePercent =
+      percent(
+        currentPrice,
         zoneHigh
-      ) * 100;
+      );
 
     if (
       distancePercent <=
       NEAR_ZONE_PERCENT
     ) {
-
-      state =
-        "NEAR";
-
-    } else {
-
-      state =
-        "APPROACHING";
+      return {
+        state: "NEAR",
+        distancePercent:
+          Number(
+            distancePercent.toFixed(4)
+          )
+      };
     }
 
-  } else {
-
-    distancePercent =
-      (
-        (
-          zoneLow -
-          currentPrice
-        ) /
-        zoneLow
-      ) * 100;
-
-    state =
-      "BELOW_ZONE";
+    return {
+      state: "APPROACHING",
+      distancePercent:
+        Number(
+          distancePercent.toFixed(4)
+        )
+    };
   }
 
-  /*
-    شکست Base = Invalid
-  */
+  // پایین زون ولی بالای base
+  return {
+    state: "BELOW_ZONE",
+    distancePercent:
+      Number(
+        Math.abs(
+          percent(
+            currentPrice,
+            zoneLow
+          )
+        ).toFixed(4)
+      )
+  };
+}
+
+
+// =========================
+// ساخت Setup
+// =========================
+
+function buildSetup(
+  symbol,
+  candles,
+  pump,
+  pullback,
+  ticker
+) {
+
+  let currentPrice =
+    ticker &&
+    Number.isFinite(
+      ticker.lastPrice
+    )
+      ? ticker.lastPrice
+      : candles[
+          candles.length - 1
+        ].close;
 
   if (
-    currentPrice <
-    pump.basePrice
+    !Number.isFinite(
+      currentPrice
+    ) ||
+    currentPrice <= 0
   ) {
-
-    state =
-      "INVALID";
+    return null;
   }
 
-  /*
-    Setup ID
-  */
+  const status =
+    calculateState(
+      currentPrice,
+      pump,
+      pullback
+    );
 
   const id =
-    [
-      symbol,
-      pump.startIndex,
-      pump.endIndex,
-      pullback.index
-    ].join("-");
+    `${symbol}-` +
+    `${pump.startIndex}-` +
+    `${pump.endIndex}-` +
+    `${pullback.index}`;
 
   return {
 
@@ -1026,17 +938,15 @@ function buildSetup(
 
     symbol,
 
-    timeframe:
-      "15m",
+    timeframe: "15m",
 
-    state,
+    state:
+      status.state,
 
     currentPrice,
 
     distancePercent:
-      Number(
-        distancePercent.toFixed(4)
-      ),
+      status.distancePercent,
 
     pump: {
 
@@ -1050,7 +960,7 @@ function buildSetup(
         pump.basePrice,
 
       price:
-        pump.pumpPrice,
+        pump.price,
 
       high:
         pump.high,
@@ -1059,30 +969,19 @@ function buildSetup(
         pump.low,
 
       percent:
-        Number(
-          pump.percent.toFixed(4)
-        ),
+        pump.percent,
 
       rangePercent:
-        Number(
-          pump.rangePercent
-            .toFixed(4)
-        ),
+        pump.rangePercent,
 
       candles:
         pump.candles,
 
       greenRatio:
-        Number(
-          pump.greenRatio
-            .toFixed(4)
-        ),
+        pump.greenRatio,
 
       volumeRatio:
-        Number(
-          pump.volumeRatio
-            .toFixed(4)
-        ),
+        pump.volumeRatio,
 
       score:
         pump.score
@@ -1106,20 +1005,16 @@ function buildSetup(
         pullback.close,
 
       bodyPercent:
-        Number(
-          pullback.bodyPercent
-            .toFixed(4)
-        ),
+        pullback.bodyPercent,
 
       retracePercent:
-        Number(
-          pullback.retracePercent
-            .toFixed(4)
-        ),
+        pullback.retracePercent,
 
-      zoneLow,
+      zoneLow:
+        pullback.zoneLow,
 
-      zoneHigh
+      zoneHigh:
+        pullback.zoneHigh
     },
 
     detectedAt:
@@ -1128,154 +1023,343 @@ function buildSetup(
 }
 
 
-/* =========================================================
-   ANALYZE SYMBOL
-========================================================= */
+// =========================
+// تحلیل یک ارز
+// =========================
 
 async function analyzeSymbol(
-  symbol
+  symbol,
+  tickerMap
 ) {
 
-  try {
+  const candles =
+    await getKlines(symbol);
 
-    const candles =
-      await getKlines(
-        symbol
-      );
+  const closedCandles =
+    getClosedCandles(candles);
 
-    if (
-      candles.length <
-      40
-    ) {
-
-      return null;
-    }
-
-    const ticker =
-      await getTicker(
-        symbol
-      );
-
-    return buildSetup(
-      symbol,
-      candles,
-      ticker
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Analyze error:",
-      symbol,
-      error.message
-    );
-
+  if (
+    closedCandles.length <
+    30
+  ) {
     return null;
   }
+
+  const pumps =
+    detectPumpSequences(
+      closedCandles
+    );
+
+  if (!pumps.length) {
+    return null;
+  }
+
+  const now =
+    Date.now();
+
+  // از جدیدترین پامپ شروع می‌کنیم
+  pumps.sort(
+    (a, b) =>
+      b.endTime -
+      a.endTime
+  );
+
+  /*
+   * بسیار مهم:
+   * اگر جدیدترین پامپ RED/PULLBACK معتبر نداشت،
+   * دنبال پامپ قدیمی‌تر می‌رویم.
+   *
+   * اما فقط تا 12 ساعت.
+   */
+
+  for (const pump of pumps) {
+
+    if (
+      now - pump.endTime >
+      MAX_PUMP_AGE_MS
+    ) {
+      continue;
+    }
+
+    const pullback =
+      findPullbackCandle(
+        closedCandles,
+        pump
+      );
+
+    if (!pullback) {
+      continue;
+    }
+
+    const setup =
+      buildSetup(
+        symbol,
+        closedCandles,
+        pump,
+        pullback,
+        tickerMap
+          ? tickerMap.get(symbol)
+          : null
+      );
+
+    if (!setup) {
+      continue;
+    }
+
+    /*
+     * اگر پامپ قدیمی‌تر باعث INVALID شده،
+     * آن را سیگنال نگه نمی‌داریم.
+     *
+     * چون هدف پیدا کردن ستاپ قابل معامله
+     * روی پامپ معتبر اخیر است.
+     */
+
+    if (
+      setup.state ===
+      "INVALID"
+    ) {
+      continue;
+    }
+
+    return setup;
+  }
+
+  return null;
 }
 
 
-/* =========================================================
-   MARKET SCAN
-========================================================= */
+// =========================
+// Scan Market
+// =========================
 
 async function scanMarket() {
+
+  const startedAt =
+    Date.now();
 
   const symbols =
     await getSymbols();
 
-  const results = [];
+  const tickerMap =
+    await getAllTickers();
 
-  /*
-    تعداد ارزهایی که حداقل
-    Pump معتبر + Pullback دارند.
-  */
+  const results = [];
 
   let candidates = 0;
 
+  // فقط نمادهای موجود
+  const validSymbols =
+    symbols.filter(
+      symbol =>
+        tickerMap.has(symbol)
+    );
+
   for (
     let i = 0;
-    i < symbols.length;
-    i += BATCH_SIZE
+    i < validSymbols.length;
+    i += SCAN_BATCH
   ) {
 
     const batch =
-      symbols.slice(
+      validSymbols.slice(
         i,
-        i + BATCH_SIZE
+        i + SCAN_BATCH
       );
 
-    const batchResults =
+    const analyzed =
       await Promise.all(
         batch.map(
-          analyzeSymbol
+          async symbol => {
+
+            try {
+
+              const candles =
+                await getKlines(
+                  symbol
+                );
+
+              const closedCandles =
+                getClosedCandles(
+                  candles
+                );
+
+              if (
+                closedCandles.length <
+                30
+              ) {
+                return null;
+              }
+
+              const pumps =
+                detectPumpSequences(
+                  closedCandles
+                );
+
+              if (
+                !pumps.length
+              ) {
+                return null;
+              }
+
+              candidates++;
+
+              /*
+               * جدیدترین پامپ معتبر را
+               * بررسی می‌کنیم.
+               */
+
+              pumps.sort(
+                (a, b) =>
+                  b.endTime -
+                  a.endTime
+              );
+
+              const now =
+                Date.now();
+
+              for (
+                const pump of pumps
+              ) {
+
+                if (
+                  now - pump.endTime >
+                  MAX_PUMP_AGE_MS
+                ) {
+                  continue;
+                }
+
+                const pullback =
+                  findPullbackCandle(
+                    closedCandles,
+                    pump
+                  );
+
+                if (
+                  !pullback
+                ) {
+                  continue;
+                }
+
+                const setup =
+                  buildSetup(
+                    symbol,
+                    closedCandles,
+                    pump,
+                    pullback,
+                    tickerMap
+                  );
+
+                if (!setup) {
+                  continue;
+                }
+
+                // فقط Setupهای ساختاری سالم
+                if (
+                  setup.state ===
+                  "INVALID"
+                ) {
+                  continue;
+                }
+
+                return setup;
+              }
+
+              return null;
+
+            } catch (error) {
+
+              return null;
+            }
+          }
         )
       );
 
     for (
-      const result
-      of batchResults
+      const item of analyzed
     ) {
 
-      if (!result) {
-        continue;
+      if (item) {
+        results.push(item);
       }
+    }
 
-      candidates++;
-
-      results.push(
-        result
-      );
+    /*
+     * کمی فاصله برای جلوگیری از فشار
+     * روی API Bybit
+     */
+    if (
+      i + SCAN_BATCH <
+      validSymbols.length
+    ) {
+      await sleep(80);
     }
   }
 
-  /*
-    اولویت
-  */
 
-  const priority = {
+  // =========================
+  // مرتب‌سازی
+  // =========================
 
+  const stateOrder = {
     REACHED: 0,
-
     NEAR: 1,
-
     APPROACHING: 2,
-
-    BELOW_ZONE: 3,
-
-    WAITING: 4,
-
-    INVALID: 5
+    BELOW_ZONE: 3
   };
 
   results.sort(
     (a, b) => {
 
-      const stateDiff =
-        (
-          priority[a.state] ??
-          99
-        ) -
-        (
-          priority[b.state] ??
-          99
-        );
+      const sa =
+        stateOrder[a.state] ??
+        99;
 
-      if (
-        stateDiff !== 0
-      ) {
+      const sb =
+        stateOrder[b.state] ??
+        99;
 
-        return stateDiff;
+      if (sa !== sb) {
+        return sa - sb;
       }
 
       return (
-        (b.pump?.score || 0) -
-        (a.pump?.score || 0)
+        b.pump.score -
+        a.pump.score
       );
     }
   );
 
-  return {
+
+  const signals =
+    results.filter(
+      x =>
+        x.state ===
+        "REACHED"
+    ).length;
+
+  const near =
+    results.filter(
+      x =>
+        x.state ===
+        "NEAR"
+    ).length;
+
+  const approaching =
+    results.filter(
+      x =>
+        x.state ===
+        "APPROACHING"
+    ).length;
+
+  const invalid =
+    results.filter(
+      x =>
+        x.state ===
+        "INVALID"
+    ).length;
+
+
+  lastScan = {
 
     ok: true,
 
@@ -1292,330 +1376,47 @@ async function scanMarket() {
       "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
 
     scannedSymbols:
-      symbols.length,
+      validSymbols.length,
 
     candidates,
 
     setups:
-      results.filter(
-        x =>
-          x.state !==
-          "INVALID"
-      ).length,
+      results.length,
 
-    signals:
-      results.filter(
-        x =>
-          x.state ===
-          "REACHED"
-      ).length,
+    signals,
 
-    near:
-      results.filter(
-        x =>
-          x.state ===
-          "NEAR"
-      ).length,
+    near,
 
-    approaching:
-      results.filter(
-        x =>
-          x.state ===
-          "APPROACHING"
-      ).length,
+    approaching,
 
-    invalid:
-      results.filter(
-        x =>
-          x.state ===
-          "INVALID"
-      ).length,
+    invalid,
 
     timestamp:
       Date.now(),
 
+    durationMs:
+      Date.now() -
+      startedAt,
+
     results
   };
+
+
+  return lastScan;
 }
 
 
-/* =========================================================
-   CACHE
-========================================================= */
+// =========================
+// Health
+// =========================
 
-let lastScan = {
+function health() {
 
-  ok: true,
+  return {
 
-  version:
-    VERSION,
+    ok: true,
 
-  source:
-    "Bybit",
-
-  timeframe:
-    "15m",
-
-  mode:
-    "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
-
-  scannedSymbols:
-    0,
-
-  candidates:
-    0,
-
-  setups:
-    0,
-
-  signals:
-    0,
-
-  near:
-    0,
-
-  approaching:
-    0,
-
-  invalid:
-    0,
-
-  timestamp:
-    0,
-
-  results:
-    []
-};
-
-
-/* =========================================================
-   REQUEST HANDLER
-========================================================= */
-
-async function handleRequest(
-  request
-) {
-
-  if (
-    request.method ===
-    "OPTIONS"
-  ) {
-
-    return new Response(
-      null,
-      {
-        headers:
-          CORS_HEADERS
-      }
-    );
-  }
-
-  const url =
-    new URL(
-      request.url
-    );
-
-  const path =
-    url.pathname;
-
-
-/* =========================================================
-   HEALTH
-========================================================= */
-
-  if (
-    path === "/health" ||
-    path === "/api/health"
-  ) {
-
-    return json({
-
-      ok: true,
-
-      service:
-        "Pump Scanner",
-
-      version:
-        VERSION,
-
-      source:
-        "Bybit",
-
-      timeframe:
-        "15m",
-
-      strategy:
-        "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
-
-      rules: {
-
-        minPumpPercent:
-          MIN_PUMP_PERCENT,
-
-        minPumpVolume:
-          MIN_VOLUME_MULTIPLIER,
-
-        minPumpCandles:
-          MIN_PUMP_CANDLES,
-
-        maxPumpCandles:
-          MAX_PUMP_CANDLES,
-
-        minGreenRatio:
-          MIN_GREEN_RATIO,
-
-        maxPullbackPercent:
-          MAX_PULLBACK_PERCENT,
-
-        nearZonePercent:
-          NEAR_ZONE_PERCENT,
-
-        maxPumpAgeHours:
-          24
-      },
-
-      timestamp:
-        Date.now()
-    });
-  }
-
-
-/* =========================================================
-   SCAN
-========================================================= */
-
-  if (
-    path === "/scan" ||
-    path === "/api/scan"
-  ) {
-
-    try {
-
-      const result =
-        await scanMarket();
-
-      lastScan =
-        result;
-
-      return json(
-        result
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Scan error:",
-        error.message
-      );
-
-      return json({
-
-        ok: false,
-
-        version:
-          VERSION,
-
-        error:
-          error.message,
-
-        timestamp:
-          Date.now()
-
-      }, 500);
-    }
-  }
-
-
-/* =========================================================
-   RESULTS
-========================================================= */
-
-  if (
-    path === "/results" ||
-    path === "/api/results"
-  ) {
-
-    return json(
-      lastScan
-    );
-  }
-
-
-/* =========================================================
-   ANALYZE
-========================================================= */
-
-  if (
-    path === "/analyze" ||
-    path === "/api/analyze"
-  ) {
-
-    const symbol =
-      url.searchParams
-        .get("symbol")
-        ?.toUpperCase()
-        .trim();
-
-    if (!symbol) {
-
-      return json({
-
-        ok: false,
-
-        error:
-          "symbol required",
-
-        example:
-          "/analyze?symbol=ACEUSDT"
-
-      }, 400);
-    }
-
-    try {
-
-      const result =
-        await analyzeSymbol(
-          symbol
-        );
-
-      return json({
-
-        ok: true,
-
-        version:
-          VERSION,
-
-        source:
-          "Bybit",
-
-        timeframe:
-          "15m",
-
-        result
-
-      });
-
-    } catch (error) {
-
-      return json({
-
-        ok: false,
-
-        error:
-          error.message
-
-      }, 500);
-    }
-  }
-
-
-/* =========================================================
-   ROOT
-========================================================= */
-
-  return json({
-
-    name:
+    service:
       "Pump Scanner",
 
     version:
@@ -1630,28 +1431,157 @@ async function handleRequest(
     strategy:
       "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
 
-    endpoints: {
+    rules: {
 
-      health:
-        "/health",
+      minPumpPercent:
+        MIN_PUMP_PERCENT,
 
-      scan:
-        "/scan",
+      minPumpVolume:
+        MIN_VOLUME_MULTIPLIER,
 
-      results:
-        "/results",
+      minPumpCandles:
+        MIN_PUMP_CANDLES,
 
-      analyze:
-        "/analyze?symbol=ACEUSDT"
-    }
+      maxPumpCandles:
+        MAX_PUMP_CANDLES,
 
-  });
+      minGreenRatio:
+        MIN_GREEN_RATIO,
+
+      maxPullbackPercent:
+        MAX_PULLBACK_PERCENT,
+
+      nearZonePercent:
+        NEAR_ZONE_PERCENT,
+
+      maxPumpAgeHours:
+        MAX_PUMP_AGE_HOURS
+    },
+
+    timestamp:
+      Date.now()
+  };
 }
 
 
-/* =========================================================
-   CLOUDFLARE WORKER
-========================================================= */
+// =========================
+// Analyze endpoint
+// =========================
+
+async function handleAnalyze(
+  request
+) {
+
+  const url =
+    new URL(request.url);
+
+  let symbol =
+    url.searchParams
+      .get("symbol");
+
+  if (!symbol) {
+
+    return json({
+      ok: false,
+      error:
+        "symbol is required"
+    }, 400);
+  }
+
+  symbol =
+    symbol
+      .toUpperCase()
+      .replace(
+        /[^A-Z0-9]/g,
+        ""
+      );
+
+  try {
+
+    const tickerMap =
+      await getAllTickers();
+
+    const result =
+      await analyzeSymbol(
+        symbol,
+        tickerMap
+      );
+
+    return json({
+
+      ok: true,
+
+      version:
+        VERSION,
+
+      source:
+        "Bybit",
+
+      timeframe:
+        "15m",
+
+      symbol,
+
+      result
+
+    });
+
+  } catch (error) {
+
+    return json({
+
+      ok: false,
+
+      error:
+        error.message ||
+        "Analyze failed"
+
+    }, 500);
+  }
+}
+
+
+// =========================
+// CORS
+// =========================
+
+function withCors(response) {
+
+  const headers =
+    new Headers(
+      response.headers
+    );
+
+  headers.set(
+    "access-control-allow-origin",
+    "*"
+  );
+
+  headers.set(
+    "access-control-allow-methods",
+    "GET,OPTIONS"
+  );
+
+  headers.set(
+    "access-control-allow-headers",
+    "Content-Type"
+  );
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+
+      headers
+    }
+  );
+}
+
+
+// =========================
+// Worker
+// =========================
 
 export default {
 
@@ -1661,8 +1591,152 @@ export default {
     ctx
   ) {
 
-    return handleRequest(
-      request
-    );
+    if (
+      request.method ===
+      "OPTIONS"
+    ) {
+
+      return withCors(
+        new Response(
+          null,
+          {
+            status: 204
+          }
+        )
+      );
+    }
+
+
+    const url =
+      new URL(request.url);
+
+    const path =
+      url.pathname;
+
+
+    try {
+
+      // =====================
+      // HEALTH
+      // =====================
+
+      if (
+        path === "/health" ||
+        path === "/api/health"
+      ) {
+
+        return withCors(
+          json(
+            health()
+          )
+        );
+      }
+
+
+      // =====================
+      // SCAN
+      // =====================
+
+      if (
+        path === "/scan" ||
+        path === "/api/scan"
+      ) {
+
+        const result =
+          await scanMarket();
+
+        return withCors(
+          json(result)
+        );
+      }
+
+
+      // =====================
+      // RESULTS
+      // =====================
+
+      if (
+        path === "/results" ||
+        path === "/api/results"
+      ) {
+
+        return withCors(
+          json(
+            lastScan
+          )
+        );
+      }
+
+
+      // =====================
+      // ANALYZE
+      // =====================
+
+      if (
+        path === "/analyze" ||
+        path === "/api/analyze"
+      ) {
+
+        return withCors(
+          await handleAnalyze(
+            request
+          )
+        );
+      }
+
+
+      // =====================
+      // ROOT
+      // =====================
+
+      return withCors(
+        json({
+
+          ok: true,
+
+          service:
+            "Pump Scanner",
+
+          version:
+            VERSION,
+
+          source:
+            "Bybit",
+
+          timeframe:
+            "15m",
+
+          strategy:
+            "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
+
+          endpoints: [
+
+            "/health",
+            "/scan",
+            "/results",
+            "/analyze?symbol=BTCUSDT"
+
+          ]
+
+        })
+      );
+
+    } catch (error) {
+
+      return withCors(
+        json({
+
+          ok: false,
+
+          version:
+            VERSION,
+
+          error:
+            error.message ||
+            "Worker error"
+
+        }, 500)
+      );
+    }
   }
 };
