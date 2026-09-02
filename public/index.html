@@ -324,10 +324,6 @@ td{
   direction:ltr;
 }
 
-/* =========================
-   رنگ خرید و فروش
-========================= */
-
 .buy{
   color:#27d17f !important;
   font-weight:bold;
@@ -352,13 +348,11 @@ td{
   color:#d5dee5 !important;
 }
 
-/* تمام سلول‌های مربوط به خرید */
 .buy-data{
   color:#27d17f !important;
   font-weight:bold;
 }
 
-/* تمام سلول‌های مربوط به فروش */
 .sell-data{
   color:#ff5b68 !important;
   font-weight:bold;
@@ -391,6 +385,124 @@ td{
   border-radius:50%;
   background:#27c77a;
   margin-left:5px;
+}
+
+/* =========================
+   فیلتر معاملات
+========================= */
+
+.trade-filter{
+  padding:14px;
+  border-top:1px solid #172b37;
+  background:#08131c;
+}
+
+.trade-filter-title{
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.filter-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(160px,1fr));
+  gap:9px;
+}
+
+.filter-box{
+  background:#0d1d28;
+  border:1px solid #203b4b;
+  border-radius:10px;
+  padding:9px;
+}
+
+.filter-box label{
+  display:block;
+  color:#8298a8;
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+.filter-box input{
+  width:100%;
+  background:#071018;
+  border:1px solid #294354;
+  color:#fff;
+  border-radius:8px;
+  padding:9px;
+  direction:ltr;
+}
+
+.filter-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+
+.trade-summary{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(145px,1fr));
+  gap:9px;
+  margin-top:12px;
+}
+
+.trade-summary-box{
+  background:#0f202c;
+  border-radius:10px;
+  padding:11px;
+  text-align:center;
+}
+
+.trade-summary-box span{
+  display:block;
+  color:#8298a8;
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+.trade-summary-box b{
+  display:block;
+  font-size:15px;
+  direction:ltr;
+}
+
+.trade-summary-box.buy-box{
+  border:1px solid #17623f;
+}
+
+.trade-summary-box.sell-box{
+  border:1px solid #71303a;
+}
+
+.trade-summary-box.delta-box{
+  border:1px solid #31516a;
+}
+
+.filter-result{
+  margin-top:10px;
+  padding:10px;
+  background:#0b1822;
+  border-radius:9px;
+  color:#9eb1be;
+  font-size:12px;
+  line-height:1.9;
+}
+
+.filter-error{
+  color:#ff7883;
+}
+
+.filter-ok{
+  color:#8ddab3;
+}
+
+.range-note{
+  color:#6f8797;
+  font-size:11px;
+  margin-top:7px;
+  line-height:1.7;
 }
 
 @media(max-width:650px){
@@ -633,7 +745,6 @@ soundVolume
 )
 );
 
-
 const soundEnabledEl =
 document.getElementById(
 "soundEnabled"
@@ -649,7 +760,6 @@ document.getElementById(
 "volumeText"
 );
 
-
 soundEnabledEl.checked =
 soundEnabled;
 
@@ -658,7 +768,6 @@ soundVolume;
 
 volumeTextEl.textContent =
 soundVolume + "٪";
-
 
 soundEnabledEl.addEventListener(
 "change",
@@ -676,7 +785,6 @@ unlockAudio();
 
 }
 );
-
 
 soundVolumeEl.addEventListener(
 "input",
@@ -738,7 +846,6 @@ audioContext
 }catch(e){}
 
 }
-
 
 document.addEventListener(
 "pointerdown",
@@ -831,68 +938,29 @@ return;
 
 if(type === "REACHED"){
 
-beep(
-880,
-150,
-0,
-1.1
-);
-
-beep(
-1100,
-180,
-190,
-1.15
-);
-
-beep(
-1320,
-220,
-400,
-1.2
-);
+beep(880,150,0,1.1);
+beep(1100,180,190,1.15);
+beep(1320,220,400,1.2);
 
 return;
 }
-
 
 if(type === "NEAR"){
 
-beep(
-700,
-140,
-0,
-1
-);
-
-beep(
-900,
-160,
-180,
-1
-);
+beep(700,140,0,1);
+beep(900,160,180,1);
 
 return;
 }
 
-
 if(type === "APPROACHING"){
 
-beep(
-520,
-130,
-0,
-0.8
-);
+beep(520,130,0,0.8);
 
 }
 
 }
 
-
-/* =========================
-   آزمایش صدا
-========================= */
 
 document
 .getElementById(
@@ -908,26 +976,9 @@ if(!audioContext){
 return;
 }
 
-beep(
-600,
-120,
-0,
-1
-);
-
-beep(
-850,
-140,
-170,
-1
-);
-
-beep(
-1100,
-180,
-370,
-1
-);
+beep(600,120,0,1);
+beep(850,140,170,1);
+beep(1100,180,370,1);
 
 }
 );
@@ -993,8 +1044,6 @@ digits
 }
 
 
-/* رنگ‌بندی عدد بر اساس مثبت/منفی */
-
 function valueClass(value){
 
 const n =
@@ -1017,8 +1066,6 @@ return "neutral";
 }
 
 
-/* رنگ‌بندی درصد اختلاف */
-
 function deltaPercentClass(value){
 
 const n =
@@ -1040,11 +1087,6 @@ return "neutral";
 
 }
 
-
-/*
-تبدیل زمان معامله بای‌بیت
-به تاریخ و ساعت خوانا
-*/
 
 function formatTradeTime(value){
 
@@ -1181,27 +1223,19 @@ String(
 state || ""
 ).toUpperCase();
 
-if(
-s === "REACHED"
-){
+if(s === "REACHED"){
 return "badge-reached";
 }
 
-if(
-s === "NEAR"
-){
+if(s === "NEAR"){
 return "badge-near";
 }
 
-if(
-s === "APPROACHING"
-){
+if(s === "APPROACHING"){
 return "badge-approaching";
 }
 
-if(
-s === "INVALID"
-){
+if(s === "INVALID"){
 return "badge-invalid";
 }
 
@@ -1211,7 +1245,112 @@ return "badge-waiting";
 
 
 /* =========================
-   هشدار بدون تکرار
+   نرمال‌سازی اطلاعات
+========================= */
+
+function normalizeItem(item){
+
+const pump =
+item?.pump ||
+{};
+
+const setup =
+item?.setup ||
+{};
+
+const state =
+String(
+item?.state ||
+setup.state ||
+item?.currentState?.state ||
+"WAITING"
+).toUpperCase();
+
+return {
+
+symbol:
+item?.symbol ||
+"",
+
+category:
+item?.category ||
+"",
+
+price:
+item?.price ??
+item?.ticker?.lastPrice ??
+item?.currentPrice ??
+setup.currentPrice ??
+0,
+
+state,
+
+pumpPercent:
+pump.pumpPercent ??
+setup.pumpPercent ??
+item?.pumpPercent ??
+0,
+
+volumeMultiplier:
+pump.volumeMultiplier ??
+pump.volumeRatio ??
+setup.volumeMultiplier ??
+item?.volumeMultiplier ??
+0,
+
+redCandle:
+setup.redCandle ??
+item?.redCandle ??
+null,
+
+pullbackPercent:
+setup.pullbackPercent ??
+item?.pullbackPercent ??
+item?.pullback?.percent ??
+0,
+
+zoneLow:
+setup.zoneLow ??
+item?.zoneLow ??
+0,
+
+zoneHigh:
+setup.zoneHigh ??
+item?.zoneHigh ??
+0,
+
+zonePrice:
+setup.zonePrice ??
+item?.zonePrice ??
+(
+(
+Number(
+setup.zoneLow
+) +
+Number(
+setup.zoneHigh
+)
+) / 2
+),
+
+distancePercent:
+setup.distancePercent ??
+setup.distanceToZonePercent ??
+item?.distancePercent ??
+0,
+
+score:
+pump.score ??
+setup.score ??
+0
+
+};
+
+}
+
+
+/* =========================
+   هشدار
 ========================= */
 
 function maybeAlert(
@@ -1244,18 +1383,14 @@ symbol,
 s
 );
 
-if(
-oldState === s
-){
+if(oldState === s){
 return;
 }
 
 const key =
 symbol + ":" + s;
 
-if(
-alertedStates.has(key)
-){
+if(alertedStates.has(key)){
 return;
 }
 
@@ -1269,7 +1404,7 @@ playAlert(s);
 
 
 /* =========================
-   بررسی Worker
+   Health
 ========================= */
 
 async function checkHealth(){
@@ -1313,53 +1448,21 @@ status.textContent =
 
 
 /* =========================
-   ساخت کارت ارز
+   ساخت کارت
 ========================= */
 
 function createCard(item){
 
+const d =
+normalizeItem(item);
+
 const symbol =
-getSymbol(item);
-
-const setup =
-item.setup ||
-item;
-
-const state =
 String(
-setup.state ||
-item.state ||
-"WAITING"
+d.symbol
 ).toUpperCase();
 
-const price =
-item.price ??
-setup.currentPrice ??
-item.currentPrice;
-
-const pumpPercent =
-setup.pumpPercent ??
-item.pumpPercent;
-
-const volumeMultiplier =
-setup.volumeMultiplier ??
-item.volumeMultiplier;
-
-const redCandle =
-setup.redCandle ||
-item.redCandle ||
-{};
-
-const pullback =
-setup.pullback ||
-item.pullback ||
-{};
-
-const zone =
-setup.zone ||
-item.zone ||
-{};
-
+const state =
+d.state;
 
 const card =
 document.createElement(
@@ -1372,6 +1475,21 @@ stateClass(state);
 
 card.dataset.symbol =
 symbol;
+
+const redText =
+d.redCandle
+? "دارد"
+: state === "WAITING"
+? "در انتظار"
+: "ندارد";
+
+const zoneText =
+d.zoneLow > 0 &&
+d.zoneHigh > 0
+? num(d.zoneLow,8) +
+" تا " +
+num(d.zoneHigh,8)
+: "-";
 
 card.innerHTML = `
 
@@ -1390,7 +1508,7 @@ ${escapeHtml(symbol)}
 </div>
 
 <div class="price">
-${num(price,8)}
+${num(d.price,8)}
 </div>
 
 <span class="badge ${badgeClass(state)}">
@@ -1405,99 +1523,33 @@ stateLabel(state)
 <div class="grid">
 
 <div class="info">
-
-<span>
-درصد جهش قیمت
-</span>
-
-<b>
-${pct(pumpPercent)}
-</b>
-
+<span>درصد جهش قیمت</span>
+<b>${pct(d.pumpPercent)}</b>
 </div>
 
-
 <div class="info">
-
-<span>
-ضریب حجم
-</span>
-
-<b>
-${num(
-volumeMultiplier,
-2
-)} برابر
-</b>
-
+<span>ضریب حجم</span>
+<b>${num(d.volumeMultiplier,2)} برابر</b>
 </div>
 
-
 <div class="info">
-
-<span>
-کندل قرمز
-</span>
-
-<b>
-${
-redCandle.found === true
-? "دارد"
-: redCandle.found === false
-? "ندارد"
-: "-"
-}
-</b>
-
+<span>کندل قرمز</span>
+<b>${redText}</b>
 </div>
 
-
 <div class="info">
-
-<span>
-درصد اصلاح
-</span>
-
-<b>
-${pct(
-pullback.percent ??
-setup.pullbackPercent
-)}
-</b>
-
+<span>درصد اصلاح</span>
+<b>${pct(d.pullbackPercent)}</b>
 </div>
 
-
 <div class="info">
-
-<span>
-قیمت ناحیه ورود
-</span>
-
-<b>
-${num(
-zone.price ??
-setup.zonePrice,
-8
-)}
-</b>
-
+<span>ناحیه ورود</span>
+<b>${zoneText}</b>
 </div>
 
-
 <div class="info">
-
-<span>
-فاصله تا ناحیه ورود
-</span>
-
-<b>
-${pct(
-setup.distanceToZonePercent ??
-setup.distancePercent
-)}
-</b>
-
+<span>فاصله تا ناحیه ورود</span>
+<b>${pct(d.distancePercent)}</b>
 </div>
 
 </div>
@@ -1524,7 +1576,6 @@ type="button">
 
 `;
 
-
 const deepBtn =
 card.querySelector(
 ".deepBtn"
@@ -1535,31 +1586,22 @@ card.querySelector(
 ".closeBtn"
 );
 
-
 deepBtn.addEventListener(
 "click",
 () => {
-
 openDeep(
 symbol,
 card
 );
-
 }
 );
-
 
 closeBtn.addEventListener(
 "click",
 () => {
-
-closeCoin(
-symbol
-);
-
+closeCoin(symbol);
 }
 );
-
 
 return card;
 
@@ -1575,50 +1617,15 @@ card,
 item
 ){
 
-const setup =
-item.setup ||
-item;
+const d =
+normalizeItem(item);
 
 const state =
-String(
-setup.state ||
-item.state ||
-"WAITING"
-).toUpperCase();
-
-const price =
-item.price ??
-setup.currentPrice ??
-item.currentPrice;
-
-const pumpPercent =
-setup.pumpPercent ??
-item.pumpPercent;
-
-const volumeMultiplier =
-setup.volumeMultiplier ??
-item.volumeMultiplier;
-
-const redCandle =
-setup.redCandle ||
-item.redCandle ||
-{};
-
-const pullback =
-setup.pullback ||
-item.pullback ||
-{};
-
-const zone =
-setup.zone ||
-item.zone ||
-{};
-
+d.state;
 
 card.className =
 "coin-card " +
 stateClass(state);
-
 
 const priceEl =
 card.querySelector(
@@ -1629,12 +1636,11 @@ if(priceEl){
 
 priceEl.textContent =
 num(
-price,
+d.price,
 8
 );
 
 }
-
 
 const badge =
 card.querySelector(
@@ -1652,51 +1658,45 @@ stateLabel(state);
 
 }
 
-
 const infos =
 card.querySelectorAll(
 ".info b"
 );
 
-if(
-infos.length >= 6
-){
+if(infos.length >= 6){
 
 infos[0].textContent =
-pct(
-pumpPercent
-);
+pct(d.pumpPercent);
 
 infos[1].textContent =
 num(
-volumeMultiplier,
+d.volumeMultiplier,
 2
 ) + " برابر";
 
 infos[2].textContent =
-redCandle.found === true
+d.redCandle
 ? "دارد"
-: redCandle.found === false
-? "ندارد"
-: "-";
+: state === "WAITING"
+? "در انتظار"
+: "ندارد";
 
 infos[3].textContent =
 pct(
-pullback.percent ??
-setup.pullbackPercent
+d.pullbackPercent
 );
 
 infos[4].textContent =
-num(
-zone.price ??
-setup.zonePrice,
-8
-);
+d.zoneLow > 0 &&
+d.zoneHigh > 0
+? num(d.zoneLow,8) +
+" تا " +
+num(d.zoneHigh,8)
+: "-";
 
 infos[5].textContent =
 pct(
-setup.distanceToZonePercent ??
-setup.distancePercent
+d.distancePercent
 );
 
 }
@@ -1714,9 +1714,7 @@ function renderResults(
 items
 ){
 
-if(
-!Array.isArray(items)
-){
+if(!Array.isArray(items)){
 return;
 }
 
@@ -1725,9 +1723,7 @@ document.getElementById(
 "results"
 );
 
-for(
-const item of items
-){
+for(const item of items){
 
 const symbol =
 getSymbol(item);
@@ -1736,9 +1732,7 @@ if(!symbol){
 continue;
 }
 
-if(
-closedCoins.has(symbol)
-){
+if(closedCoins.has(symbol)){
 continue;
 }
 
@@ -1768,20 +1762,12 @@ item
 
 }
 
-const setup =
-item.setup ||
-item;
-
-const state =
-String(
-setup.state ||
-item.state ||
-"WAITING"
-).toUpperCase();
+const d =
+normalizeItem(item);
 
 maybeAlert(
 symbol,
-state
+d.state
 );
 
 }
@@ -1813,26 +1799,18 @@ String(
 symbol || ""
 ).toUpperCase();
 
-closedCoins.add(
-symbol
-);
+closedCoins.add(symbol);
 
-stopLive(
-symbol
-);
+stopLive(symbol);
 
 const card =
-cards.get(
-symbol
-);
+cards.get(symbol);
 
 if(card){
 
 card.remove();
 
-cards.delete(
-symbol
-);
+cards.delete(symbol);
 
 }
 
@@ -1840,10 +1818,6 @@ updateStats();
 
 }
 
-
-/* =========================
-   باز کردن دوباره تحلیل دستی
-========================= */
 
 function reopenManual(
 symbol
@@ -1854,9 +1828,7 @@ String(
 symbol || ""
 ).toUpperCase();
 
-closedCoins.delete(
-symbol
-);
+closedCoins.delete(symbol);
 
 }
 
@@ -1870,9 +1842,7 @@ symbol,
 card
 ){
 
-reopenManual(
-symbol
-);
+reopenManual(symbol);
 
 const deep =
 card.querySelector(
@@ -1922,6 +1892,11 @@ throw new Error(
 const data =
 await res.json();
 
+updateCard(
+card,
+data
+);
+
 deep.innerHTML =
 buildDeepHtml(
 data
@@ -1961,6 +1936,752 @@ error.message
 
 
 /* =========================
+   خلاصه معاملات فیلترشده
+========================= */
+
+function getFilterInputs(container){
+
+return {
+
+fromTime:
+container.querySelector(
+".filter-from-time"
+)?.value || "",
+
+toTime:
+container.querySelector(
+".filter-to-time"
+)?.value || "",
+
+minPrice:
+container.querySelector(
+".filter-min-price"
+)?.value || "",
+
+maxPrice:
+container.querySelector(
+".filter-max-price"
+)?.value || ""
+
+};
+
+}
+
+
+function parseTimeInput(
+value,
+baseDate
+){
+
+if(!value){
+return null;
+}
+
+const parts =
+String(value)
+.split(":")
+.map(Number);
+
+if(
+parts.length < 2 ||
+parts.some(
+x => !Number.isFinite(x)
+)
+){
+return null;
+}
+
+const h =
+parts[0];
+
+const m =
+parts[1];
+
+const s =
+parts.length >= 3
+? parts[2]
+: 0;
+
+if(
+h < 0 ||
+h > 23 ||
+m < 0 ||
+m > 59 ||
+s < 0 ||
+s > 59
+){
+return null;
+}
+
+const d =
+new Date(baseDate);
+
+d.setHours(
+h,
+m,
+s,
+0
+);
+
+return d.getTime();
+
+}
+
+
+function filterTrades(
+trades,
+settings
+){
+
+const rows =
+Array.isArray(trades)
+? trades
+: [];
+
+let minTime = null;
+let maxTime = null;
+
+const validTimes =
+rows
+.map(
+t => Number(
+t.time ??
+t.timestamp
+)
+)
+.filter(
+Number.isFinite
+);
+
+if(
+settings.fromTime ||
+settings.toTime
+){
+
+const baseTs =
+validTimes.length
+? Math.max(
+...validTimes
+)
+: Date.now();
+
+const baseDate =
+new Date(baseTs);
+
+if(settings.fromTime){
+
+minTime =
+parseTimeInput(
+settings.fromTime,
+baseDate
+);
+
+}
+
+if(settings.toTime){
+
+maxTime =
+parseTimeInput(
+settings.toTime,
+baseDate
+);
+
+}
+
+if(
+minTime !== null &&
+maxTime !== null &&
+maxTime < minTime
+){
+
+maxTime +=
+24 * 60 * 60 * 1000;
+
+}
+
+}
+
+const minPrice =
+settings.minPrice !== ""
+? Number(
+settings.minPrice
+)
+: null;
+
+const maxPrice =
+settings.maxPrice !== ""
+? Number(
+settings.maxPrice
+)
+: null;
+
+return rows.filter(
+t => {
+
+const time =
+Number(
+t.time ??
+t.timestamp
+);
+
+const price =
+Number(
+t.price
+);
+
+if(
+minTime !== null &&
+(
+!Number.isFinite(time) ||
+time < minTime
+)
+){
+return false;
+}
+
+if(
+maxTime !== null &&
+(
+!Number.isFinite(time) ||
+time > maxTime
+)
+){
+return false;
+}
+
+if(
+minPrice !== null &&
+(
+!Number.isFinite(price) ||
+price < minPrice
+)
+){
+return false;
+}
+
+if(
+maxPrice !== null &&
+(
+!Number.isFinite(price) ||
+price > maxPrice
+)
+){
+return false;
+}
+
+return true;
+
+}
+);
+
+}
+
+
+function buildTradeFilter(
+trades
+){
+
+const section =
+document.createElement(
+"div"
+);
+
+section.className =
+"trade-filter";
+
+section.innerHTML = `
+
+<div class="trade-filter-title">
+🎯 فیلتر و تجمیع معاملات واقعی
+</div>
+
+<div class="filter-grid">
+
+<div class="filter-box">
+<label>از ساعت</label>
+<input
+class="filter-from-time"
+type="time"
+step="1">
+</div>
+
+<div class="filter-box">
+<label>تا ساعت</label>
+<input
+class="filter-to-time"
+type="time"
+step="1">
+</div>
+
+<div class="filter-box">
+<label>حداقل قیمت</label>
+<input
+class="filter-min-price"
+type="number"
+step="any"
+placeholder="مثلاً 100">
+</div>
+
+<div class="filter-box">
+<label>حداکثر قیمت</label>
+<input
+class="filter-max-price"
+type="number"
+step="any"
+placeholder="مثلاً 110">
+</div>
+
+</div>
+
+<div class="range-note">
+می‌توانی فقط زمان، فقط قیمت، یا همزمان بازه زمانی و بازه قیمت را وارد کنی.
+زمان‌ها بر اساس ساعت محلی دستگاه نمایش داده می‌شوند.
+</div>
+
+<div class="filter-actions">
+
+<button
+type="button"
+class="btn-blue applyTradeFilter">
+🔎 اعمال فیلتر
+</button>
+
+<button
+type="button"
+class="btn-red clearTradeFilter">
+✕ پاک کردن فیلتر
+</button>
+
+</div>
+
+<div class="trade-summary"></div>
+
+<div class="filter-result">
+فیلتر هنوز اعمال نشده است.
+</div>
+
+`;
+
+const applyBtn =
+section.querySelector(
+".applyTradeFilter"
+);
+
+const clearBtn =
+section.querySelector(
+".clearTradeFilter"
+);
+
+const summary =
+section.querySelector(
+".trade-summary"
+);
+
+const result =
+section.querySelector(
+".filter-result"
+);
+
+
+function renderFiltered(){
+
+const settings =
+getFilterInputs(
+section
+);
+
+if(
+settings.minPrice !== "" &&
+(
+!Number.isFinite(
+Number(
+settings.minPrice
+)
+)
+)
+){
+
+result.className =
+"filter-result filter-error";
+
+result.textContent =
+"حداقل قیمت نامعتبر است.";
+
+summary.innerHTML =
+"";
+
+return;
+
+}
+
+if(
+settings.maxPrice !== "" &&
+(
+!Number.isFinite(
+Number(
+settings.maxPrice
+)
+)
+)
+){
+
+result.className =
+"filter-result filter-error";
+
+result.textContent =
+"حداکثر قیمت نامعتبر است.";
+
+summary.innerHTML =
+"";
+
+return;
+
+}
+
+if(
+settings.minPrice !== "" &&
+settings.maxPrice !== "" &&
+Number(settings.maxPrice) <
+Number(settings.minPrice)
+){
+
+result.className =
+"filter-result filter-error";
+
+result.textContent =
+"حداکثر قیمت باید بزرگ‌تر یا مساوی حداقل قیمت باشد.";
+
+summary.innerHTML =
+"";
+
+return;
+
+}
+
+if(
+settings.fromTime &&
+settings.toTime
+){
+
+const baseTs =
+trades.length
+? Math.max(
+...trades.map(
+t => Number(
+t.time ??
+t.timestamp
+)
+).filter(
+Number.isFinite
+)
+)
+: Date.now();
+
+const baseDate =
+new Date(baseTs);
+
+const from =
+parseTimeInput(
+settings.fromTime,
+baseDate
+);
+
+const to =
+parseTimeInput(
+settings.toTime,
+baseDate
+);
+
+if(
+from === null ||
+to === null
+){
+
+result.className =
+"filter-result filter-error";
+
+result.textContent =
+"بازه زمانی نامعتبر است.";
+
+summary.innerHTML =
+"";
+
+return;
+
+}
+
+}
+
+const filtered =
+filterTrades(
+trades,
+settings
+);
+
+let buyCount = 0;
+let sellCount = 0;
+
+let buyVolume = 0;
+let sellVolume = 0;
+
+let buyNotional = 0;
+let sellNotional = 0;
+
+for(
+const t of filtered
+){
+
+const side =
+String(
+t.side || ""
+).toUpperCase();
+
+const size =
+Number(
+t.size ??
+t.qty ??
+0
+);
+
+const notional =
+Number.isFinite(
+Number(t.notional)
+)
+? Number(t.notional)
+: (
+Number(t.price || 0) *
+size
+);
+
+if(
+side === "BUY"
+){
+
+buyCount++;
+buyVolume += size;
+buyNotional += notional;
+
+}else if(
+side === "SELL"
+){
+
+sellCount++;
+sellVolume += size;
+sellNotional += notional;
+
+}
+
+}
+
+const totalNotional =
+buyNotional +
+sellNotional;
+
+const buyShare =
+totalNotional > 0
+? (
+buyNotional /
+totalNotional
+) * 100
+: 0;
+
+const sellShare =
+totalNotional > 0
+? (
+sellNotional /
+totalNotional
+) * 100
+: 0;
+
+const delta =
+buyNotional -
+sellNotional;
+
+summary.innerHTML = `
+
+<div class="trade-summary-box buy-box">
+
+<span>
+🟢 تعداد خرید
+</span>
+
+<b class="buy-data">
+${num(buyCount,0)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box buy-box">
+
+<span>
+🟢 حجم خرید
+</span>
+
+<b class="buy-data">
+${num(buyVolume)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box buy-box">
+
+<span>
+🟢 ارزش خرید
+</span>
+
+<b class="buy-data">
+${num(buyNotional)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box buy-box">
+
+<span>
+🟢 سهم خرید
+</span>
+
+<b class="buy-data">
+${pct(buyShare)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box sell-box">
+
+<span>
+🔴 تعداد فروش
+</span>
+
+<b class="sell-data">
+${num(sellCount,0)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box sell-box">
+
+<span>
+🔴 حجم فروش
+</span>
+
+<b class="sell-data">
+${num(sellVolume)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box sell-box">
+
+<span>
+🔴 ارزش فروش
+</span>
+
+<b class="sell-data">
+${num(sellNotional)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box sell-box">
+
+<span>
+🔴 سهم فروش
+</span>
+
+<b class="sell-data">
+${pct(sellShare)}
+</b>
+
+</div>
+
+
+<div class="trade-summary-box delta-box">
+
+<span>
+Δ اختلاف ارزش خرید و فروش
+</span>
+
+<b class="${
+delta > 0
+? "buy-data"
+: delta < 0
+? "sell-data"
+: "neutral"
+}">
+${num(delta)}
+</b>
+
+</div>
+
+`;
+
+result.className =
+"filter-result filter-ok";
+
+result.innerHTML =
+`از مجموع <b>${num(filtered.length,0)}</b> معامله، ` +
+`🟢 خرید <b>${num(buyCount,0)}</b> معامله ` +
+`و 🔴 فروش <b>${num(sellCount,0)}</b> معامله محاسبه شد.`;
+
+}
+
+
+applyBtn.addEventListener(
+"click",
+renderFiltered
+);
+
+
+clearBtn.addEventListener(
+"click",
+() => {
+
+section
+.querySelector(
+".filter-from-time"
+).value = "";
+
+section
+.querySelector(
+".filter-to-time"
+).value = "";
+
+section
+.querySelector(
+".filter-min-price"
+).value = "";
+
+section
+.querySelector(
+".filter-max-price"
+).value = "";
+
+summary.innerHTML =
+"";
+
+result.className =
+"filter-result";
+
+result.textContent =
+"فیلتر پاک شد.";
+
+}
+);
+
+return section;
+
+}
+
+
+/* =========================
    ساخت تحلیل عمیق
 ========================= */
 
@@ -1970,7 +2691,10 @@ data
 
 const setup =
 data.setup ||
-data.pumpSetup ||
+{};
+
+const pump =
+data.pump ||
 {};
 
 const footprint =
@@ -1992,15 +2716,17 @@ data.funding ||
 {};
 
 const trades =
-data.recentTrades ||
-data.trades ||
-[];
+Array.isArray(
+data.recentTrades
+)
+? data.recentTrades
+: [];
 
 const price =
 data.price ??
-data.currentPrice ??
-setup.currentPrice;
-
+data.ticker?.lastPrice ??
+setup.currentPrice ??
+0;
 
 let html = `
 
@@ -2017,7 +2743,6 @@ let html = `
 <b>
 ${escapeHtml(
 data.symbol ||
-setup.symbol ||
 "-"
 )}
 </b>
@@ -2049,6 +2774,7 @@ data.state
 <span>درصد جهش</span>
 <b>
 ${pct(
+pump.pumpPercent ??
 setup.pumpPercent
 )}
 </b>
@@ -2058,6 +2784,8 @@ setup.pumpPercent
 <span>ضریب حجم</span>
 <b>
 ${num(
+pump.volumeMultiplier ??
+pump.volumeRatio ??
 setup.volumeMultiplier,
 2
 )} برابر
@@ -2065,13 +2793,16 @@ setup.volumeMultiplier,
 </div>
 
 <div class="info">
-<span>قیمت ناحیه ورود</span>
+<span>ناحیه ورود</span>
 <b>
-${num(
-setup.zonePrice ??
-setup.zone?.price,
-8
-)}
+${
+setup.zoneLow > 0 &&
+setup.zoneHigh > 0
+? num(setup.zoneLow,8) +
+" تا " +
+num(setup.zoneHigh,8)
+: "-"
+}
 </b>
 </div>
 
@@ -2119,9 +2850,7 @@ html += `
 </thead>
 
 <tbody>
-
 `;
-
 
 for(
 const [tf,v]
@@ -2166,14 +2895,11 @@ delta /
 : 0
 );
 
-
 html += `
 
 <tr>
 
-<td>
-${escapeHtml(tf)}
-</td>
+<td>${escapeHtml(tf)}</td>
 
 <td class="buy-data">
 ${num(buyVolume)}
@@ -2205,7 +2931,6 @@ v.trades,
 
 }
 
-
 html += `
 
 </tbody>
@@ -2228,6 +2953,10 @@ Array.isArray(
 walls.buyWalls
 )
 ? walls.buyWalls
+: Array.isArray(
+walls.buy
+)
+? walls.buy
 : [];
 
 const sellWalls =
@@ -2235,8 +2964,11 @@ Array.isArray(
 walls.sellWalls
 )
 ? walls.sellWalls
+: Array.isArray(
+walls.sell
+)
+? walls.sell
 : [];
-
 
 html += `
 
@@ -2253,26 +2985,18 @@ html += `
 <thead>
 
 <tr>
-
 <th>نوع</th>
 <th>قیمت</th>
 <th>حجم</th>
 <th>ارزش سفارش</th>
 <th>فاصله از قیمت</th>
 <th>قدرت</th>
-
 </tr>
 
 </thead>
 
 <tbody>
-
 `;
-
-
-/* =========================
-   همه اعداد دیوار خرید سبز
-========================= */
 
 for(
 const w of buyWalls
@@ -2282,40 +3006,26 @@ html += `
 
 <tr>
 
+<td class="buy-data">خرید</td>
+
 <td class="buy-data">
-خرید
+${num(w.price,8)}
 </td>
 
 <td class="buy-data">
-${num(
-w.price,
-8
-)}
+${num(w.size)}
 </td>
 
 <td class="buy-data">
-${num(
-w.size
-)}
+${num(w.notional)}
 </td>
 
 <td class="buy-data">
-${num(
-w.notional
-)}
+${pct(w.distancePercent)}
 </td>
 
 <td class="buy-data">
-${pct(
-w.distancePercent
-)}
-</td>
-
-<td class="buy-data">
-${num(
-w.strength,
-2
-)}
+${num(w.strength,2)}
 </td>
 
 </tr>
@@ -2323,11 +3033,6 @@ w.strength,
 `;
 
 }
-
-
-/* =========================
-   همه اعداد دیوار فروش قرمز
-========================= */
 
 for(
 const w of sellWalls
@@ -2337,40 +3042,26 @@ html += `
 
 <tr>
 
+<td class="sell-data">فروش</td>
+
 <td class="sell-data">
-فروش
+${num(w.price,8)}
 </td>
 
 <td class="sell-data">
-${num(
-w.price,
-8
-)}
+${num(w.size)}
 </td>
 
 <td class="sell-data">
-${num(
-w.size
-)}
+${num(w.notional)}
 </td>
 
 <td class="sell-data">
-${num(
-w.notional
-)}
+${pct(w.distancePercent)}
 </td>
 
 <td class="sell-data">
-${pct(
-w.distancePercent
-)}
-</td>
-
-<td class="sell-data">
-${num(
-w.strength,
-2
-)}
+${num(w.strength,2)}
 </td>
 
 </tr>
@@ -2378,7 +3069,6 @@ w.strength,
 `;
 
 }
-
 
 html += `
 
@@ -2394,13 +3084,17 @@ html += `
 
 
 /* =========================
-   موقعیت‌های باز
+   OI
 ========================= */
 
 const oiRows =
-Object.entries(
-oi || {}
-);
+Array.isArray(
+oi.rows
+)
+? oi.rows
+: Array.isArray(oi)
+? oi
+: [];
 
 html += `
 
@@ -2417,26 +3111,35 @@ html += `
 <thead>
 
 <tr>
-
 <th>بازه زمانی</th>
 <th>مقدار فعلی</th>
 <th>مقدار قبلی</th>
 <th>تغییر</th>
 <th>درصد تغییر</th>
 <th>روند</th>
-
 </tr>
 
 </thead>
 
 <tbody>
-
 `;
 
+if(
+oi.available === false
+){
+
+html += `
+<tr>
+<td colspan="6" class="neutral">
+برای این بازار اطلاعات OI در دسترس نیست.
+</td>
+</tr>
+`;
+
+}
 
 for(
-const [tf,v]
-of oiRows
+const v of oiRows
 ){
 
 if(
@@ -2452,13 +3155,21 @@ Number(v.change);
 const oiChangePercent =
 Number(v.changePercent);
 
+const trend =
+String(
+v.trend || ""
+).toUpperCase();
 
 html += `
 
 <tr>
 
 <td>
-${escapeHtml(tf)}
+${escapeHtml(
+v.key ||
+v.label ||
+"-"
+)}
 </td>
 
 <td>
@@ -2478,13 +3189,9 @@ ${pct(v.changePercent)}
 </td>
 
 <td class="${
-String(v.trend || "")
-.toUpperCase()
-.includes("UP")
+trend.includes("UP")
 ? "positive"
-: String(v.trend || "")
-.toUpperCase()
-.includes("DOWN")
+: trend.includes("DOWN")
 ? "negative"
 : "neutral"
 }">
@@ -2500,7 +3207,6 @@ v.trend ||
 
 }
 
-
 html += `
 
 </tbody>
@@ -2515,19 +3221,37 @@ html += `
 
 
 /* =========================
-   تأمین مالی
+   FUNDING
 ========================= */
+
+const fundingCurrent =
+Number(
+funding.currentRate ??
+funding.current ??
+0
+);
+
+const fundingPrevious =
+Number(
+funding.previousRate ??
+funding.previous ??
+0
+);
 
 const fundingChange =
 Number(
-funding.change
+funding.change ??
+(
+fundingCurrent -
+fundingPrevious
+)
 );
 
 const fundingChangePercent =
 Number(
-funding.changePercent
+funding.changePercent ??
+0
 );
-
 
 html += `
 
@@ -2541,36 +3265,46 @@ html += `
 
 <div class="info">
 <span>نرخ فعلی</span>
-<b>
+<b class="${
+valueClass(fundingCurrent)
+}">
 ${pct(
-funding.current
+fundingCurrent * 100
 )}
 </b>
 </div>
 
 <div class="info">
 <span>نرخ قبلی</span>
-<b>
+<b class="${
+valueClass(fundingPrevious)
+}">
 ${pct(
-funding.previous
+fundingPrevious * 100
 )}
 </b>
 </div>
 
 <div class="info">
 <span>تغییر</span>
-<b class="${valueClass(fundingChange)}">
+<b class="${
+valueClass(fundingChange)
+}">
 ${pct(
-funding.change
+fundingChange * 100
 )}
 </b>
 </div>
 
 <div class="info">
 <span>درصد تغییر</span>
-<b class="${valueClass(fundingChangePercent)}">
+<b class="${
+valueClass(
+fundingChangePercent
+)
+}">
 ${pct(
-funding.changePercent
+fundingChangePercent
 )}
 </b>
 </div>
@@ -2587,9 +3321,10 @@ funding.changePercent
 ========================= */
 
 const tradeRows =
-Array.isArray(trades)
-? trades.slice(0,100)
-: [];
+trades.slice(
+0,
+100
+);
 
 let totalTradeNotional =
 0;
@@ -2599,22 +3334,27 @@ const t of tradeRows
 ){
 
 const notional =
+Number.isFinite(
+Number(t.notional)
+)
+? Number(t.notional)
+: (
+Number(t.price || 0) *
 Number(
-t.notional
+t.size ??
+t.qty ??
+0
+)
 );
 
 if(
-Number.isFinite(notional) &&
 notional > 0
 ){
-
 totalTradeNotional +=
 notional;
-
 }
 
 }
-
 
 html += `
 
@@ -2636,6 +3376,7 @@ html += `
 <th>نوع معامله</th>
 <th>قیمت</th>
 <th>حجم</th>
+<th>ارزش معامله</th>
 <th>سهم ارزش معامله</th>
 
 </tr>
@@ -2643,25 +3384,29 @@ html += `
 </thead>
 
 <tbody>
-
 `;
-
 
 for(
 const t of tradeRows
 ){
 
 const notional =
+Number.isFinite(
+Number(t.notional)
+)
+? Number(t.notional)
+: (
+Number(t.price || 0) *
 Number(
-t.notional
+t.size ??
+t.qty ??
+0
+)
 );
 
 const tradePercent =
-(
-Number.isFinite(notional) &&
 notional > 0 &&
 totalTradeNotional > 0
-)
 ? (
 notional /
 totalTradeNotional
@@ -2694,18 +3439,6 @@ isBuy
 ? "فروش"
 : t.side || "-";
 
-
-/*
-  برای معاملات اخیر:
-  اگر BUY باشد:
-  زمان خنثی
-  نوع + قیمت + حجم + سهم ارزش = سبز
-
-  اگر SELL باشد:
-  زمان خنثی
-  نوع + قیمت + حجم + سهم ارزش = قرمز
-*/
-
 html += `
 
 <tr>
@@ -2720,16 +3453,11 @@ t.timestamp
 </td>
 
 <td class="${sideClass}">
-${escapeHtml(
-sideText
-)}
+${escapeHtml(sideText)}
 </td>
 
 <td class="${sideClass}">
-${num(
-t.price,
-8
-)}
+${num(t.price,8)}
 </td>
 
 <td class="${sideClass}">
@@ -2740,9 +3468,11 @@ t.qty
 </td>
 
 <td class="${sideClass}">
-${pct(
-tradePercent
-)}
+${num(notional)}
+</td>
+
+<td class="${sideClass}">
+${pct(tradePercent)}
 </td>
 
 </tr>
@@ -2750,7 +3480,6 @@ tradePercent
 `;
 
 }
-
 
 html += `
 
@@ -2760,12 +3489,35 @@ html += `
 
 </div>
 
-<div class="small" style="padding:10px 13px 13px;">
-سهم ارزش هر معامله از مجموع ارزش معاملات نمایش‌داده‌شده محاسبه شده است.
+<div class="small"
+style="padding:10px 13px 13px;">
+ارزش هر معامله = قیمت × حجم معامله.
+رنگ سبز خرید و رنگ قرمز فروش است.
 </div>
 
-</div>
+`;
 
+const filterElement =
+buildTradeFilter(
+trades
+);
+
+const temp =
+document.createElement(
+"div"
+);
+
+temp.innerHTML =
+html;
+
+temp.appendChild(
+filterElement
+);
+
+html =
+temp.innerHTML;
+
+html += `
 
 <div class="live">
 
@@ -2778,14 +3530,13 @@ html += `
 
 `;
 
-
 return html;
 
 }
 
 
 /* =========================
-   شروع داده زنده
+   Live
 ========================= */
 
 function startLive(
@@ -2793,9 +3544,7 @@ symbol,
 card
 ){
 
-stopLive(
-symbol
-);
+stopLive(symbol);
 
 const timer =
 setInterval(
@@ -2806,9 +3555,7 @@ closedCoins.has(symbol) ||
 !document.body.contains(card)
 ){
 
-stopLive(
-symbol
-);
+stopLive(symbol);
 
 return;
 
@@ -2831,10 +3578,6 @@ timer
 }
 
 
-/* =========================
-   توقف داده زنده
-========================= */
-
 function stopLive(
 symbol
 ){
@@ -2846,9 +3589,7 @@ symbol
 
 if(timer){
 
-clearInterval(
-timer
-);
+clearInterval(timer);
 
 liveTimers.delete(
 symbol
@@ -2858,10 +3599,6 @@ symbol
 
 }
 
-
-/* =========================
-   بروزرسانی زنده
-========================= */
 
 async function refreshLive(
 symbol,
@@ -2887,23 +3624,11 @@ return;
 const data =
 await res.json();
 
-const setup =
-data.setup ||
-data.pumpSetup ||
-data;
+const d =
+normalizeItem(data);
 
 const state =
-String(
-setup.state ||
-data.state ||
-"WAITING"
-).toUpperCase();
-
-const price =
-data.price ??
-data.currentPrice ??
-setup.currentPrice;
-
+d.state;
 
 const priceEl =
 card.querySelector(
@@ -2914,12 +3639,11 @@ if(priceEl){
 
 priceEl.textContent =
 num(
-price,
+d.price,
 8
 );
 
 }
-
 
 const badge =
 card.querySelector(
@@ -2930,44 +3654,74 @@ if(badge){
 
 badge.className =
 "badge " +
-badgeClass(
-state
-);
+badgeClass(state);
 
 badge.textContent =
-stateLabel(
-state
+stateLabel(state);
+
+}
+
+const infos =
+card.querySelectorAll(
+".info b"
+);
+
+if(infos.length >= 6){
+
+infos[0].textContent =
+pct(d.pumpPercent);
+
+infos[1].textContent =
+num(
+d.volumeMultiplier,
+2
+) + " برابر";
+
+infos[2].textContent =
+d.redCandle
+? "دارد"
+: state === "WAITING"
+? "در انتظار"
+: "ندارد";
+
+infos[3].textContent =
+pct(
+d.pullbackPercent
+);
+
+infos[4].textContent =
+d.zoneLow > 0 &&
+d.zoneHigh > 0
+? num(d.zoneLow,8) +
+" تا " +
+num(d.zoneHigh,8)
+: "-";
+
+infos[5].textContent =
+pct(
+d.distancePercent
 );
 
 }
 
-
 card.className =
 "coin-card " +
-stateClass(
-state
-);
-
+stateClass(state);
 
 maybeAlert(
 symbol,
 state
 );
 
-}catch(error){
+updateStats();
 
-/*
-خطای داده زنده باعث
-بسته شدن کارت نمی‌شود.
-*/
-
-}
+}catch(error){}
 
 }
 
 
 /* =========================
-   اسکن بازار
+   Scan
 ========================= */
 
 async function scan(){
@@ -3008,9 +3762,7 @@ data.data ||
 []
 );
 
-renderResults(
-items
-);
+renderResults(items);
 
 document.getElementById(
 "status"
@@ -3028,10 +3780,6 @@ document.getElementById(
 
 }
 
-
-/* =========================
-   شروع اسکن
-========================= */
 
 function startScan(){
 
@@ -3065,10 +3813,6 @@ SCAN_INTERVAL
 }
 
 
-/* =========================
-   توقف اسکن
-========================= */
-
 function stopScan(){
 
 scanning =
@@ -3095,15 +3839,11 @@ document.getElementById(
 ).textContent =
 "⏹ اسکن متوقف شد";
 
-/*
-کارت‌های پیدا شده حذف نمی‌شوند.
-*/
-
 }
 
 
 /* =========================
-   تحلیل دستی
+   Manual
 ========================= */
 
 async function manualAnalyze(){
@@ -3133,9 +3873,7 @@ symbol
 );
 
 let card =
-cards.get(
-symbol
-);
+cards.get(symbol);
 
 if(!card){
 
@@ -3171,7 +3909,7 @@ updateStats();
 
 
 /* =========================
-   آمار
+   Stats
 ========================= */
 
 function updateStats(){
@@ -3209,9 +3947,7 @@ text.includes(
 "وارد ناحیه"
 )
 ){
-
 reached++;
-
 }
 
 if(
@@ -3219,13 +3955,10 @@ text.includes(
 "نزدیک ناحیه"
 )
 ){
-
 near++;
-
 }
 
 }
-
 
 document.getElementById(
 "resultCount"
@@ -3246,7 +3979,7 @@ near;
 
 
 /* =========================
-   دکمه‌ها
+   Buttons
 ========================= */
 
 document
@@ -3258,7 +3991,6 @@ document
 startScan
 );
 
-
 document
 .getElementById(
 "stopBtn"
@@ -3268,7 +4000,6 @@ document
 stopScan
 );
 
-
 document
 .getElementById(
 "analyzeBtn"
@@ -3277,7 +4008,6 @@ document
 "click",
 manualAnalyze
 );
-
 
 document
 .getElementById(
