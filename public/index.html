@@ -432,6 +432,12 @@ td{
   direction:ltr;
 }
 
+.filter-box input:focus{
+  outline:none;
+  border-color:#287ab0;
+  box-shadow:0 0 0 2px rgba(40,122,176,.15);
+}
+
 .filter-actions{
   display:flex;
   flex-wrap:wrap;
@@ -516,7 +522,7 @@ td{
 }
 
 .price-aggregation table{
-  min-width:950px;
+  min-width:1100px;
 }
 
 .price-aggregation th.buy-data{
@@ -542,6 +548,24 @@ td{
 .price-level{
   font-weight:bold;
   font-size:13px;
+  color:#fff !important;
+}
+
+.price-aggregation tfoot tr{
+  background:#132532;
+}
+
+.price-aggregation tfoot td{
+  border-top:2px solid #294757;
+  font-weight:bold;
+}
+
+.filter-count{
+  display:inline-block;
+  padding:3px 7px;
+  border-radius:6px;
+  background:#102633;
+  margin-right:4px;
 }
 
 @media(max-width:650px){
@@ -1978,9 +2002,9 @@ error.message
 }
 
 
-/* =========================
-   ورودی‌های فیلتر
-========================= */
+/* =========================================================
+   فیلتر معاملات
+========================================================= */
 
 function getFilterInputs(
 container
@@ -2013,13 +2037,12 @@ container.querySelector(
 }
 
 
-/* =========================
-   تبدیل ساعت محلی
-========================= */
+/* =========================================================
+   تبدیل زمان به ثانیه روز
+========================================================= */
 
-function parseTimeInput(
-value,
-baseDate
+function timeToSeconds(
+value
 ){
 
 if(!value){
@@ -2037,7 +2060,9 @@ parts.some(
 x => !Number.isFinite(x)
 )
 ){
+
 return null;
+
 }
 
 const h =
@@ -2059,27 +2084,23 @@ m > 59 ||
 s < 0 ||
 s > 59
 ){
+
 return null;
+
 }
 
-const d =
-new Date(baseDate);
-
-d.setHours(
-h,
-m,
-s,
-0
+return (
+h * 3600 +
+m * 60 +
+s
 );
 
-return d.getTime();
-
 }
 
 
-/* =========================
-   زمان معامله
-========================= */
+/* =========================================================
+   زمان واقعی معامله
+========================================================= */
 
 function getTradeTimestamp(
 trade
@@ -2089,17 +2110,24 @@ let ts =
 Number(
 trade?.time ??
 trade?.timestamp ??
+trade?.T ??
 0
 );
 
-if(!Number.isFinite(ts)){
+if(
+!Number.isFinite(ts)
+){
+
 return NaN;
+
 }
 
 if(
 ts < 100000000000
 ){
+
 ts *= 1000;
+
 }
 
 return ts;
@@ -2107,9 +2135,52 @@ return ts;
 }
 
 
-/* =========================
-   فیلتر معاملات
-========================= */
+/* =========================================================
+   ثانیه داخل روز
+========================================================= */
+
+function getTradeTimeSeconds(
+trade
+){
+
+const ts =
+getTradeTimestamp(
+trade
+);
+
+if(
+!Number.isFinite(ts)
+){
+
+return NaN;
+
+}
+
+const d =
+new Date(ts);
+
+if(
+Number.isNaN(
+d.getTime()
+)
+){
+
+return NaN;
+
+}
+
+return (
+d.getHours() * 3600 +
+d.getMinutes() * 60 +
+d.getSeconds()
+);
+
+}
+
+
+/* =========================================================
+   فیلتر واقعی معاملات
+========================================================= */
 
 function filterTrades(
 trades,
@@ -2121,89 +2192,22 @@ Array.isArray(trades)
 ? trades
 : [];
 
-const validTimes =
-rows
-.map(
-getTradeTimestamp
-)
-.filter(
-Number.isFinite
-);
-
-const baseTs =
-validTimes.length
-? Math.max(...validTimes)
-: Date.now();
-
-const baseDate =
-new Date(baseTs);
-
-let fromMs =
-null;
-
-let toMs =
-null;
-
-if(settings.fromTime){
-
-fromMs =
-parseTimeInput(
-settings.fromTime,
-baseDate
-);
-
-}
-
-if(settings.toTime){
-
-toMs =
-parseTimeInput(
-settings.toTime,
-baseDate
-);
-
-}
-
-
-/*
-   اگر کاربر فقط یک طرف بازه زمانی را وارد کرده باشد،
-   همان طرف اعمال می‌شود.
-*/
-
-let crossesMidnight =
-false;
-
-if(
-fromMs !== null &&
-toMs !== null
-){
-
-const fromDate =
-new Date(fromMs);
-
-const toDate =
-new Date(toMs);
 
 const fromSeconds =
-fromDate.getHours() * 3600 +
-fromDate.getMinutes() * 60 +
-fromDate.getSeconds();
+settings.fromTime
+? timeToSeconds(
+settings.fromTime
+)
+: null;
+
 
 const toSeconds =
-toDate.getHours() * 3600 +
-toDate.getMinutes() * 60 +
-toDate.getSeconds();
+settings.toTime
+? timeToSeconds(
+settings.toTime
+)
+: null;
 
-if(
-toSeconds < fromSeconds
-){
-
-crossesMidnight =
-true;
-
-}
-
-}
 
 const minPrice =
 settings.minPrice !== ""
@@ -2211,6 +2215,7 @@ settings.minPrice !== ""
 settings.minPrice
 )
 : null;
+
 
 const maxPrice =
 settings.maxPrice !== ""
@@ -2228,155 +2233,159 @@ Number(
 trade?.price
 );
 
+
+/* =========================
+   فیلتر قیمت
+========================= */
+
 if(
-minPrice !== null &&
-(
+minPrice !== null
+){
+
+if(
 !Number.isFinite(price) ||
 price < minPrice
-)
 ){
 
 return false;
 
 }
 
+}
+
+
 if(
-maxPrice !== null &&
-(
+maxPrice !== null
+){
+
+if(
 !Number.isFinite(price) ||
 price > maxPrice
-)
 ){
 
 return false;
 
 }
-
-
-if(
-fromMs === null &&
-toMs === null
-){
-
-return true;
-
-}
-
-
-const ts =
-getTradeTimestamp(
-trade
-);
-
-if(
-!Number.isFinite(ts)
-){
-
-return false;
-
-}
-
-
-const date =
-new Date(ts);
-
-const seconds =
-date.getHours() * 3600 +
-date.getMinutes() * 60 +
-date.getSeconds();
-
-
-if(
-fromMs !== null &&
-toMs !== null
-){
-
-const fromDate =
-new Date(fromMs);
-
-const toDate =
-new Date(toMs);
-
-const fromSeconds =
-fromDate.getHours() * 3600 +
-fromDate.getMinutes() * 60 +
-fromDate.getSeconds();
-
-const toSeconds =
-toDate.getHours() * 3600 +
-toDate.getMinutes() * 60 +
-toDate.getSeconds();
-
-
-if(
-crossesMidnight
-){
-
-return (
-seconds >= fromSeconds ||
-seconds <= toSeconds
-);
-
-}
-
-
-return (
-seconds >= fromSeconds &&
-seconds <= toSeconds
-);
-
-}
-
-
-if(
-fromMs !== null
-){
-
-const fromDate =
-new Date(fromMs);
-
-const fromSeconds =
-fromDate.getHours() * 3600 +
-fromDate.getMinutes() * 60 +
-fromDate.getSeconds();
-
-return (
-seconds >= fromSeconds
-);
-
-}
-
-
-if(
-toMs !== null
-){
-
-const toDate =
-new Date(toMs);
-
-const toSeconds =
-toDate.getHours() * 3600 +
-toDate.getMinutes() * 60 +
-toDate.getSeconds();
-
-return (
-seconds <= toSeconds
-);
-
-}
-
-
-return true;
-
-}
-);
 
 }
 
 
 /* =========================
-   تجمیع معاملات بر اساس قیمت
+   فیلتر زمان
 ========================= */
+
+if(
+fromSeconds === null &&
+toSeconds === null
+){
+
+return true;
+
+}
+
+
+const tradeSeconds =
+getTradeTimeSeconds(
+trade
+);
+
+
+if(
+!Number.isFinite(
+tradeSeconds
+)
+){
+
+return false;
+
+}
+
+
+/* فقط از ساعت */
+
+if(
+fromSeconds !== null &&
+toSeconds === null
+){
+
+return (
+tradeSeconds >=
+fromSeconds
+);
+
+}
+
+
+/* فقط تا ساعت */
+
+if(
+fromSeconds === null &&
+toSeconds !== null
+){
+
+return (
+tradeSeconds <=
+toSeconds
+);
+
+}
+
+
+/* از ساعت تا ساعت */
+
+if(
+fromSeconds !== null &&
+toSeconds !== null
+){
+
+/*
+   بازه عادی
+   مثال:
+   10:00 تا 15:00
+*/
+
+if(
+fromSeconds <=
+toSeconds
+){
+
+return (
+tradeSeconds >=
+fromSeconds &&
+tradeSeconds <=
+toSeconds
+);
+
+}
+
+
+/*
+   بازه عبور از نیمه‌شب
+   مثال:
+   23:00 تا 02:00
+*/
+
+return (
+tradeSeconds >=
+fromSeconds ||
+tradeSeconds <=
+toSeconds
+);
+
+}
+
+
+return true;
+
+}
+);
+
+}
+
+
+/* =========================================================
+   تجمیع تمام معاملات روی قیمت یکسان
+========================================================= */
 
 function aggregateTradesByPrice(
 trades
@@ -2384,6 +2393,7 @@ trades
 
 const map =
 new Map();
+
 
 for(
 const trade of trades
@@ -2397,14 +2407,29 @@ trade?.price
 if(
 !Number.isFinite(price)
 ){
+
 continue;
+
 }
 
 
-/*
-   قیمت واقعی Bybit به صورت عددی
-   برای گروه‌بندی استفاده می‌شود.
-*/
+const size =
+Number(
+trade?.size ??
+trade?.qty ??
+trade?.volume ??
+0
+);
+
+if(
+!Number.isFinite(size) ||
+size < 0
+){
+
+continue;
+
+}
+
 
 const key =
 String(price);
@@ -2438,43 +2463,30 @@ const row =
 map.get(key);
 
 
+const notionalRaw =
+Number(
+trade?.notional
+);
+
+
+const notional =
+Number.isFinite(
+notionalRaw
+)
+? notionalRaw
+: price * size;
+
+
 const side =
 String(
 trade?.side ||
 ""
 )
+.trim()
 .toUpperCase();
 
 
-const size =
-Number(
-trade?.size ??
-trade?.qty ??
-0
-);
-
-
-if(
-!Number.isFinite(size) ||
-size < 0
-){
-
-continue;
-
-}
-
-
-const notional =
-Number.isFinite(
-Number(
-trade?.notional
-)
-)
-? Number(
-trade.notional
-)
-: price * size;
-
+/* خرید */
 
 if(
 side === "BUY"
@@ -2490,6 +2502,8 @@ notional;
 
 }
 
+
+/* فروش */
 
 else if(
 side === "SELL"
@@ -2508,7 +2522,12 @@ notional;
 }
 
 
-return Array.from(
+/*
+   قیمت‌های بالاتر ابتدا نمایش داده می‌شوند.
+*/
+
+return Array
+.from(
 map.values()
 )
 .sort(
@@ -2520,9 +2539,9 @@ a.price
 }
 
 
-/* =========================
-   ساخت جدول تجمیع
-========================= */
+/* =========================================================
+   جدول تجمیع معاملات روی هر قیمت
+========================================================= */
 
 function buildPriceAggregationHtml(
 trades
@@ -2540,15 +2559,44 @@ if(
 
 return `
 
+<div class="section">
+
+<div class="section-title">
+
+📊 مجموع معاملات روی هر قیمت
+
+</div>
+
 <div class="empty">
 
-هیچ معامله‌ای برای تجمیع پیدا نشد.
+هیچ معامله‌ای با فیلتر انتخاب‌شده پیدا نشد.
+
+</div>
 
 </div>
 
 `;
 
 }
+
+
+let totalBuyCount =
+0;
+
+let totalSellCount =
+0;
+
+let totalBuyVolume =
+0;
+
+let totalSellVolume =
+0;
+
+let totalBuyNotional =
+0;
+
+let totalSellNotional =
+0;
 
 
 let html = `
@@ -2560,6 +2608,20 @@ let html = `
 📊 مجموع معاملات روی هر قیمت
 
 </div>
+
+
+<div
+class="small"
+style="
+padding:10px 13px 0;
+line-height:1.8;
+">
+
+تمام معاملات واقعی موجود در محدوده فیلتر،
+روی قیمت یکسان در یک ردیف تجمیع شده‌اند.
+
+</div>
+
 
 <div class="table-wrap">
 
@@ -2618,13 +2680,49 @@ for(
 const row of rows
 ){
 
+totalBuyCount +=
+row.buyCount;
+
+totalSellCount +=
+row.sellCount;
+
+totalBuyVolume +=
+row.buyVolume;
+
+totalSellVolume +=
+row.sellVolume;
+
+totalBuyNotional +=
+row.buyNotional;
+
+totalSellNotional +=
+row.sellNotional;
+
+
 const volumeDelta =
 row.buyVolume -
 row.sellVolume;
 
+
 const notionalDelta =
 row.buyNotional -
 row.sellNotional;
+
+
+const volumeClass =
+volumeDelta > 0
+? "buy-data"
+: volumeDelta < 0
+? "sell-data"
+: "neutral";
+
+
+const notionalClass =
+notionalDelta > 0
+? "buy-data"
+: notionalDelta < 0
+? "sell-data"
+: "neutral";
 
 
 html += `
@@ -2701,10 +2799,7 @@ row.sellNotional,
 </td>
 
 
-<td class="${
-valueClass(
-volumeDelta
-)}">
+<td class="${volumeClass}">
 
 ${num(
 volumeDelta,
@@ -2714,10 +2809,7 @@ volumeDelta,
 </td>
 
 
-<td class="${
-valueClass(
-notionalDelta
-)}">
+<td class="${notionalClass}">
 
 ${num(
 notionalDelta,
@@ -2733,11 +2825,174 @@ notionalDelta,
 }
 
 
+const totalVolumeDelta =
+totalBuyVolume -
+totalSellVolume;
+
+
+const totalNotionalDelta =
+totalBuyNotional -
+totalSellNotional;
+
+
+const totalVolumeClass =
+totalVolumeDelta > 0
+? "buy-data"
+: totalVolumeDelta < 0
+? "sell-data"
+: "neutral";
+
+
+const totalNotionalClass =
+totalNotionalDelta > 0
+? "buy-data"
+: totalNotionalDelta < 0
+? "sell-data"
+: "neutral";
+
+
 html += `
 
 </tbody>
 
+
+<tfoot>
+
+<tr>
+
+<td>
+
+<b>
+مجموع کل
+</b>
+
+</td>
+
+
+<td class="buy-data">
+
+<b>
+${num(
+totalBuyCount,
+0
+)}
+</b>
+
+</td>
+
+
+<td class="buy-data">
+
+<b>
+${num(
+totalBuyVolume,
+8
+)}
+</b>
+
+</td>
+
+
+<td class="buy-data">
+
+<b>
+${num(
+totalBuyNotional,
+8
+)}
+</b>
+
+</td>
+
+
+<td class="sell-data">
+
+<b>
+${num(
+totalSellCount,
+0
+)}
+</b>
+
+</td>
+
+
+<td class="sell-data">
+
+<b>
+${num(
+totalSellVolume,
+8
+)}
+</b>
+
+</td>
+
+
+<td class="sell-data">
+
+<b>
+${num(
+totalSellNotional,
+8
+)}
+</b>
+
+</td>
+
+
+<td class="${totalVolumeClass}">
+
+<b>
+${num(
+totalVolumeDelta,
+8
+)}
+</b>
+
+</td>
+
+
+<td class="${totalNotionalClass}">
+
+<b>
+${num(
+totalNotionalDelta,
+8
+)}
+</b>
+
+</td>
+
+</tr>
+
+</tfoot>
+
 </table>
+
+</div>
+
+
+<div
+class="small"
+style="
+padding:10px 13px 13px;
+line-height:1.9;
+">
+
+🟢 تمام معاملات BUY روی یک قیمت با هم جمع شده‌اند.
+
+<br>
+
+🔴 تمام معاملات SELL روی همان قیمت جداگانه جمع شده‌اند.
+
+<br>
+
+Δ حجم = حجم خرید − حجم فروش
+
+<br>
+
+Δ ارزش = ارزش خرید − ارزش فروش
 
 </div>
 
@@ -2751,9 +3006,9 @@ return html;
 }
 
 
-/* =========================
-   ساخت فیلتر
-========================= */
+/* =========================================================
+   ساخت فیلتر معاملات
+========================================================= */
 
 function buildTradeFilter(
 trades
@@ -2772,7 +3027,7 @@ section.innerHTML = `
 
 <div class="trade-filter-title">
 
-🎯 فیلتر و تجمیع معاملات واقعی
+🎯 فیلتر و تجمیع معاملات واقعی Bybit
 
 </div>
 
@@ -2818,7 +3073,8 @@ step="1">
 class="filter-min-price"
 type="number"
 step="any"
-placeholder="مثلاً 100">
+inputmode="decimal"
+placeholder="مثلاً 0.000012">
 
 </div>
 
@@ -2833,7 +3089,8 @@ placeholder="مثلاً 100">
 class="filter-max-price"
 type="number"
 step="any"
-placeholder="مثلاً 110">
+inputmode="decimal"
+placeholder="مثلاً 0.000015">
 
 </div>
 
@@ -2843,16 +3100,18 @@ placeholder="مثلاً 110">
 
 <div class="range-note">
 
-می‌توانی فقط زمان، فقط قیمت،
-یا همزمان بازه زمانی و بازه قیمت را وارد کنی.
-سپس معاملات واقعی بر اساس قیمت یکسان
+می‌توانی فقط زمان،
+فقط قیمت،
+یا زمان و قیمت را همزمان وارد کنی.
+
+بعد از اعمال فیلتر،
+معاملات واقعی بر اساس قیمت یکسان
 تجمیع می‌شوند.
 
 </div>
 
 
 <div class="filter-actions">
-
 
 <button
 type="button"
@@ -2871,7 +3130,6 @@ class="btn-red clearTradeFilter">
 
 </button>
 
-
 </div>
 
 
@@ -2880,7 +3138,7 @@ class="btn-red clearTradeFilter">
 
 <div class="filter-result">
 
-فیلتر هنوز اعمال نشده است.
+⏳ آماده نمایش معاملات واقعی Bybit
 
 </div>
 
@@ -2916,9 +3174,9 @@ section.querySelector(
 );
 
 
-/* =========================
-   رندر فیلتر
-========================= */
+/* =========================================================
+   اجرای فیلتر
+========================================================= */
 
 function renderFiltered(){
 
@@ -2935,6 +3193,7 @@ settings.minPrice
 )
 : null;
 
+
 const maxPrice =
 settings.maxPrice !== ""
 ? Number(
@@ -2942,6 +3201,10 @@ settings.maxPrice
 )
 : null;
 
+
+/* =========================
+   اعتبارسنجی قیمت
+========================= */
 
 if(
 settings.minPrice !== "" &&
@@ -2954,7 +3217,7 @@ result.className =
 "filter-result filter-error";
 
 result.textContent =
-"حداقل قیمت نامعتبر است.";
+"❌ حداقل قیمت نامعتبر است.";
 
 summary.innerHTML =
 "";
@@ -2978,7 +3241,7 @@ result.className =
 "filter-result filter-error";
 
 result.textContent =
-"حداکثر قیمت نامعتبر است.";
+"❌ حداکثر قیمت نامعتبر است.";
 
 summary.innerHTML =
 "";
@@ -2994,14 +3257,56 @@ return;
 if(
 minPrice !== null &&
 maxPrice !== null &&
-maxPrice < minPrice
+minPrice > maxPrice
 ){
 
 result.className =
 "filter-result filter-error";
 
 result.textContent =
-"حداکثر قیمت باید بزرگ‌تر یا مساوی حداقل قیمت باشد.";
+"❌ حداقل قیمت نمی‌تواند از حداکثر قیمت بیشتر باشد.";
+
+summary.innerHTML =
+"";
+
+aggregation.innerHTML =
+"";
+
+return;
+
+}
+
+
+/* =========================
+   اعتبارسنجی زمان
+========================= */
+
+const fromSeconds =
+settings.fromTime
+? timeToSeconds(
+settings.fromTime
+)
+: null;
+
+
+const toSeconds =
+settings.toTime
+? timeToSeconds(
+settings.toTime
+)
+: null;
+
+
+if(
+settings.fromTime &&
+fromSeconds === null
+){
+
+result.className =
+"filter-result filter-error";
+
+result.textContent =
+"❌ ساعت شروع نامعتبر است.";
 
 summary.innerHTML =
 "";
@@ -3015,17 +3320,15 @@ return;
 
 
 if(
-!settings.fromTime &&
-!settings.toTime &&
-minPrice === null &&
-maxPrice === null
+settings.toTime &&
+toSeconds === null
 ){
 
 result.className =
 "filter-result filter-error";
 
 result.textContent =
-"حداقل یک فیلتر زمان یا قیمت وارد کن.";
+"❌ ساعت پایان نامعتبر است.";
 
 summary.innerHTML =
 "";
@@ -3038,12 +3341,20 @@ return;
 }
 
 
+/* =========================
+   اعمال فیلتر
+========================= */
+
 const filtered =
 filterTrades(
 trades,
 settings
 );
 
+
+/* =========================
+   محاسبه مجموع
+========================= */
 
 let buyCount =
 0;
@@ -3073,6 +3384,7 @@ String(
 trade?.side ||
 ""
 )
+.trim()
 .toUpperCase();
 
 
@@ -3080,26 +3392,41 @@ const size =
 Number(
 trade?.size ??
 trade?.qty ??
+trade?.volume ??
 0
 );
 
 
 const price =
 Number(
-trade?.price ||
+trade?.price ??
 0
+);
+
+
+if(
+!Number.isFinite(
+size
+) ||
+size < 0
+){
+
+continue;
+
+}
+
+
+const notionalRaw =
+Number(
+trade?.notional
 );
 
 
 const notional =
 Number.isFinite(
-Number(
-trade?.notional
+notionalRaw
 )
-)
-? Number(
-trade.notional
-)
+? notionalRaw
 : price * size;
 
 
@@ -3167,6 +3494,10 @@ const notionalDelta =
 buyNotional -
 sellNotional;
 
+
+/* =========================
+   خلاصه
+========================= */
 
 summary.innerHTML = `
 
@@ -3346,18 +3677,35 @@ notionalDelta,
 `;
 
 
+/* =========================
+   نتیجه فیلتر
+========================= */
+
 result.className =
 "filter-result filter-ok";
 
 
+const hasFilter =
+Boolean(
+settings.fromTime ||
+settings.toTime ||
+settings.minPrice ||
+settings.maxPrice
+);
+
+
 result.innerHTML =
 
-`از مجموع ` +
+(
+hasFilter
+? "🔎 "
+: "📊 "
+) +
 
 `<b>${num(
 filtered.length,
 0
-)}</b> معامله، ` +
+)}</b> معامله واقعی ` +
 
 `🟢 <b>${num(
 buyCount,
@@ -3367,10 +3715,12 @@ buyCount,
 `🔴 <b>${num(
 sellCount,
 0
-)}</b> فروش ` +
+)}</b> فروش پیدا شد.`;
 
-`در فیلتر انتخاب‌شده قرار گرفت.`;
 
+/* =========================
+   جدول تجمیع
+========================= */
 
 aggregation.innerHTML =
 buildPriceAggregationHtml(
@@ -3380,68 +3730,104 @@ filtered
 }
 
 
+/* =========================================================
+   اعمال فیلتر
+========================================================= */
+
 applyBtn.addEventListener(
 "click",
 renderFiltered
 );
 
 
-/* =========================
+/* =========================================================
+   Enter
+========================================================= */
+
+section
+.querySelectorAll(
+"input"
+)
+.forEach(
+input => {
+
+input.addEventListener(
+"keydown",
+event => {
+
+if(
+event.key === "Enter"
+){
+
+event.preventDefault();
+
+renderFiltered();
+
+}
+
+}
+);
+
+}
+);
+
+
+/* =========================================================
    پاک کردن فیلتر
-========================= */
+========================================================= */
 
 clearBtn.addEventListener(
 "click",
 () => {
 
-section
-.querySelector(
+section.querySelector(
 ".filter-from-time"
-)
-.value =
+).value =
 "";
 
 
-section
-.querySelector(
+section.querySelector(
 ".filter-to-time"
-)
-.value =
+).value =
 "";
 
 
-section
-.querySelector(
+section.querySelector(
 ".filter-min-price"
-)
-.value =
+).value =
 "";
 
 
-section
-.querySelector(
+section.querySelector(
 ".filter-max-price"
-)
-.value =
+).value =
 "";
 
 
-summary.innerHTML =
-"";
+/*
+   بعد از پاک کردن فیلتر،
+   تمام معاملات موجود دوباره
+   تجمیع می‌شوند.
+*/
 
-
-aggregation.innerHTML =
-"";
-
-
-result.className =
-"filter-result";
-
-
-result.textContent =
-"فیلتر پاک شد.";
+renderFiltered();
 
 }
+);
+
+
+/*
+   بلافاصله بعد از ساخت بخش،
+   تمام معاملات موجود نمایش داده شوند.
+*/
+
+setTimeout(
+() => {
+
+renderFiltered();
+
+},
+0
 );
 
 
@@ -4369,15 +4755,16 @@ for(
 const t of tradeRows
 ){
 
-const notional =
-Number.isFinite(
+const notionalRaw =
 Number(
 t?.notional
+);
+
+const notional =
+Number.isFinite(
+notionalRaw
 )
-)
-? Number(
-t.notional
-)
+? notionalRaw
 : (
 Number(
 t?.price ||
@@ -4454,19 +4841,43 @@ html += `
 `;
 
 
+if(
+!tradeRows.length
+){
+
+html += `
+
+<tr>
+
+<td
+colspan="6"
+class="neutral">
+
+هیچ معامله اخیری از Worker دریافت نشد.
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+
 for(
 const t of tradeRows
 ){
 
-const notional =
-Number.isFinite(
+const notionalRaw =
 Number(
 t?.notional
+);
+
+const notional =
+Number.isFinite(
+notionalRaw
 )
-)
-? Number(
-t.notional
-)
+? notionalRaw
 : (
 Number(
 t?.price ||
@@ -4608,15 +5019,19 @@ padding:10px 13px 13px;
 ارزش هر معامله = قیمت × حجم معامله.
 رنگ سبز خرید و رنگ قرمز فروش است.
 
+<br>
+
+تجمیع پایین این جدول بر اساس تمام معاملات
+دریافت‌شده از Worker انجام می‌شود.
+
 </div>
 
 `;
 
 
-/*
-   فیلتر و تجمیع را دقیقاً
-   زیر معاملات اخیر قرار می‌دهیم.
-*/
+/* =========================================================
+   فیلتر دقیقاً زیر معاملات اخیر
+========================================================= */
 
 const filterElement =
 buildTradeFilter(
