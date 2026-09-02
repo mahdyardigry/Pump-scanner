@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>اسکنر هوشمند جهش قیمت بای‌بیت</title><style>
+<title>اسکنر هوشمند جهش قیمت بای‌بیت</title>
+
+<style>
 *{box-sizing:border-box}
 
 html,body{
@@ -321,6 +324,10 @@ td{
   direction:ltr;
 }
 
+/* =========================
+   رنگ خرید و فروش
+========================= */
+
 .buy{
   color:#27d17f !important;
   font-weight:bold;
@@ -343,6 +350,18 @@ td{
 
 .neutral{
   color:#d5dee5 !important;
+}
+
+/* تمام سلول‌های مربوط به خرید */
+.buy-data{
+  color:#27d17f !important;
+  font-weight:bold;
+}
+
+/* تمام سلول‌های مربوط به فروش */
+.sell-data{
+  color:#ff5b68 !important;
+  font-weight:bold;
 }
 
 .empty{
@@ -392,136 +411,152 @@ td{
     width:100%;
   }
 }
-</style></head><body><div class="container">  <div class="header"><h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
 
 <div class="subtitle">
-  شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
-  بر پایه داده‌های واقعی بازار بای‌بیت
+شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
+بر پایه داده‌های واقعی بازار بای‌بیت
 </div>
 
 <div id="status" class="status">
-  ⏳ در حال اتصال به بای‌بیت...
+⏳ در حال اتصال به بای‌بیت...
 </div>
 
 <div class="controls">
 
-  <button
-    id="startBtn"
-    class="btn-green">
-    ▶️ شروع اسکن
-  </button>
+<button id="startBtn" class="btn-green">
+▶️ شروع اسکن
+</button>
 
-  <button
-    id="stopBtn"
-    class="btn-red">
-    ⏹ توقف اسکن
-  </button>
+<button id="stopBtn" class="btn-red">
+⏹ توقف اسکن
+</button>
 
-  <button
-    id="testSoundBtn"
-    class="btn-orange">
-    🔊 آزمایش صدا
-  </button>
+<button id="testSoundBtn" class="btn-orange">
+🔊 آزمایش صدا
+</button>
 
 </div>
 
 <div class="search">
 
-  <input
-    id="symbolInput"
-    placeholder="مثلاً BTCUSDT"
-    autocomplete="off">
+<input
+id="symbolInput"
+placeholder="مثلاً BTCUSDT"
+autocomplete="off">
 
-  <button
-    id="analyzeBtn"
-    class="btn-blue">
-    🔎 تحلیل عمیق
-  </button>
+<button
+id="analyzeBtn"
+class="btn-blue">
+🔎 تحلیل عمیق
+</button>
 
 </div>
 
 <div class="sound-panel">
 
-  <div class="sound-title">
-    🔔 هشدار صوتی
-  </div>
+<div class="sound-title">
+🔔 هشدار صوتی
+</div>
 
-  <div class="sound-row">
+<div class="sound-row">
 
-    <label class="switch">
+<label class="switch">
 
-      <input
-        type="checkbox"
-        id="soundEnabled">
+<input
+type="checkbox"
+id="soundEnabled">
 
-      <span>
-        فعال کردن هشدار
-      </span>
+<span>
+فعال کردن هشدار
+</span>
 
-    </label>
+</label>
 
-    <div class="sound-range">
+<div class="sound-range">
 
-      <span>🔈</span>
+<span>🔈</span>
 
-      <input
-        id="soundVolume"
-        type="range"
-        min="0"
-        max="100"
-        value="70">
+<input
+id="soundVolume"
+type="range"
+min="0"
+max="100"
+value="70">
 
-      <span id="volumeText">
-        70٪
-      </span>
-
-    </div>
-
-  </div>
-
-  <div class="small">
-    هشدار صوتی هنگام نزدیک شدن قیمت به ناحیه ورود و ورود به ناحیه پخش می‌شود.
-  </div>
+<span id="volumeText">
+70٪
+</span>
 
 </div>
 
-  </div>  <div class="stats"><div class="stat">
-  وضعیت اسکن
-  <b id="scanState">
-    خاموش
-  </b>
+</div>
+
+<div class="small">
+هشدار صوتی هنگام نزدیک شدن قیمت به ناحیه ورود و ورود به ناحیه پخش می‌شود.
+</div>
+
+</div>
+
+</div>
+
+
+<div class="stats">
+
+<div class="stat">
+وضعیت اسکن
+<b id="scanState">
+خاموش
+</b>
 </div>
 
 <div class="stat">
-  تعداد ارزها
-  <b id="resultCount">
-    0
-  </b>
+تعداد ارزها
+<b id="resultCount">
+0
+</b>
 </div>
 
 <div class="stat">
-  وارد ناحیه
-  <b id="reachedCount">
-    0
-  </b>
+وارد ناحیه
+<b id="reachedCount">
+0
+</b>
 </div>
 
 <div class="stat">
-  نزدیک ناحیه
-  <b id="nearCount">
-    0
-  </b>
+نزدیک ناحیه
+<b id="nearCount">
+0
+</b>
 </div>
-
-  </div>  <div id="results"><div
-  class="empty"
-  id="emptyState">
-
-  هنوز ارزی شناسایی نشده است.
 
 </div>
 
-  </div></div><script>
+
+<div id="results">
+
+<div
+class="empty"
+id="emptyState">
+هنوز ارزی شناسایی نشده است.
+</div>
+
+</div>
+
+</div>
+
+
+<script>
 
 "use strict";
 
@@ -531,13 +566,13 @@ td{
 ========================= */
 
 const WORKER =
-  "https://pump-scanner.29mah12.workers.dev";
+"https://pump-scanner.29mah12.workers.dev";
 
 const LIVE_INTERVAL =
-  3000;
+3000;
 
 const SCAN_INTERVAL =
-  10000;
+10000;
 
 
 /* =========================
@@ -545,28 +580,28 @@ const SCAN_INTERVAL =
 ========================= */
 
 let scanning =
-  false;
+false;
 
 let scanTimer =
-  null;
+null;
 
 const cards =
-  new Map();
+new Map();
 
 const closedCoins =
-  new Set();
+new Set();
 
 const alertedStates =
-  new Set();
+new Set();
 
 const previousStates =
-  new Map();
+new Map();
 
 const liveTimers =
-  new Map();
+new Map();
 
 let audioContext =
-  null;
+null;
 
 
 /* =========================
@@ -574,91 +609,93 @@ let audioContext =
 ========================= */
 
 let soundEnabled =
-  localStorage.getItem(
-    "pump_sound_enabled"
-  ) !== "false";
+localStorage.getItem(
+"pump_sound_enabled"
+) !== "false";
 
 let soundVolume =
-  Number(
-    localStorage.getItem(
-      "pump_sound_volume"
-    ) ?? 70
-  );
+Number(
+localStorage.getItem(
+"pump_sound_volume"
+) ?? 70
+);
 
 if(!Number.isFinite(soundVolume)){
-  soundVolume = 70;
+soundVolume = 70;
 }
 
 soundVolume =
-  Math.max(
-    0,
-    Math.min(
-      100,
-      soundVolume
-    )
-  );
+Math.max(
+0,
+Math.min(
+100,
+soundVolume
+)
+);
 
 
 const soundEnabledEl =
-  document.getElementById(
-    "soundEnabled"
-  );
+document.getElementById(
+"soundEnabled"
+);
 
 const soundVolumeEl =
-  document.getElementById(
-    "soundVolume"
-  );
+document.getElementById(
+"soundVolume"
+);
 
 const volumeTextEl =
-  document.getElementById(
-    "volumeText"
-  );
+document.getElementById(
+"volumeText"
+);
 
 
 soundEnabledEl.checked =
-  soundEnabled;
+soundEnabled;
 
 soundVolumeEl.value =
-  soundVolume;
+soundVolume;
 
 volumeTextEl.textContent =
-  soundVolume + "٪";
+soundVolume + "٪";
 
 
 soundEnabledEl.addEventListener(
-  "change",
-  () => {
+"change",
+() => {
 
-    soundEnabled =
-      soundEnabledEl.checked;
+soundEnabled =
+soundEnabledEl.checked;
 
-    localStorage.setItem(
-      "pump_sound_enabled",
-      String(soundEnabled)
-    );
+localStorage.setItem(
+"pump_sound_enabled",
+String(soundEnabled)
+);
 
-    unlockAudio();
-  }
+unlockAudio();
+
+}
 );
 
 
 soundVolumeEl.addEventListener(
-  "input",
-  () => {
+"input",
+() => {
 
-    soundVolume =
-      Number(
-        soundVolumeEl.value
-      );
+soundVolume =
+Number(
+soundVolumeEl.value
+);
 
-    localStorage.setItem(
-      "pump_sound_volume",
-      String(soundVolume)
-    );
+localStorage.setItem(
+"pump_sound_volume",
+String(soundVolume)
+);
 
-    volumeTextEl.textContent =
-      soundVolume + "٪";
-  }
+volumeTextEl.textContent =
+soundVolume + "٪";
+
+}
 );
 
 
@@ -668,224 +705,232 @@ soundVolumeEl.addEventListener(
 
 function unlockAudio(){
 
-  try{
+try{
 
-    if(!audioContext){
+if(!audioContext){
 
-      const AC =
-        window.AudioContext ||
-        window.webkitAudioContext;
+const AC =
+window.AudioContext ||
+window.webkitAudioContext;
 
-      if(!AC){
-        return;
-      }
+if(!AC){
+return;
+}
 
-      audioContext =
-        new AC();
-    }
+audioContext =
+new AC();
 
-    if(
-      audioContext.state ===
-      "suspended"
-    ){
+}
 
-      audioContext
-        .resume()
-        .catch(
-          () => {}
-        );
-    }
+if(
+audioContext.state ===
+"suspended"
+){
 
-  }catch(e){}
+audioContext
+.resume()
+.catch(
+() => {}
+);
+
+}
+
+}catch(e){}
+
 }
 
 
 document.addEventListener(
-  "pointerdown",
-  unlockAudio,
-  {
-    once:false
-  }
+"pointerdown",
+unlockAudio,
+{
+once:false
+}
 );
 
 
 function beep(
-  frequency=700,
-  duration=150,
-  delay=0,
-  multiplier=1
+frequency=700,
+duration=150,
+delay=0,
+multiplier=1
 ){
 
-  if(!audioContext){
-    return;
-  }
+if(!audioContext){
+return;
+}
 
-  const now =
-    audioContext.currentTime +
-    delay / 1000;
+const now =
+audioContext.currentTime +
+delay / 1000;
 
-  const oscillator =
-    audioContext.createOscillator();
+const oscillator =
+audioContext.createOscillator();
 
-  const gain =
-    audioContext.createGain();
+const gain =
+audioContext.createGain();
 
-  oscillator.type =
-    "sine";
+oscillator.type =
+"sine";
 
-  oscillator.frequency.setValueAtTime(
-    frequency,
-    now
-  );
+oscillator.frequency.setValueAtTime(
+frequency,
+now
+);
 
-  const volume =
-    Math.max(
-      0,
-      Math.min(
-        1,
-        (soundVolume / 100) *
-        0.16 *
-        multiplier
-      )
-    );
+const volume =
+Math.max(
+0,
+Math.min(
+1,
+(soundVolume / 100) *
+0.16 *
+multiplier
+)
+);
 
-  gain.gain.setValueAtTime(
-    0,
-    now
-  );
+gain.gain.setValueAtTime(
+0,
+now
+);
 
-  gain.gain.linearRampToValueAtTime(
-    volume,
-    now + 0.015
-  );
+gain.gain.linearRampToValueAtTime(
+volume,
+now + 0.015
+);
 
-  gain.gain.exponentialRampToValueAtTime(
-    0.001,
-    now + duration / 1000
-  );
+gain.gain.exponentialRampToValueAtTime(
+0.001,
+now + duration / 1000
+);
 
-  oscillator.connect(gain);
+oscillator.connect(gain);
 
-  gain.connect(
-    audioContext.destination
-  );
+gain.connect(
+audioContext.destination
+);
 
-  oscillator.start(now);
+oscillator.start(now);
 
-  oscillator.stop(
-    now +
-    duration / 1000 +
-    0.03
-  );
+oscillator.stop(
+now +
+duration / 1000 +
+0.03
+);
+
 }
 
 
 function playAlert(type){
 
-  unlockAudio();
+unlockAudio();
 
-  if(!audioContext){
-    return;
-  }
+if(!audioContext){
+return;
+}
 
-  if(type === "REACHED"){
+if(type === "REACHED"){
 
-    beep(
-      880,
-      150,
-      0,
-      1.1
-    );
+beep(
+880,
+150,
+0,
+1.1
+);
 
-    beep(
-      1100,
-      180,
-      190,
-      1.15
-    );
+beep(
+1100,
+180,
+190,
+1.15
+);
 
-    beep(
-      1320,
-      220,
-      400,
-      1.2
-    );
+beep(
+1320,
+220,
+400,
+1.2
+);
 
-    return;
-  }
-
-
-  if(type === "NEAR"){
-
-    beep(
-      700,
-      140,
-      0,
-      1
-    );
-
-    beep(
-      900,
-      160,
-      180,
-      1
-    );
-
-    return;
-  }
-
-
-  if(type === "APPROACHING"){
-
-    beep(
-      520,
-      130,
-      0,
-      0.8
-    );
-  }
+return;
 }
 
 
-/* آزمایش صدا */
+if(type === "NEAR"){
+
+beep(
+700,
+140,
+0,
+1
+);
+
+beep(
+900,
+160,
+180,
+1
+);
+
+return;
+}
+
+
+if(type === "APPROACHING"){
+
+beep(
+520,
+130,
+0,
+0.8
+);
+
+}
+
+}
+
+
+/* =========================
+   آزمایش صدا
+========================= */
 
 document
-  .getElementById(
-    "testSoundBtn"
-  )
-  .addEventListener(
-    "click",
-    () => {
+.getElementById(
+"testSoundBtn"
+)
+.addEventListener(
+"click",
+() => {
 
-      unlockAudio();
+unlockAudio();
 
-      if(!audioContext){
-        return;
-      }
+if(!audioContext){
+return;
+}
 
-      beep(
-        600,
-        120,
-        0,
-        1
-      );
+beep(
+600,
+120,
+0,
+1
+);
 
-      beep(
-        850,
-        140,
-        170,
-        1
-      );
+beep(
+850,
+140,
+170,
+1
+);
 
-      beep(
-        1100,
-        180,
-        370,
-        1
-      );
+beep(
+1100,
+180,
+370,
+1
+);
 
-    }
-  );
+}
+);
 
 
 /* =========================
@@ -894,54 +939,57 @@ document
 
 function escapeHtml(value){
 
-  return String(
-    value ?? ""
-  )
-  .replace(/&/g,"&amp;")
-  .replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;")
-  .replace(/"/g,"&quot;")
-  .replace(/'/g,"&#039;");
+return String(
+value ?? ""
+)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
 }
 
 
 function num(
-  value,
-  digits=4
+value,
+digits=4
 ){
 
-  const n =
-    Number(value);
+const n =
+Number(value);
 
-  if(!Number.isFinite(n)){
-    return "-";
-  }
+if(!Number.isFinite(n)){
+return "-";
+}
 
-  return n.toLocaleString(
-    "en-US",
-    {
-      maximumFractionDigits:
-        digits
-    }
-  );
+return n.toLocaleString(
+"en-US",
+{
+maximumFractionDigits:
+digits
+}
+);
+
 }
 
 
 function pct(
-  value,
-  digits=2
+value,
+digits=2
 ){
 
-  const n =
-    Number(value);
+const n =
+Number(value);
 
-  if(!Number.isFinite(n)){
-    return "-";
-  }
+if(!Number.isFinite(n)){
+return "-";
+}
 
-  return n.toFixed(
-    digits
-  ) + "٪";
+return n.toFixed(
+digits
+) + "٪";
+
 }
 
 
@@ -949,22 +997,23 @@ function pct(
 
 function valueClass(value){
 
-  const n =
-    Number(value);
+const n =
+Number(value);
 
-  if(!Number.isFinite(n)){
-    return "neutral";
-  }
+if(!Number.isFinite(n)){
+return "neutral";
+}
 
-  if(n > 0){
-    return "positive";
-  }
+if(n > 0){
+return "positive";
+}
 
-  if(n < 0){
-    return "negative";
-  }
+if(n < 0){
+return "negative";
+}
 
-  return "neutral";
+return "neutral";
+
 }
 
 
@@ -972,196 +1021,192 @@ function valueClass(value){
 
 function deltaPercentClass(value){
 
-  const n =
-    Number(value);
+const n =
+Number(value);
 
-  if(!Number.isFinite(n)){
-    return "neutral";
-  }
+if(!Number.isFinite(n)){
+return "neutral";
+}
 
-  if(n > 0){
-    return "positive";
-  }
+if(n > 0){
+return "positive";
+}
 
-  if(n < 0){
-    return "negative";
-  }
+if(n < 0){
+return "negative";
+}
 
-  return "neutral";
+return "neutral";
+
 }
 
 
 /*
-  تبدیل زمان معامله بای‌بیت به
-  تاریخ و ساعت خوانا بر اساس زمان
-  دستگاه کاربر
+تبدیل زمان معامله بای‌بیت
+به تاریخ و ساعت خوانا
 */
 
 function formatTradeTime(value){
 
-  if(
-    value === null ||
-    value === undefined ||
-    value === ""
-  ){
-    return "-";
-  }
+if(
+value === null ||
+value === undefined ||
+value === ""
+){
+return "-";
+}
 
-  let ts =
-    Number(value);
+let ts =
+Number(value);
 
-  if(!Number.isFinite(ts)){
-    return String(value);
-  }
+if(!Number.isFinite(ts)){
+return String(value);
+}
 
-  /*
-    اگر timestamp ده رقمی باشد
-    ثانیه است و به میلی‌ثانیه
-    تبدیل می‌شود.
-  */
+if(
+ts < 100000000000
+){
+ts *= 1000;
+}
 
-  if(
-    ts < 100000000000
-  ){
-    ts *= 1000;
-  }
+const date =
+new Date(ts);
 
-  const date =
-    new Date(ts);
+if(
+Number.isNaN(
+date.getTime()
+)
+){
+return String(value);
+}
 
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-    return String(value);
-  }
+try{
 
-  try{
+return date.toLocaleString(
+"fa-IR",
+{
+year:"numeric",
+month:"2-digit",
+day:"2-digit",
+hour:"2-digit",
+minute:"2-digit",
+second:"2-digit",
+hour12:false
+}
+);
 
-    return date.toLocaleString(
-      "fa-IR",
-      {
-        year:"numeric",
-        month:"2-digit",
-        day:"2-digit",
-        hour:"2-digit",
-        minute:"2-digit",
-        second:"2-digit",
-        hour12:false
-      }
-    );
+}catch(e){
 
-  }catch(e){
+return date.toLocaleString();
 
-    return date.toLocaleString();
+}
 
-  }
 }
 
 
 function getSymbol(item){
 
-  return String(
-    item?.symbol ||
-    item?.setup?.symbol ||
-    ""
-  ).toUpperCase();
+return String(
+item?.symbol ||
+item?.setup?.symbol ||
+""
+).toUpperCase();
+
 }
 
 
 function stateClass(state){
 
-  switch(
-    String(
-      state || ""
-    ).toUpperCase()
-  ){
+switch(
+String(
+state || ""
+).toUpperCase()
+){
 
-    case "REACHED":
-      return "reached";
+case "REACHED":
+return "reached";
 
-    case "NEAR":
-      return "near";
+case "NEAR":
+return "near";
 
-    case "APPROACHING":
-      return "approaching";
+case "APPROACHING":
+return "approaching";
 
-    default:
-      return "";
-  }
+default:
+return "";
+
+}
+
 }
 
 
-/* =========================
-   نام فارسی وضعیت‌ها
-========================= */
-
 function stateLabel(state){
 
-  const s =
-    String(
-      state || ""
-    ).toUpperCase();
+const s =
+String(
+state || ""
+).toUpperCase();
 
-  const labels = {
+const labels = {
 
-    REACHED:
-      "🔴 وارد ناحیه ورود شده",
+REACHED:
+"🔴 وارد ناحیه ورود شده",
 
-    NEAR:
-      "🟠 نزدیک ناحیه ورود",
+NEAR:
+"🟠 نزدیک ناحیه ورود",
 
-    APPROACHING:
-      "🔵 در مسیر ناحیه ورود",
+APPROACHING:
+"🔵 در مسیر ناحیه ورود",
 
-    WAITING:
-      "⏳ در انتظار شکل‌گیری شرایط",
+WAITING:
+"⏳ در انتظار شکل‌گیری شرایط",
 
-    INVALID:
-      "❌ شرایط نامعتبر شده"
+INVALID:
+"❌ شرایط نامعتبر شده"
 
-  };
+};
 
-  return (
-    labels[s] ||
-    "نامشخص"
-  );
+return (
+labels[s] ||
+"نامشخص"
+);
+
 }
 
 
 function badgeClass(state){
 
-  const s =
-    String(
-      state || ""
-    ).toUpperCase();
+const s =
+String(
+state || ""
+).toUpperCase();
 
-  if(
-    s === "REACHED"
-  ){
-    return "badge-reached";
-  }
+if(
+s === "REACHED"
+){
+return "badge-reached";
+}
 
-  if(
-    s === "NEAR"
-  ){
-    return "badge-near";
-  }
+if(
+s === "NEAR"
+){
+return "badge-near";
+}
 
-  if(
-    s === "APPROACHING"
-  ){
-    return "badge-approaching";
-  }
+if(
+s === "APPROACHING"
+){
+return "badge-approaching";
+}
 
-  if(
-    s === "INVALID"
-  ){
-    return "badge-invalid";
-  }
+if(
+s === "INVALID"
+){
+return "badge-invalid";
+}
 
-  return "badge-waiting";
+return "badge-waiting";
+
 }
 
 
@@ -1170,64 +1215,56 @@ function badgeClass(state){
 ========================= */
 
 function maybeAlert(
-  symbol,
-  state
+symbol,
+state
 ){
 
-  const s =
-    String(
-      state || ""
-    ).toUpperCase();
+const s =
+String(
+state || ""
+).toUpperCase();
 
-  if(
-    ![
-      "REACHED",
-      "NEAR",
-      "APPROACHING"
-    ].includes(s)
-  ){
-    return;
-  }
+if(
+![
+"REACHED",
+"NEAR",
+"APPROACHING"
+].includes(s)
+){
+return;
+}
 
+const oldState =
+previousStates.get(
+symbol
+);
 
-  const oldState =
-    previousStates.get(
-      symbol
-    );
+previousStates.set(
+symbol,
+s
+);
 
+if(
+oldState === s
+){
+return;
+}
 
-  previousStates.set(
-    symbol,
-    s
-  );
+const key =
+symbol + ":" + s;
 
+if(
+alertedStates.has(key)
+){
+return;
+}
 
-  if(
-    oldState === s
-  ){
-    return;
-  }
+alertedStates.add(key);
 
+if(soundEnabled){
+playAlert(s);
+}
 
-  const key =
-    symbol + ":" + s;
-
-
-  if(
-    alertedStates.has(key)
-  ){
-    return;
-  }
-
-
-  alertedStates.add(key);
-
-
-  if(soundEnabled){
-
-    playAlert(s);
-
-  }
 }
 
 
@@ -1237,39 +1274,41 @@ function maybeAlert(
 
 async function checkHealth(){
 
-  const status =
-    document.getElementById(
-      "status"
-    );
+const status =
+document.getElementById(
+"status"
+);
 
-  try{
+try{
 
-    const res =
-      await fetch(
-        WORKER +
-        "/health",
-        {
-          cache:"no-store"
-        }
-      );
+const res =
+await fetch(
+WORKER +
+"/health",
+{
+cache:"no-store"
+}
+);
 
-    if(!res.ok){
-      throw new Error(
-        "HTTP " +
-        res.status
-      );
-    }
+if(!res.ok){
+throw new Error(
+"HTTP " +
+res.status
+);
+}
 
-    await res.json();
+await res.json();
 
-    status.textContent =
-      "🟢 اتصال برقرار است — بای‌بیت";
+status.textContent =
+"🟢 اتصال برقرار است — بای‌بیت";
 
-  }catch(error){
+}catch(error){
 
-    status.textContent =
-      "🔴 اتصال به Worker برقرار نیست";
-  }
+status.textContent =
+"🔴 اتصال به Worker برقرار نیست";
+
+}
+
 }
 
 
@@ -1279,259 +1318,251 @@ async function checkHealth(){
 
 function createCard(item){
 
-  const symbol =
-    getSymbol(item);
+const symbol =
+getSymbol(item);
 
-  const setup =
-    item.setup ||
-    item;
+const setup =
+item.setup ||
+item;
 
-  const state =
-    String(
-      setup.state ||
-      item.state ||
-      "WAITING"
-    ).toUpperCase();
+const state =
+String(
+setup.state ||
+item.state ||
+"WAITING"
+).toUpperCase();
 
-  const price =
-    item.price ??
-    setup.currentPrice ??
-    item.currentPrice;
+const price =
+item.price ??
+setup.currentPrice ??
+item.currentPrice;
 
-  const pumpPercent =
-    setup.pumpPercent ??
-    item.pumpPercent;
+const pumpPercent =
+setup.pumpPercent ??
+item.pumpPercent;
 
-  const volumeMultiplier =
-    setup.volumeMultiplier ??
-    item.volumeMultiplier;
+const volumeMultiplier =
+setup.volumeMultiplier ??
+item.volumeMultiplier;
 
-  const redCandle =
-    setup.redCandle ||
-    item.redCandle ||
-    {};
+const redCandle =
+setup.redCandle ||
+item.redCandle ||
+{};
 
-  const pullback =
-    setup.pullback ||
-    item.pullback ||
-    {};
+const pullback =
+setup.pullback ||
+item.pullback ||
+{};
 
-  const zone =
-    setup.zone ||
-    item.zone ||
-    {};
+const zone =
+setup.zone ||
+item.zone ||
+{};
 
 
-  const card =
-    document.createElement(
-      "div"
-    );
+const card =
+document.createElement(
+"div"
+);
 
+card.className =
+"coin-card " +
+stateClass(state);
 
-  card.className =
-    "coin-card " +
-    stateClass(state);
+card.dataset.symbol =
+symbol;
 
+card.innerHTML = `
 
-  card.dataset.symbol =
-    symbol;
+<div class="coin-head">
 
+<div>
 
-  card.innerHTML = `
+<div class="coin-title">
+${escapeHtml(symbol)}
+</div>
 
-    <div class="coin-head">
+<div class="small">
+جهش قیمت • اصلاح • آزمایش مجدد
+</div>
 
-      <div>
+</div>
 
-        <div class="coin-title">
-          ${escapeHtml(symbol)}
-        </div>
+<div class="price">
+${num(price,8)}
+</div>
 
-        <div class="small">
-          جهش قیمت • اصلاح • آزمایش مجدد
-        </div>
+<span class="badge ${badgeClass(state)}">
+${escapeHtml(
+stateLabel(state)
+)}
+</span>
 
-      </div>
+</div>
 
-      <div class="price">
-        ${num(price,8)}
-      </div>
 
-      <span class="badge ${badgeClass(state)}">
-        ${escapeHtml(
-          stateLabel(state)
-        )}
-      </span>
+<div class="grid">
 
-    </div>
+<div class="info">
 
+<span>
+درصد جهش قیمت
+</span>
 
-    <div class="grid">
+<b>
+${pct(pumpPercent)}
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          درصد جهش قیمت
-        </span>
 
-        <b>
-          ${pct(pumpPercent)}
-        </b>
+<div class="info">
 
-      </div>
+<span>
+ضریب حجم
+</span>
 
+<b>
+${num(
+volumeMultiplier,
+2
+)} برابر
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          ضریب حجم
-        </span>
 
-        <b>
-          ${num(
-            volumeMultiplier,
-            2
-          )} برابر
-        </b>
+<div class="info">
 
-      </div>
+<span>
+کندل قرمز
+</span>
 
+<b>
+${
+redCandle.found === true
+? "دارد"
+: redCandle.found === false
+? "ندارد"
+: "-"
+}
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          کندل قرمز
-        </span>
 
-        <b>
-          ${
-            redCandle.found === true
-              ? "دارد"
-              : redCandle.found === false
-                ? "ندارد"
-                : "-"
-          }
-        </b>
+<div class="info">
 
-      </div>
+<span>
+درصد اصلاح
+</span>
 
+<b>
+${pct(
+pullback.percent ??
+setup.pullbackPercent
+)}
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          درصد اصلاح
-        </span>
 
-        <b>
-          ${pct(
-            pullback.percent ??
-            setup.pullbackPercent
-          )}
-        </b>
+<div class="info">
 
-      </div>
+<span>
+قیمت ناحیه ورود
+</span>
 
+<b>
+${num(
+zone.price ??
+setup.zonePrice,
+8
+)}
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          قیمت ناحیه ورود
-        </span>
 
-        <b>
-          ${num(
-            zone.price ??
-            setup.zonePrice,
-            8
-          )}
-        </b>
+<div class="info">
 
-      </div>
+<span>
+فاصله تا ناحیه ورود
+</span>
 
+<b>
+${pct(
+setup.distanceToZonePercent ??
+setup.distancePercent
+)}
+</b>
 
-      <div class="info">
+</div>
 
-        <span>
-          فاصله تا ناحیه ورود
-        </span>
+</div>
 
-        <b>
-          ${pct(
-            setup.distanceToZonePercent ??
-            setup.distancePercent
-          )}
-        </b>
 
-      </div>
+<div class="actions">
 
-    </div>
+<button
+class="btn-blue deepBtn"
+type="button">
+🔎 تحلیل عمیق
+</button>
 
+<button
+class="btn-red closeBtn"
+type="button">
+✕ بستن
+</button>
 
-    <div class="actions">
+</div>
 
-      <button
-        class="btn-blue deepBtn"
-        type="button">
 
-        🔎 تحلیل عمیق
+<div class="deep hidden"></div>
 
-      </button>
+`;
 
 
-      <button
-        class="btn-red closeBtn"
-        type="button">
+const deepBtn =
+card.querySelector(
+".deepBtn"
+);
 
-        ✕ بستن
+const closeBtn =
+card.querySelector(
+".closeBtn"
+);
 
-      </button>
 
-    </div>
+deepBtn.addEventListener(
+"click",
+() => {
 
+openDeep(
+symbol,
+card
+);
 
-    <div class="deep hidden"></div>
+}
+);
 
-  `;
 
+closeBtn.addEventListener(
+"click",
+() => {
 
-  const deepBtn =
-    card.querySelector(
-      ".deepBtn"
-    );
+closeCoin(
+symbol
+);
 
+}
+);
 
-  const closeBtn =
-    card.querySelector(
-      ".closeBtn"
-    );
 
+return card;
 
-  deepBtn.addEventListener(
-    "click",
-    () => {
-
-      openDeep(
-        symbol,
-        card
-      );
-
-    }
-  );
-
-
-  closeBtn.addEventListener(
-    "click",
-    () => {
-
-      closeCoin(
-        symbol
-      );
-
-    }
-  );
-
-
-  return card;
 }
 
 
@@ -1540,144 +1571,138 @@ function createCard(item){
 ========================= */
 
 function updateCard(
-  card,
-  item
+card,
+item
 ){
 
-  const setup =
-    item.setup ||
-    item;
+const setup =
+item.setup ||
+item;
 
-  const state =
-    String(
-      setup.state ||
-      item.state ||
-      "WAITING"
-    ).toUpperCase();
+const state =
+String(
+setup.state ||
+item.state ||
+"WAITING"
+).toUpperCase();
 
+const price =
+item.price ??
+setup.currentPrice ??
+item.currentPrice;
 
-  const price =
-    item.price ??
-    setup.currentPrice ??
-    item.currentPrice;
+const pumpPercent =
+setup.pumpPercent ??
+item.pumpPercent;
 
+const volumeMultiplier =
+setup.volumeMultiplier ??
+item.volumeMultiplier;
 
-  const pumpPercent =
-    setup.pumpPercent ??
-    item.pumpPercent;
+const redCandle =
+setup.redCandle ||
+item.redCandle ||
+{};
 
+const pullback =
+setup.pullback ||
+item.pullback ||
+{};
 
-  const volumeMultiplier =
-    setup.volumeMultiplier ??
-    item.volumeMultiplier;
-
-
-  const redCandle =
-    setup.redCandle ||
-    item.redCandle ||
-    {};
-
-
-  const pullback =
-    setup.pullback ||
-    item.pullback ||
-    {};
-
-
-  const zone =
-    setup.zone ||
-    item.zone ||
-    {};
+const zone =
+setup.zone ||
+item.zone ||
+{};
 
 
-  card.className =
-    "coin-card " +
-    stateClass(state);
+card.className =
+"coin-card " +
+stateClass(state);
 
 
-  const priceEl =
-    card.querySelector(
-      ".price"
-    );
+const priceEl =
+card.querySelector(
+".price"
+);
+
+if(priceEl){
+
+priceEl.textContent =
+num(
+price,
+8
+);
+
+}
 
 
-  if(priceEl){
+const badge =
+card.querySelector(
+".badge"
+);
 
-    priceEl.textContent =
-      num(
-        price,
-        8
-      );
-  }
+if(badge){
 
+badge.className =
+"badge " +
+badgeClass(state);
 
-  const badge =
-    card.querySelector(
-      ".badge"
-    );
+badge.textContent =
+stateLabel(state);
 
-
-  if(badge){
-
-    badge.className =
-      "badge " +
-      badgeClass(state);
-
-    badge.textContent =
-      stateLabel(state);
-  }
+}
 
 
-  const infos =
-    card.querySelectorAll(
-      ".info b"
-    );
+const infos =
+card.querySelectorAll(
+".info b"
+);
 
+if(
+infos.length >= 6
+){
 
-  if(
-    infos.length >= 6
-  ){
+infos[0].textContent =
+pct(
+pumpPercent
+);
 
-    infos[0].textContent =
-      pct(
-        pumpPercent
-      );
+infos[1].textContent =
+num(
+volumeMultiplier,
+2
+) + " برابر";
 
-    infos[1].textContent =
-      num(
-        volumeMultiplier,
-        2
-      ) + " برابر";
+infos[2].textContent =
+redCandle.found === true
+? "دارد"
+: redCandle.found === false
+? "ندارد"
+: "-";
 
-    infos[2].textContent =
-      redCandle.found === true
-        ? "دارد"
-        : redCandle.found === false
-          ? "ندارد"
-          : "-";
+infos[3].textContent =
+pct(
+pullback.percent ??
+setup.pullbackPercent
+);
 
-    infos[3].textContent =
-      pct(
-        pullback.percent ??
-        setup.pullbackPercent
-      );
+infos[4].textContent =
+num(
+zone.price ??
+setup.zonePrice,
+8
+);
 
-    infos[4].textContent =
-      num(
-        zone.price ??
-        setup.zonePrice,
-        8
-      );
+infos[5].textContent =
+pct(
+setup.distanceToZonePercent ??
+setup.distancePercent
+);
 
-    infos[5].textContent =
-      pct(
-        setup.distanceToZonePercent ??
-        setup.distancePercent
-      );
-  }
+}
 
+return state;
 
-  return state;
 }
 
 
@@ -1686,101 +1711,92 @@ function updateCard(
 ========================= */
 
 function renderResults(
-  items
+items
 ){
 
-  if(
-    !Array.isArray(items)
-  ){
-    return;
-  }
+if(
+!Array.isArray(items)
+){
+return;
+}
 
+const results =
+document.getElementById(
+"results"
+);
 
-  const results =
-    document.getElementById(
-      "results"
-    );
+for(
+const item of items
+){
 
+const symbol =
+getSymbol(item);
 
-  for(
-    const item of items
-  ){
+if(!symbol){
+continue;
+}
 
-    const symbol =
-      getSymbol(item);
+if(
+closedCoins.has(symbol)
+){
+continue;
+}
 
+let card =
+cards.get(symbol);
 
-    if(!symbol){
-      continue;
-    }
+if(!card){
 
+card =
+createCard(item);
 
-    if(
-      closedCoins.has(symbol)
-    ){
-      continue;
-    }
+cards.set(
+symbol,
+card
+);
 
+results.appendChild(
+card
+);
 
-    let card =
-      cards.get(symbol);
+}else{
 
+updateCard(
+card,
+item
+);
 
-    if(!card){
+}
 
-      card =
-        createCard(item);
+const setup =
+item.setup ||
+item;
 
-      cards.set(
-        symbol,
-        card
-      );
+const state =
+String(
+setup.state ||
+item.state ||
+"WAITING"
+).toUpperCase();
 
-      results.appendChild(
-        card
-      );
+maybeAlert(
+symbol,
+state
+);
 
-    }else{
+}
 
-      updateCard(
-        card,
-        item
-      );
-    }
+const empty =
+document.getElementById(
+"emptyState"
+);
 
+if(empty){
+empty.remove();
+}
 
-    const setup =
-      item.setup ||
-      item;
+updateStats();
 
-
-    const state =
-      String(
-        setup.state ||
-        item.state ||
-        "WAITING"
-      ).toUpperCase();
-
-
-    maybeAlert(
-      symbol,
-      state
-    );
-  }
-
-
-  const empty =
-    document.getElementById(
-      "emptyState"
-    );
-
-
-  if(empty){
-    empty.remove();
-  }
-
-
-  updateStats();
 }
 
 
@@ -1789,42 +1805,39 @@ function renderResults(
 ========================= */
 
 function closeCoin(
-  symbol
+symbol
 ){
 
-  symbol =
-    String(
-      symbol || ""
-    ).toUpperCase();
+symbol =
+String(
+symbol || ""
+).toUpperCase();
 
+closedCoins.add(
+symbol
+);
 
-  closedCoins.add(
-    symbol
-  );
+stopLive(
+symbol
+);
 
+const card =
+cards.get(
+symbol
+);
 
-  stopLive(
-    symbol
-  );
+if(card){
 
+card.remove();
 
-  const card =
-    cards.get(
-      symbol
-    );
+cards.delete(
+symbol
+);
 
+}
 
-  if(card){
+updateStats();
 
-    card.remove();
-
-    cards.delete(
-      symbol
-    );
-  }
-
-
-  updateStats();
 }
 
 
@@ -1833,18 +1846,18 @@ function closeCoin(
 ========================= */
 
 function reopenManual(
-  symbol
+symbol
 ){
 
-  symbol =
-    String(
-      symbol || ""
-    ).toUpperCase();
+symbol =
+String(
+symbol || ""
+).toUpperCase();
 
+closedCoins.delete(
+symbol
+);
 
-  closedCoins.delete(
-    symbol
-  );
 }
 
 
@@ -1853,105 +1866,97 @@ function reopenManual(
 ========================= */
 
 async function openDeep(
-  symbol,
-  card
+symbol,
+card
 ){
 
-  reopenManual(
-    symbol
-  );
+reopenManual(
+symbol
+);
 
+const deep =
+card.querySelector(
+".deep"
+);
 
-  const deep =
-    card.querySelector(
-      ".deep"
-    );
+if(!deep){
+return;
+}
 
+deep.classList.remove(
+"hidden"
+);
 
-  if(!deep){
-    return;
-  }
+deep.innerHTML = `
 
+<div class="section">
 
-  deep.classList.remove(
-    "hidden"
-  );
+<div class="section-title">
+⏳ در حال دریافت تحلیل عمیق ${escapeHtml(symbol)}
+</div>
 
+</div>
 
-  deep.innerHTML = `
+`;
 
-    <div class="section">
+try{
 
-      <div class="section-title">
-        ⏳ در حال دریافت تحلیل عمیق ${escapeHtml(symbol)}
-      </div>
+const res =
+await fetch(
+WORKER +
+"/analyze?symbol=" +
+encodeURIComponent(symbol),
+{
+cache:"no-store"
+}
+);
 
-    </div>
+if(!res.ok){
 
-  `;
+throw new Error(
+"خطا در ارتباط با Worker"
+);
 
+}
 
-  try{
+const data =
+await res.json();
 
-    const res =
-      await fetch(
-        WORKER +
-        "/analyze?symbol=" +
-        encodeURIComponent(symbol),
-        {
-          cache:"no-store"
-        }
-      );
+deep.innerHTML =
+buildDeepHtml(
+data
+);
 
+startLive(
+symbol,
+card
+);
 
-    if(!res.ok){
+}catch(error){
 
-      throw new Error(
-        "خطا در ارتباط با Worker"
-      );
+deep.innerHTML = `
 
-    }
+<div class="section">
 
+<div class="section-title">
+❌ خطا در دریافت تحلیل
+</div>
 
-    const data =
-      await res.json();
+<div style="
+padding:14px;
+color:#e98b8b
+">
+${escapeHtml(
+error.message
+)}
+</div>
 
+</div>
 
-    deep.innerHTML =
-      buildDeepHtml(
-        data
-      );
+`;
 
+}
 
-    startLive(
-      symbol,
-      card
-    );
-
-
-  }catch(error){
-
-    deep.innerHTML = `
-
-      <div class="section">
-
-        <div class="section-title">
-          ❌ خطا در دریافت تحلیل
-        </div>
-
-        <div style="
-          padding:14px;
-          color:#e98b8b
-        ">
-          ${escapeHtml(
-            error.message
-          )}
-        </div>
-
-      </div>
-
-    `;
-  }
 }
 
 
@@ -1960,850 +1965,822 @@ async function openDeep(
 ========================= */
 
 function buildDeepHtml(
-  data
+data
 ){
 
-  const setup =
-    data.setup ||
-    data.pumpSetup ||
-    {};
+const setup =
+data.setup ||
+data.pumpSetup ||
+{};
+
+const footprint =
+data.footprint ||
+{};
+
+const walls =
+data.orderbook ||
+data.walls ||
+{};
+
+const oi =
+data.openInterest ||
+data.oi ||
+{};
+
+const funding =
+data.funding ||
+{};
+
+const trades =
+data.recentTrades ||
+data.trades ||
+[];
+
+const price =
+data.price ??
+data.currentPrice ??
+setup.currentPrice;
+
+
+let html = `
+
+<div class="section">
+
+<div class="section-title">
+🎯 وضعیت تحلیل
+</div>
+
+<div class="grid">
+
+<div class="info">
+<span>ارز</span>
+<b>
+${escapeHtml(
+data.symbol ||
+setup.symbol ||
+"-"
+)}
+</b>
+</div>
+
+<div class="info">
+<span>قیمت فعلی</span>
+<b>
+${num(
+price,
+8
+)}
+</b>
+</div>
+
+<div class="info">
+<span>وضعیت</span>
+<b>
+${escapeHtml(
+stateLabel(
+setup.state ||
+data.state
+)
+)}
+</b>
+</div>
+
+<div class="info">
+<span>درصد جهش</span>
+<b>
+${pct(
+setup.pumpPercent
+)}
+</b>
+</div>
+
+<div class="info">
+<span>ضریب حجم</span>
+<b>
+${num(
+setup.volumeMultiplier,
+2
+)} برابر
+</b>
+</div>
+
+<div class="info">
+<span>قیمت ناحیه ورود</span>
+<b>
+${num(
+setup.zonePrice ??
+setup.zone?.price,
+8
+)}
+</b>
+</div>
 
+</div>
 
-  const footprint =
-    data.footprint ||
-    {};
+</div>
 
+`;
 
-  const walls =
-    data.orderbook ||
-    data.walls ||
-    {};
 
+/* =========================
+   ردپای معاملات
+========================= */
 
-  const oi =
-    data.openInterest ||
-    data.oi ||
-    {};
+const fpRows =
+Object.entries(
+footprint || {}
+);
 
+html += `
 
-  const funding =
-    data.funding ||
-    {};
+<div class="section">
 
+<div class="section-title">
+📊 ردپای معاملات
+</div>
 
-  const trades =
-    data.recentTrades ||
-    data.trades ||
-    [];
+<div class="table-wrap">
 
+<table>
 
-  const price =
-    data.price ??
-    data.currentPrice ??
-    setup.currentPrice;
+<thead>
 
+<tr>
 
-  let html = `
+<th>بازه زمانی</th>
+<th>حجم خرید</th>
+<th>حجم فروش</th>
+<th>اختلاف خرید و فروش</th>
+<th>درصد اختلاف</th>
+<th>تعداد معاملات</th>
 
-    <div class="section">
+</tr>
 
-      <div class="section-title">
-        🎯 وضعیت تحلیل
-      </div>
+</thead>
 
+<tbody>
 
-      <div class="grid">
+`;
 
-        <div class="info">
-          <span>ارز</span>
-          <b>
-            ${escapeHtml(
-              data.symbol ||
-              setup.symbol ||
-              "-"
-            )}
-          </b>
-        </div>
 
+for(
+const [tf,v]
+of fpRows
+){
 
-        <div class="info">
-          <span>قیمت فعلی</span>
-          <b>
-            ${num(
-              price,
-              8
-            )}
-          </b>
-        </div>
+if(
+!v ||
+typeof v !== "object"
+){
+continue;
+}
 
+const buyVolume =
+Number(
+v.buyVolume || 0
+);
 
-        <div class="info">
-          <span>وضعیت</span>
-          <b>
-            ${escapeHtml(
-              stateLabel(
-                setup.state ||
-                data.state
-              )
-            )}
-          </b>
-        </div>
+const sellVolume =
+Number(
+v.sellVolume || 0
+);
 
+const delta =
+Number.isFinite(
+Number(v.delta)
+)
+? Number(v.delta)
+: buyVolume - sellVolume;
 
-        <div class="info">
-          <span>درصد جهش</span>
-          <b>
-            ${pct(
-              setup.pumpPercent
-            )}
-          </b>
-        </div>
+const deltaPercent =
+Number.isFinite(
+Number(v.deltaPercent)
+)
+? Number(v.deltaPercent)
+: (
+(buyVolume + sellVolume) > 0
+? (
+delta /
+(buyVolume + sellVolume)
+) * 100
+: 0
+);
 
 
-        <div class="info">
-          <span>ضریب حجم</span>
-          <b>
-            ${num(
-              setup.volumeMultiplier,
-              2
-            )} برابر
-          </b>
-        </div>
+html += `
 
+<tr>
 
-        <div class="info">
-          <span>قیمت ناحیه ورود</span>
-          <b>
-            ${num(
-              setup.zonePrice ??
-              setup.zone?.price,
-              8
-            )}
-          </b>
-        </div>
+<td>
+${escapeHtml(tf)}
+</td>
 
-      </div>
+<td class="buy-data">
+${num(buyVolume)}
+</td>
 
-    </div>
+<td class="sell-data">
+${num(sellVolume)}
+</td>
 
-  `;
+<td class="${valueClass(delta)}">
+${num(delta)}
+</td>
 
+<td class="${deltaPercentClass(deltaPercent)}">
+${pct(deltaPercent)}
+</td>
 
-  /* =========================
-     ردپای معاملات
-  ========================= */
+<td>
+${num(
+v.tradeCount ??
+v.trades,
+0
+)}
+</td>
 
-  const fpRows =
-    Object.entries(
-      footprint || {}
-    );
+</tr>
 
+`;
 
-  html += `
+}
 
-    <div class="section">
 
-      <div class="section-title">
-        📊 ردپای معاملات
-      </div>
+html += `
 
+</tbody>
 
-      <div class="table-wrap">
+</table>
 
-        <table>
+</div>
 
-          <thead>
+</div>
 
-            <tr>
+`;
 
-              <th>بازه زمانی</th>
-              <th>حجم خرید</th>
-              <th>حجم فروش</th>
-              <th>اختلاف خرید و فروش</th>
-              <th>درصد اختلاف</th>
-              <th>تعداد معاملات</th>
 
-            </tr>
+/* =========================
+   دیوارهای سفارش
+========================= */
 
-          </thead>
+const buyWalls =
+Array.isArray(
+walls.buyWalls
+)
+? walls.buyWalls
+: [];
 
-          <tbody>
+const sellWalls =
+Array.isArray(
+walls.sellWalls
+)
+? walls.sellWalls
+: [];
 
-  `;
 
+html += `
 
-  for(
-    const [tf,v]
-    of fpRows
-  ){
+<div class="section">
 
-    if(
-      !v ||
-      typeof v !== "object"
-    ){
-      continue;
-    }
+<div class="section-title">
+🧱 دیوارهای سفارش خرید و فروش
+</div>
 
+<div class="table-wrap">
 
-    const buyVolume =
-      Number(
-        v.buyVolume || 0
-      );
+<table>
 
-    const sellVolume =
-      Number(
-        v.sellVolume || 0
-      );
+<thead>
 
-    const delta =
-      Number.isFinite(
-        Number(v.delta)
-      )
-        ? Number(v.delta)
-        : buyVolume - sellVolume;
+<tr>
 
-    const deltaPercent =
-      Number.isFinite(
-        Number(v.deltaPercent)
-      )
-        ? Number(v.deltaPercent)
-        : (
-          (buyVolume + sellVolume) > 0
-            ? (
-              delta /
-              (buyVolume + sellVolume)
-            ) * 100
-            : 0
-        );
+<th>نوع</th>
+<th>قیمت</th>
+<th>حجم</th>
+<th>ارزش سفارش</th>
+<th>فاصله از قیمت</th>
+<th>قدرت</th>
 
+</tr>
 
-    html += `
+</thead>
 
-      <tr>
+<tbody>
 
-        <td>
-          ${escapeHtml(
-            tf
-          )}
-        </td>
+`;
 
-        <td class="buy">
-          ${num(
-            buyVolume
-          )}
-        </td>
 
-        <td class="sell">
-          ${num(
-            sellVolume
-          )}
-        </td>
+/* =========================
+   همه اعداد دیوار خرید سبز
+========================= */
 
-        <td class="${valueClass(delta)}">
-          ${num(
-            delta
-          )}
-        </td>
+for(
+const w of buyWalls
+){
 
-        <td class="${deltaPercentClass(deltaPercent)}">
-          ${pct(
-            deltaPercent
-          )}
-        </td>
+html += `
 
-        <td>
-          ${num(
-            v.tradeCount ??
-            v.trades,
-            0
-          )}
-        </td>
+<tr>
 
-      </tr>
+<td class="buy-data">
+خرید
+</td>
 
-    `;
-  }
+<td class="buy-data">
+${num(
+w.price,
+8
+)}
+</td>
 
+<td class="buy-data">
+${num(
+w.size
+)}
+</td>
 
-  html += `
+<td class="buy-data">
+${num(
+w.notional
+)}
+</td>
 
-          </tbody>
+<td class="buy-data">
+${pct(
+w.distancePercent
+)}
+</td>
 
-        </table>
+<td class="buy-data">
+${num(
+w.strength,
+2
+)}
+</td>
 
-      </div>
+</tr>
 
-    </div>
+`;
 
-  `;
+}
 
 
-  /* =========================
-     دیوارهای سفارش
-  ========================= */
+/* =========================
+   همه اعداد دیوار فروش قرمز
+========================= */
 
-  const buyWalls =
-    Array.isArray(
-      walls.buyWalls
-    )
-      ? walls.buyWalls
-      : [];
+for(
+const w of sellWalls
+){
 
+html += `
 
-  const sellWalls =
-    Array.isArray(
-      walls.sellWalls
-    )
-      ? walls.sellWalls
-      : [];
+<tr>
 
+<td class="sell-data">
+فروش
+</td>
 
-  html += `
+<td class="sell-data">
+${num(
+w.price,
+8
+)}
+</td>
 
-    <div class="section">
+<td class="sell-data">
+${num(
+w.size
+)}
+</td>
 
-      <div class="section-title">
-        🧱 دیوارهای سفارش خرید و فروش
-      </div>
+<td class="sell-data">
+${num(
+w.notional
+)}
+</td>
 
+<td class="sell-data">
+${pct(
+w.distancePercent
+)}
+</td>
 
-      <div class="table-wrap">
+<td class="sell-data">
+${num(
+w.strength,
+2
+)}
+</td>
 
-        <table>
+</tr>
 
-          <thead>
+`;
 
-            <tr>
+}
 
-              <th>نوع</th>
-              <th>قیمت</th>
-              <th>حجم</th>
-              <th>ارزش سفارش</th>
-              <th>فاصله از قیمت</th>
-              <th>قدرت</th>
 
-            </tr>
+html += `
 
-          </thead>
+</tbody>
 
-          <tbody>
+</table>
 
-  `;
+</div>
 
+</div>
 
-  for(
-    const w of buyWalls
-  ){
+`;
 
-    html += `
 
-      <tr>
+/* =========================
+   موقعیت‌های باز
+========================= */
 
-        <td class="buy">
-          خرید
-        </td>
+const oiRows =
+Object.entries(
+oi || {}
+);
 
-        <td>
-          ${num(
-            w.price,
-            8
-          )}
-        </td>
+html += `
 
-        <td>
-          ${num(
-            w.size
-          )}
-        </td>
+<div class="section">
 
-        <td>
-          ${num(
-            w.notional
-          )}
-        </td>
+<div class="section-title">
+📈 موقعیت‌های باز بازار
+</div>
 
-        <td>
-          ${pct(
-            w.distancePercent
-          )}
-        </td>
+<div class="table-wrap">
 
-        <td>
-          ${num(
-            w.strength,
-            2
-          )}
-        </td>
+<table>
 
-      </tr>
+<thead>
 
-    `;
-  }
+<tr>
 
+<th>بازه زمانی</th>
+<th>مقدار فعلی</th>
+<th>مقدار قبلی</th>
+<th>تغییر</th>
+<th>درصد تغییر</th>
+<th>روند</th>
 
-  for(
-    const w of sellWalls
-  ){
+</tr>
 
-    html += `
+</thead>
 
-      <tr>
+<tbody>
 
-        <td class="sell">
-          فروش
-        </td>
+`;
 
-        <td>
-          ${num(
-            w.price,
-            8
-          )}
-        </td>
 
-        <td>
-          ${num(
-            w.size
-          )}
-        </td>
+for(
+const [tf,v]
+of oiRows
+){
 
-        <td>
-          ${num(
-            w.notional
-          )}
-        </td>
+if(
+!v ||
+typeof v !== "object"
+){
+continue;
+}
 
-        <td>
-          ${pct(
-            w.distancePercent
-          )}
-        </td>
+const oiChange =
+Number(v.change);
 
-        <td>
-          ${num(
-            w.strength,
-            2
-          )}
-        </td>
+const oiChangePercent =
+Number(v.changePercent);
 
-      </tr>
 
-    `;
-  }
+html += `
 
+<tr>
 
-  html += `
+<td>
+${escapeHtml(tf)}
+</td>
 
-          </tbody>
+<td>
+${num(v.current)}
+</td>
 
-        </table>
+<td>
+${num(v.previous)}
+</td>
 
-      </div>
+<td class="${valueClass(oiChange)}">
+${num(v.change)}
+</td>
 
-    </div>
+<td class="${valueClass(oiChangePercent)}">
+${pct(v.changePercent)}
+</td>
 
-  `;
+<td class="${
+String(v.trend || "")
+.toUpperCase()
+.includes("UP")
+? "positive"
+: String(v.trend || "")
+.toUpperCase()
+.includes("DOWN")
+? "negative"
+: "neutral"
+}">
+${escapeHtml(
+v.trend ||
+"-"
+)}
+</td>
 
+</tr>
 
-  /* =========================
-     موقعیت‌های باز
-  ========================= */
+`;
 
-  const oiRows =
-    Object.entries(
-      oi || {}
-    );
+}
 
 
-  html += `
+html += `
 
-    <div class="section">
+</tbody>
 
-      <div class="section-title">
-        📈 موقعیت‌های باز بازار
-      </div>
+</table>
 
+</div>
 
-      <div class="table-wrap">
+</div>
 
-        <table>
+`;
 
-          <thead>
 
-            <tr>
+/* =========================
+   تأمین مالی
+========================= */
 
-              <th>بازه زمانی</th>
-              <th>مقدار فعلی</th>
-              <th>مقدار قبلی</th>
-              <th>تغییر</th>
-              <th>درصد تغییر</th>
-              <th>روند</th>
+const fundingChange =
+Number(
+funding.change
+);
 
-            </tr>
+const fundingChangePercent =
+Number(
+funding.changePercent
+);
 
-          </thead>
 
-          <tbody>
+html += `
 
-  `;
+<div class="section">
 
+<div class="section-title">
+💰 نرخ تأمین مالی
+</div>
 
-  for(
-    const [tf,v]
-    of oiRows
-  ){
+<div class="grid">
 
-    if(
-      !v ||
-      typeof v !== "object"
-    ){
-      continue;
-    }
+<div class="info">
+<span>نرخ فعلی</span>
+<b>
+${pct(
+funding.current
+)}
+</b>
+</div>
 
+<div class="info">
+<span>نرخ قبلی</span>
+<b>
+${pct(
+funding.previous
+)}
+</b>
+</div>
 
-    const oiChange =
-      Number(v.change);
+<div class="info">
+<span>تغییر</span>
+<b class="${valueClass(fundingChange)}">
+${pct(
+funding.change
+)}
+</b>
+</div>
 
+<div class="info">
+<span>درصد تغییر</span>
+<b class="${valueClass(fundingChangePercent)}">
+${pct(
+funding.changePercent
+)}
+</b>
+</div>
 
-    const oiChangePercent =
-      Number(v.changePercent);
+</div>
 
+</div>
 
-    html += `
+`;
 
-      <tr>
 
-        <td>
-          ${escapeHtml(
-            tf
-          )}
-        </td>
+/* =========================
+   معاملات اخیر
+========================= */
 
-        <td>
-          ${num(
-            v.current
-          )}
-        </td>
+const tradeRows =
+Array.isArray(trades)
+? trades.slice(0,100)
+: [];
 
-        <td>
-          ${num(
-            v.previous
-          )}
-        </td>
+let totalTradeNotional =
+0;
 
-        <td class="${valueClass(oiChange)}">
-          ${num(
-            v.change
-          )}
-        </td>
+for(
+const t of tradeRows
+){
 
-        <td class="${valueClass(oiChangePercent)}">
-          ${pct(
-            v.changePercent
-          )}
-        </td>
+const notional =
+Number(
+t.notional
+);
 
-        <td class="${
-          String(v.trend || "").toUpperCase().includes("UP")
-            ? "positive"
-            : String(v.trend || "").toUpperCase().includes("DOWN")
-              ? "negative"
-              : "neutral"
-        }">
-          ${escapeHtml(
-            v.trend ||
-            "-"
-          )}
-        </td>
+if(
+Number.isFinite(notional) &&
+notional > 0
+){
 
-      </tr>
+totalTradeNotional +=
+notional;
 
-    `;
-  }
+}
 
+}
 
-  html += `
 
-          </tbody>
+html += `
 
-        </table>
+<div class="section">
 
-      </div>
+<div class="section-title">
+🔄 معاملات اخیر بازار
+</div>
 
-    </div>
+<div class="table-wrap">
 
-  `;
+<table>
 
+<thead>
 
-  /* =========================
-     تأمین مالی
-  ========================= */
+<tr>
 
-  const fundingChange =
-    Number(
-      funding.change
-    );
+<th>زمان</th>
+<th>نوع معامله</th>
+<th>قیمت</th>
+<th>حجم</th>
+<th>سهم ارزش معامله</th>
 
-  const fundingChangePercent =
-    Number(
-      funding.changePercent
-    );
+</tr>
 
+</thead>
 
-  html += `
+<tbody>
 
-    <div class="section">
+`;
 
-      <div class="section-title">
-        💰 نرخ تأمین مالی
-      </div>
 
+for(
+const t of tradeRows
+){
 
-      <div class="grid">
+const notional =
+Number(
+t.notional
+);
 
-        <div class="info">
-          <span>نرخ فعلی</span>
-          <b>
-            ${pct(
-              funding.current
-            )}
-          </b>
-        </div>
+const tradePercent =
+(
+Number.isFinite(notional) &&
+notional > 0 &&
+totalTradeNotional > 0
+)
+? (
+notional /
+totalTradeNotional
+) * 100
+: 0;
 
+const side =
+String(
+t.side ||
+""
+).toUpperCase();
 
-        <div class="info">
-          <span>نرخ قبلی</span>
-          <b>
-            ${pct(
-              funding.previous
-            )}
-          </b>
-        </div>
+const isBuy =
+side === "BUY";
 
+const isSell =
+side === "SELL";
 
-        <div class="info">
-          <span>تغییر</span>
-          <b class="${valueClass(fundingChange)}">
-            ${pct(
-              funding.change
-            )}
-          </b>
-        </div>
+const sideClass =
+isBuy
+? "buy-data"
+: isSell
+? "sell-data"
+: "neutral";
 
+const sideText =
+isBuy
+? "خرید"
+: isSell
+? "فروش"
+: t.side || "-";
 
-        <div class="info">
-          <span>درصد تغییر</span>
-          <b class="${valueClass(fundingChangePercent)}">
-            ${pct(
-              funding.changePercent
-            )}
-          </b>
-        </div>
 
-      </div>
+/*
+  برای معاملات اخیر:
+  اگر BUY باشد:
+  زمان خنثی
+  نوع + قیمت + حجم + سهم ارزش = سبز
 
-    </div>
+  اگر SELL باشد:
+  زمان خنثی
+  نوع + قیمت + حجم + سهم ارزش = قرمز
+*/
 
-  `;
+html += `
 
+<tr>
 
-  /* =========================
-     معاملات اخیر
-  ========================= */
+<td class="neutral">
+${escapeHtml(
+formatTradeTime(
+t.time ??
+t.timestamp
+)
+)}
+</td>
 
-  /*
-    فقط معاملات معتبر دارای ارزش معامله
-    را برای محاسبه سهم درصدی در نظر می‌گیریم.
-  */
+<td class="${sideClass}">
+${escapeHtml(
+sideText
+)}
+</td>
 
-  const tradeRows =
-    Array.isArray(trades)
-      ? trades.slice(0,100)
-      : [];
+<td class="${sideClass}">
+${num(
+t.price,
+8
+)}
+</td>
 
+<td class="${sideClass}">
+${num(
+t.size ??
+t.qty
+)}
+</td>
 
-  let totalTradeNotional =
-    0;
+<td class="${sideClass}">
+${pct(
+tradePercent
+)}
+</td>
 
+</tr>
 
-  for(
-    const t of tradeRows
-  ){
+`;
 
-    const notional =
-      Number(
-        t.notional
-      );
+}
 
 
-    if(
-      Number.isFinite(notional) &&
-      notional > 0
-    ){
+html += `
 
-      totalTradeNotional +=
-        notional;
-    }
-  }
+</tbody>
 
+</table>
 
-  html += `
+</div>
 
-    <div class="section">
+<div class="small" style="padding:10px 13px 13px;">
+سهم ارزش هر معامله از مجموع ارزش معاملات نمایش‌داده‌شده محاسبه شده است.
+</div>
 
-      <div class="section-title">
-        🔄 معاملات اخیر بازار
-      </div>
+</div>
 
 
-      <div class="table-wrap">
+<div class="live">
 
-        <table>
+<span class="live-dot"></span>
 
-          <thead>
+داده‌های زنده بای‌بیت فعال است
+— بروزرسانی هر ۳ ثانیه
 
-            <tr>
+</div>
 
-              <th>زمان</th>
-              <th>نوع معامله</th>
-              <th>قیمت</th>
-              <th>حجم</th>
-              <th>سهم ارزش معامله</th>
+`;
 
-            </tr>
 
-          </thead>
+return html;
 
-          <tbody>
-
-  `;
-
-
-  for(
-    const t of tradeRows
-  ){
-
-    const notional =
-      Number(
-        t.notional
-      );
-
-
-    const tradePercent =
-      (
-        Number.isFinite(notional) &&
-        notional > 0 &&
-        totalTradeNotional > 0
-      )
-        ? (
-          notional /
-          totalTradeNotional
-        ) * 100
-        : 0;
-
-
-    const side =
-      String(
-        t.side ||
-        ""
-      ).toUpperCase();
-
-
-    const isBuy =
-      side === "BUY";
-
-    const isSell =
-      side === "SELL";
-
-
-    const sideClass =
-      isBuy
-        ? "buy"
-        : isSell
-          ? "sell"
-          : "neutral";
-
-
-    const sideText =
-      isBuy
-        ? "خرید"
-        : isSell
-          ? "فروش"
-          : t.side || "-";
-
-
-    html += `
-
-      <tr>
-
-        <td>
-          ${escapeHtml(
-            formatTradeTime(
-              t.time ??
-              t.timestamp
-            )
-          )}
-        </td>
-
-        <td class="${sideClass}">
-          ${escapeHtml(
-            sideText
-          )}
-        </td>
-
-        <td>
-          ${num(
-            t.price,
-            8
-          )}
-        </td>
-
-        <td>
-          ${num(
-            t.size ??
-            t.qty
-          )}
-        </td>
-
-        <td class="${sideClass}">
-          ${pct(
-            tradePercent
-          )}
-        </td>
-
-      </tr>
-
-    `;
-  }
-
-
-  html += `
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      <div class="small" style="padding:10px 13px 13px;">
-        سهم ارزش هر معامله از مجموع ارزش معاملات نمایش‌داده‌شده محاسبه شده است.
-      </div>
-
-    </div>
-
-
-    <div class="live">
-
-      <span class="live-dot"></span>
-
-      داده‌های زنده بای‌بیت فعال است
-      — بروزرسانی هر ۳ ثانیه
-
-    </div>
-
-  `;
-
-
-  return html;
 }
 
 
@@ -2812,46 +2789,45 @@ function buildDeepHtml(
 ========================= */
 
 function startLive(
-  symbol,
-  card
+symbol,
+card
 ){
 
-  stopLive(
-    symbol
-  );
+stopLive(
+symbol
+);
 
+const timer =
+setInterval(
+async () => {
 
-  const timer =
-    setInterval(
-      async () => {
+if(
+closedCoins.has(symbol) ||
+!document.body.contains(card)
+){
 
-        if(
-          closedCoins.has(symbol) ||
-          !document.body.contains(card)
-        ){
+stopLive(
+symbol
+);
 
-          stopLive(
-            symbol
-          );
+return;
 
-          return;
-        }
+}
 
+await refreshLive(
+symbol,
+card
+);
 
-        await refreshLive(
-          symbol,
-          card
-        );
+},
+LIVE_INTERVAL
+);
 
-      },
-      LIVE_INTERVAL
-    );
+liveTimers.set(
+symbol,
+timer
+);
 
-
-  liveTimers.set(
-    symbol,
-    timer
-  );
 }
 
 
@@ -2860,25 +2836,26 @@ function startLive(
 ========================= */
 
 function stopLive(
-  symbol
+symbol
 ){
 
-  const timer =
-    liveTimers.get(
-      symbol
-    );
+const timer =
+liveTimers.get(
+symbol
+);
 
+if(timer){
 
-  if(timer){
+clearInterval(
+timer
+);
 
-    clearInterval(
-      timer
-    );
+liveTimers.delete(
+symbol
+);
 
-    liveTimers.delete(
-      symbol
-    );
-  }
+}
+
 }
 
 
@@ -2887,112 +2864,105 @@ function stopLive(
 ========================= */
 
 async function refreshLive(
-  symbol,
-  card
+symbol,
+card
 ){
 
-  try{
+try{
 
-    const res =
-      await fetch(
-        WORKER +
-        "/live?symbol=" +
-        encodeURIComponent(
-          symbol
-        ),
-        {
-          cache:"no-store"
-        }
-      );
+const res =
+await fetch(
+WORKER +
+"/live?symbol=" +
+encodeURIComponent(symbol),
+{
+cache:"no-store"
+}
+);
 
+if(!res.ok){
+return;
+}
 
-    if(!res.ok){
-      return;
-    }
+const data =
+await res.json();
 
+const setup =
+data.setup ||
+data.pumpSetup ||
+data;
 
-    const data =
-      await res.json();
+const state =
+String(
+setup.state ||
+data.state ||
+"WAITING"
+).toUpperCase();
 
-
-    const setup =
-      data.setup ||
-      data.pumpSetup ||
-      data;
-
-
-    const state =
-      String(
-        setup.state ||
-        data.state ||
-        "WAITING"
-      ).toUpperCase();
-
-
-    const price =
-      data.price ??
-      data.currentPrice ??
-      setup.currentPrice;
+const price =
+data.price ??
+data.currentPrice ??
+setup.currentPrice;
 
 
-    const priceEl =
-      card.querySelector(
-        ".price"
-      );
+const priceEl =
+card.querySelector(
+".price"
+);
+
+if(priceEl){
+
+priceEl.textContent =
+num(
+price,
+8
+);
+
+}
 
 
-    if(priceEl){
+const badge =
+card.querySelector(
+".badge"
+);
 
-      priceEl.textContent =
-        num(
-          price,
-          8
-        );
-    }
+if(badge){
 
+badge.className =
+"badge " +
+badgeClass(
+state
+);
 
-    const badge =
-      card.querySelector(
-        ".badge"
-      );
+badge.textContent =
+stateLabel(
+state
+);
 
-
-    if(badge){
-
-      badge.className =
-        "badge " +
-        badgeClass(
-          state
-        );
-
-      badge.textContent =
-        stateLabel(
-          state
-        );
-    }
+}
 
 
-    card.className =
-      "coin-card " +
-      stateClass(
-        state
-      );
+card.className =
+"coin-card " +
+stateClass(
+state
+);
 
 
-    maybeAlert(
-      symbol,
-      state
-    );
+maybeAlert(
+symbol,
+state
+);
 
+}catch(error){
 
-  }catch(error){
+/*
+خطای داده زنده باعث
+بسته شدن کارت نمی‌شود.
+*/
 
-    /*
-      خطای داده زنده باعث
-      بسته شدن کارت نمی‌شود.
-    */
+}
 
-  }
 }
 
 
@@ -3002,66 +2972,60 @@ async function refreshLive(
 
 async function scan(){
 
-  if(!scanning){
-    return;
-  }
+if(!scanning){
+return;
+}
 
+try{
 
-  try{
+const res =
+await fetch(
+WORKER +
+"/scan",
+{
+cache:"no-store"
+}
+);
 
-    const res =
-      await fetch(
-        WORKER +
-        "/scan",
-        {
-          cache:"no-store"
-        }
-      );
+if(!res.ok){
 
+throw new Error(
+"خطا در دریافت اطلاعات"
+);
 
-    if(!res.ok){
+}
 
-      throw new Error(
-        "خطا در دریافت اطلاعات"
-      );
+const data =
+await res.json();
 
-    }
+const items =
+Array.isArray(data)
+? data
+: (
+data.results ||
+data.items ||
+data.data ||
+[]
+);
 
+renderResults(
+items
+);
 
-    const data =
-      await res.json();
+document.getElementById(
+"status"
+).textContent =
+"🟢 اسکن فعال است — اطلاعات واقعی بای‌بیت";
 
+}catch(error){
 
-    const items =
-      Array.isArray(data)
-        ? data
-        : (
-          data.results ||
-          data.items ||
-          data.data ||
-          []
-        );
+document.getElementById(
+"status"
+).textContent =
+"🟡 خطا در دریافت اطلاعات — تلاش مجدد خودکار";
 
+}
 
-    renderResults(
-      items
-    );
-
-
-    document.getElementById(
-      "status"
-    ).textContent =
-      "🟢 اسکن فعال است — اطلاعات واقعی بای‌بیت";
-
-
-  }catch(error){
-
-    document.getElementById(
-      "status"
-    ).textContent =
-      "🟡 خطا در دریافت اطلاعات — تلاش مجدد خودکار";
-
-  }
 }
 
 
@@ -3071,38 +3035,33 @@ async function scan(){
 
 function startScan(){
 
-  if(scanning){
-    return;
-  }
+if(scanning){
+return;
+}
 
+unlockAudio();
 
-  unlockAudio();
+scanning =
+true;
 
+document.getElementById(
+"scanState"
+).textContent =
+"فعال";
 
-  scanning =
-    true;
+document.getElementById(
+"status"
+).textContent =
+"🟢 اسکن خودکار فعال است";
 
+scan();
 
-  document.getElementById(
-    "scanState"
-  ).textContent =
-    "فعال";
+scanTimer =
+setInterval(
+scan,
+SCAN_INTERVAL
+);
 
-
-  document.getElementById(
-    "status"
-  ).textContent =
-    "🟢 اسکن خودکار فعال است";
-
-
-  scan();
-
-
-  scanTimer =
-    setInterval(
-      scan,
-      SCAN_INTERVAL
-    );
 }
 
 
@@ -3112,36 +3071,34 @@ function startScan(){
 
 function stopScan(){
 
-  scanning =
-    false;
+scanning =
+false;
 
+if(scanTimer){
 
-  if(scanTimer){
+clearInterval(
+scanTimer
+);
 
-    clearInterval(
-      scanTimer
-    );
+scanTimer =
+null;
 
-    scanTimer =
-      null;
-  }
+}
 
+document.getElementById(
+"scanState"
+).textContent =
+"خاموش";
 
-  document.getElementById(
-    "scanState"
-  ).textContent =
-    "خاموش";
+document.getElementById(
+"status"
+).textContent =
+"⏹ اسکن متوقف شد";
 
+/*
+کارت‌های پیدا شده حذف نمی‌شوند.
+*/
 
-  document.getElementById(
-    "status"
-  ).textContent =
-    "⏹ اسکن متوقف شد";
-
-
-  /*
-    کارت‌های پیدا شده حذف نمی‌شوند.
-  */
 }
 
 
@@ -3151,72 +3108,65 @@ function stopScan(){
 
 async function manualAnalyze(){
 
-  const input =
-    document.getElementById(
-      "symbolInput"
-    );
+const input =
+document.getElementById(
+"symbolInput"
+);
 
+const symbol =
+input.value
+.trim()
+.toUpperCase();
 
-  const symbol =
-    input.value
-      .trim()
-      .toUpperCase();
+if(!symbol){
 
+input.focus();
 
-  if(!symbol){
+return;
 
-    input.focus();
+}
 
-    return;
-  }
+unlockAudio();
 
+closedCoins.delete(
+symbol
+);
 
-  unlockAudio();
+let card =
+cards.get(
+symbol
+);
 
+if(!card){
 
-  closedCoins.delete(
-    symbol
-  );
+card =
+createCard({
+symbol,
+state:"WAITING"
+});
 
+cards.set(
+symbol,
+card
+);
 
-  let card =
-    cards.get(
-      symbol
-    );
+document
+.getElementById(
+"results"
+)
+.appendChild(
+card
+);
 
+}
 
-  if(!card){
+await openDeep(
+symbol,
+card
+);
 
-    card =
-      createCard({
-        symbol,
-        state:"WAITING"
-      });
+updateStats();
 
-
-    cards.set(
-      symbol,
-      card
-    );
-
-
-    document
-      .getElementById(
-        "results"
-      )
-      .appendChild(
-        card
-      );
-  }
-
-
-  await openDeep(
-    symbol,
-    card
-  );
-
-
-  updateStats();
 }
 
 
@@ -3226,75 +3176,72 @@ async function manualAnalyze(){
 
 function updateStats(){
 
-  let reached =
-    0;
+let reached =
+0;
 
-  let near =
-    0;
+let near =
+0;
 
+for(
+const card
+of cards.values()
+){
 
-  for(
-    const card
-    of cards.values()
-  ){
+if(
+!document.body.contains(
+card
+)
+){
+continue;
+}
 
-    if(
-      !document.body.contains(
-        card
-      )
-    ){
-      continue;
-    }
+const badge =
+card.querySelector(
+".badge"
+);
 
+const text =
+badge?.textContent ||
+"";
 
-    const badge =
-      card.querySelector(
-        ".badge"
-      );
+if(
+text.includes(
+"وارد ناحیه"
+)
+){
 
+reached++;
 
-    const text =
-      badge?.textContent ||
-      "";
+}
 
+if(
+text.includes(
+"نزدیک ناحیه"
+)
+){
 
-    if(
-      text.includes(
-        "وارد ناحیه"
-      )
-    ){
+near++;
 
-      reached++;
-    }
+}
 
-
-    if(
-      text.includes(
-        "نزدیک ناحیه"
-      )
-    ){
-
-      near++;
-    }
-  }
+}
 
 
-  document.getElementById(
-    "resultCount"
-  ).textContent =
-    cards.size;
+document.getElementById(
+"resultCount"
+).textContent =
+cards.size;
 
+document.getElementById(
+"reachedCount"
+).textContent =
+reached;
 
-  document.getElementById(
-    "reachedCount"
-  ).textContent =
-    reached;
+document.getElementById(
+"nearCount"
+).textContent =
+near;
 
-
-  document.getElementById(
-    "nearCount"
-  ).textContent =
-    near;
 }
 
 
@@ -3303,53 +3250,53 @@ function updateStats(){
 ========================= */
 
 document
-  .getElementById(
-    "startBtn"
-  )
-  .addEventListener(
-    "click",
-    startScan
-  );
+.getElementById(
+"startBtn"
+)
+.addEventListener(
+"click",
+startScan
+);
 
 
 document
-  .getElementById(
-    "stopBtn"
-  )
-  .addEventListener(
-    "click",
-    stopScan
-  );
+.getElementById(
+"stopBtn"
+)
+.addEventListener(
+"click",
+stopScan
+);
 
 
 document
-  .getElementById(
-    "analyzeBtn"
-  )
-  .addEventListener(
-    "click",
-    manualAnalyze
-  );
+.getElementById(
+"analyzeBtn"
+)
+.addEventListener(
+"click",
+manualAnalyze
+);
 
 
 document
-  .getElementById(
-    "symbolInput"
-  )
-  .addEventListener(
-    "keydown",
-    event => {
+.getElementById(
+"symbolInput"
+)
+.addEventListener(
+"keydown",
+event => {
 
-      if(
-        event.key === "Enter"
-      ){
+if(
+event.key === "Enter"
+){
 
-        manualAnalyze();
+manualAnalyze();
 
-      }
+}
 
-    }
-  );
+}
+);
 
 
 /* =========================
@@ -3360,5 +3307,7 @@ checkHealth();
 
 updateStats();
 
-</script></body>
+</script>
+
+</body>
 </html>
