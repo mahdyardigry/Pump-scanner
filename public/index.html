@@ -1,470 +1,606 @@
-<!DOCTYPE html><html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pump Scanner — Bybit PPR V7</title><style>
-*{box-sizing:border-box}
+
+<title>🚀 Pump Scanner — Bybit</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   margin:0;
-  background:#070b12;
-  color:#edf2f7;
-  font-family:Tahoma,Arial,sans-serif
+  background:#071018;
+  color:#e8f0f7;
+  font-family:
+    Tahoma,
+    Arial,
+    sans-serif;
 }
 
 .container{
-  width:min(1150px,94%);
-  margin:20px auto 40px
+  width:min(1400px,96%);
+  margin:auto;
+  padding:20px 0 50px;
 }
 
 header{
-  background:linear-gradient(145deg,#111827,#0b1220);
-  border:1px solid #243044;
-  border-radius:22px;
-  padding:22px;
-  box-shadow:0 15px 50px rgba(0,0,0,.35)
+  background:linear-gradient(135deg,#0d1d29,#102634);
+  border:1px solid #1d3a4b;
+  border-radius:20px;
+  padding:24px;
+  margin-bottom:18px;
+  box-shadow:0 10px 40px rgba(0,0,0,.25);
 }
 
 h1{
-  margin:0 0 8px;
-  font-size:26px
+  margin:0 0 10px;
+  font-size:28px;
 }
 
 .subtitle{
-  color:#98a6ba;
-  line-height:1.9
+  color:#9db4c3;
+  line-height:1.9;
 }
 
-.status{
-  margin-top:15px;
-  padding:13px 14px;
-  background:#0a101b;
-  border:1px solid #263348;
-  border-radius:12px;
-  color:#aab6c8;
-  line-height:1.8
+.version{
+  display:inline-block;
+  margin-top:10px;
+  padding:5px 10px;
+  border-radius:8px;
+  background:#142d3c;
+  color:#67d5ff;
+  font-size:12px;
 }
 
-.status.loading{
-  border-color:#2563eb;
-  color:#93c5fd
-}
-
-.status.success{
-  border-color:#15803d;
-  color:#86efac
-}
-
-.status.error{
-  border-color:#991b1b;
-  color:#fca5a5
-}
-
-.controls{
+.toolbar{
   display:flex;
   flex-wrap:wrap;
-  gap:9px;
-  margin-top:15px
+  gap:10px;
+  margin:18px 0;
 }
 
 button{
   border:0;
-  border-radius:12px;
-  padding:12px 17px;
-  color:#fff;
-  font-weight:bold;
+  border-radius:11px;
+  padding:12px 18px;
   cursor:pointer;
-  background:#2563eb
+  color:white;
+  background:#173548;
+  font-weight:bold;
+  transition:.2s;
 }
 
 button:hover{
-  opacity:.88
+  transform:translateY(-1px);
+  filter:brightness(1.15);
 }
 
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed
+button.start{
+  background:#087f5b;
+}
+
+button.scan{
+  background:#1467a8;
 }
 
 button.stop{
-  background:#991b1b
+  background:#8c2630;
 }
 
-button.test{
-  background:#374151
+button.sound{
+  background:#7354a8;
 }
 
-button.active{
-  background:#15803d
+.status{
+  padding:13px 16px;
+  border-radius:12px;
+  background:#0d1c27;
+  border:1px solid #1c3544;
+  margin-bottom:18px;
+}
+
+.status.ok{
+  border-color:#176e50;
+}
+
+.status.error{
+  border-color:#8c2630;
+  color:#ff9fa8;
 }
 
 .stats{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(135px,1fr));
+  grid-template-columns:repeat(6,1fr);
   gap:10px;
-  margin-top:17px
+  margin-bottom:20px;
 }
 
 .stat{
-  background:#0d1420;
-  border:1px solid #222e41;
+  background:#0c1923;
+  border:1px solid #1a3444;
   border-radius:15px;
-  padding:14px
+  padding:16px;
+  text-align:center;
 }
 
-.label{
-  color:#8290a5;
-  font-size:12px
+.stat .number{
+  display:block;
+  font-size:26px;
+  font-weight:bold;
+  margin-top:7px;
 }
 
-.num{
-  margin-top:5px;
-  font-size:23px;
-  font-weight:bold
+.stat .label{
+  color:#91a7b5;
+  font-size:13px;
 }
 
 .section{
-  margin-top:20px
+  background:#0b1822;
+  border:1px solid #1b3443;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:18px;
 }
 
 .section-title{
-  font-size:19px;
+  font-size:20px;
   font-weight:bold;
-  margin-bottom:12px
+  margin-bottom:15px;
 }
 
 .results{
   display:grid;
-  gap:14px
+  gap:14px;
 }
 
 .card{
-  background:#0d1420;
-  border:1px solid #263348;
-  border-radius:19px;
-  padding:17px
+  background:#0d1e2a;
+  border:1px solid #214252;
+  border-radius:16px;
+  padding:18px;
 }
 
 .card.reached{
-  border-color:#16a34a;
-  box-shadow:0 0 25px rgba(22,163,74,.12)
+  border-color:#00b77e;
+  box-shadow:0 0 25px rgba(0,183,126,.12);
 }
 
 .card.near{
-  border-color:#eab308;
-  box-shadow:0 0 25px rgba(234,179,8,.08)
+  border-color:#d2a900;
 }
 
 .card.approaching{
-  border-color:#3b82f6
-}
-
-.card.below{
-  border-color:#52525b
+  border-color:#238bc2;
 }
 
 .card.invalid{
-  border-color:#991b1b
+  border-color:#71333a;
 }
 
-.top{
+.card-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
-  gap:10px
+  gap:10px;
+  margin-bottom:15px;
 }
 
 .symbol{
   font-size:22px;
-  font-weight:bold
+  font-weight:bold;
 }
 
 .badge{
-  border-radius:999px;
-  padding:7px 11px;
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:8px;
   font-size:12px;
-  font-weight:bold
+  font-weight:bold;
 }
 
 .badge.reached{
-  background:#064e3b;
-  color:#6ee7b7
+  background:#063f31;
+  color:#55efbd;
 }
 
 .badge.near{
-  background:#713f12;
-  color:#fde68a
+  background:#493d00;
+  color:#ffe06b;
 }
 
 .badge.approaching{
-  background:#172554;
-  color:#93c5fd
-}
-
-.badge.below{
-  background:#27272a;
-  color:#d4d4d8
+  background:#07364d;
+  color:#65d2ff;
 }
 
 .badge.invalid{
-  background:#450a0a;
-  color:#fca5a5
-}
-
-.price{
-  margin-top:12px;
-  font-size:25px;
-  font-weight:bold
+  background:#431e24;
+  color:#ff9ca7;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
-  gap:9px;
-  margin-top:12px
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
 }
 
-.item{
-  background:#111927;
-  border-radius:12px;
-  padding:11px
+.box{
+  background:#08141d;
+  border:1px solid #19313e;
+  border-radius:11px;
+  padding:11px;
 }
 
-.item small{
-  display:block;
-  color:#7e8ca1;
+.box .label{
+  color:#8197a5;
   font-size:11px;
-  margin-bottom:5px
+  margin-bottom:6px;
 }
 
-.item strong{
-  font-size:14px
+.box .value{
+  font-size:15px;
+  font-weight:bold;
 }
 
-.zone{
-  margin-top:13px;
-  padding:14px;
-  border:1px dashed #526176;
-  border-radius:14px;
-  background:#0a111c
+.green{
+  color:#54e0ae;
 }
 
-.zone-title{
-  color:#aab7ca;
-  font-size:13px;
-  margin-bottom:7px
+.red{
+  color:#ff7f8b;
 }
 
-.zone-price{
-  font-size:21px;
-  font-weight:bold
+.blue{
+  color:#64cfff;
 }
 
-.progress{
-  margin-top:13px;
-  height:8px;
-  background:#182232;
-  border-radius:999px;
-  overflow:hidden
+.yellow{
+  color:#ffe16b;
 }
 
-.progress-bar{
-  height:100%;
-  width:0%;
-  transition:width .4s ease
-}
-
-.progress.approaching .progress-bar{
-  background:#3b82f6
-}
-
-.progress.near .progress-bar{
-  background:#eab308
-}
-
-.progress.reached .progress-bar{
-  background:#16a34a
-}
-
-.message{
-  text-align:center;
-  padding:35px 15px;
-  color:#8996a9;
-  background:#0d1420;
-  border:1px dashed #29364a;
-  border-radius:18px;
-  line-height:2
-}
-
-.scan-info{
-  background:#0d1420;
-  border:1px solid #222e41;
+.live-panel{
+  margin-top:16px;
+  background:#08151e;
+  border:1px solid #1c3a4a;
   border-radius:15px;
+  overflow:hidden;
+}
+
+.live-head{
   padding:13px 15px;
-  margin-bottom:14px;
-  color:#94a3b8;
-  line-height:2
+  background:#0d202c;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
 }
 
-.scan-info b{
-  color:#e2e8f0
+.live-title{
+  font-weight:bold;
 }
 
-.last{
-  margin-top:15px;
-  color:#69778c;
+.live-time{
+  color:#70d6ff;
   font-size:12px;
-  text-align:center
+}
+
+.live-content{
+  padding:15px;
+}
+
+.sub-title{
+  margin:18px 0 10px;
+  font-weight:bold;
+  color:#cde3ef;
+}
+
+.fp-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.fp{
+  background:#0c1c26;
+  border:1px solid #193744;
+  border-radius:10px;
+  padding:11px;
+}
+
+.fp-title{
+  color:#77b6ce;
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.fp-row{
+  display:flex;
+  justify-content:space-between;
+  gap:5px;
+  margin:5px 0;
+  font-size:12px;
+}
+
+.delta{
+  font-size:17px;
+  font-weight:bold;
+}
+
+.order-grid,
+.derivatives-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.trade-wrap{
+  overflow:auto;
+  border:1px solid #193541;
+  border-radius:10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
+
+th,
+td{
+  padding:9px;
+  border-bottom:1px solid #162e39;
+  text-align:center;
+  font-size:12px;
+}
+
+th{
+  background:#102532;
+  color:#9ec3d4;
+}
+
+.buy{
+  color:#54e0ae;
+}
+
+.sell{
+  color:#ff7f8b;
+}
+
+.wall{
+  color:#ffe16b;
+}
+
+.loading{
+  color:#7fa1b2;
+  padding:15px;
+  text-align:center;
+}
+
+.empty{
+  text-align:center;
+  color:#7f98a7;
+  padding:30px 10px;
+}
+
+.reason{
+  background:#21151a;
+  border:1px solid #49262d;
+  color:#ffadb5;
+  border-radius:10px;
+  padding:11px;
+  margin-top:12px;
+  line-height:1.8;
 }
 
 .footer{
   text-align:center;
-  color:#5e6a7c;
-  font-size:11px;
-  margin-top:25px
+  color:#607986;
+  font-size:12px;
+  margin-top:25px;
+}
+
+@media(max-width:1000px){
+  .stats{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .fp-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .order-grid,
+  .derivatives-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 }
 
 @media(max-width:600px){
-  .container{width:95%}
-  h1{font-size:22px}
-  .symbol{font-size:19px}
-  .price{font-size:22px}
+  .container{
+    width:94%;
+  }
+
+  h1{
+    font-size:23px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .fp-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .order-grid,
+  .derivatives-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
   button{
-    width:100%
+    flex:1 1 45%;
   }
 }
-</style></head><body><div class="container"><header>  <h1>🚀 Pump Scanner — Bybit</h1>  <div class="subtitle">
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <h1>🚀 Pump Scanner — Bybit</h1>
+
+  <div class="subtitle">
     شناسایی ساختار واقعی بازار:
     <b>PUMP → RED CANDLE → PULLBACK ZONE → RETEST</b>
     <br>
-    تایم‌فریم: <b>15M</b> · منبع: <b>Bybit</b> · نسخه: <b>V7</b>
-  </div>  <div id="status" class="status">
-    🟡 در حال اتصال به Worker...
-  </div>  <div class="controls"><button
-  id="autoBtn"
-  onclick="toggleAuto()"
->
-  ▶️ شروع اسکن خودکار
-</button>
+    تایم‌فریم: <b>15M</b> · منبع: <b>Bybit</b>
+  </div>
 
-<button
-  id="scanBtn"
-  onclick="scanNow()"
->
-  🔎 اسکن همین الان
-</button>
+  <span class="version" id="version">
+    در حال اتصال...
+  </span>
+</header>
 
-<button
-  class="test"
-  onclick="testSound()"
->
-  🔊 تست صدا
-</button>
-
-<button
-  class="stop"
-  onclick="stopAuto()"
->
-  ⏹ توقف
-</button>
-
-  </div>  <div class="stats"><div class="stat">
-  <div class="label">ارزهای اسکن‌شده</div>
-  <div id="scanned" class="num">0</div>
+<div id="status" class="status">
+  🔄 در حال اتصال به Worker...
 </div>
 
-<div class="stat">
-  <div class="label">Pump Candidate</div>
-  <div id="candidates" class="num">0</div>
+<div class="toolbar">
+  <button class="start" onclick="startAutoScan()">
+    ▶️ شروع اسکن خودکار
+  </button>
+
+  <button class="scan" onclick="runScan()">
+    🔎 اسکن همین الان
+  </button>
+
+  <button class="sound" onclick="testSound()">
+    🔊 تست صدا
+  </button>
+
+  <button class="stop" onclick="stopAutoScan()">
+    ⏹ توقف
+  </button>
 </div>
 
-<div class="stat">
-  <div class="label">Pump Setup</div>
-  <div id="setups" class="num">0</div>
+<div class="stats">
+
+  <div class="stat">
+    <span class="label">ارزهای اسکن‌شده</span>
+    <span class="number" id="scanned">0</span>
+  </div>
+
+  <div class="stat">
+    <span class="label">Pump Candidate</span>
+    <span class="number" id="candidates">0</span>
+  </div>
+
+  <div class="stat">
+    <span class="label">Pump Setup</span>
+    <span class="number" id="setups">0</span>
+  </div>
+
+  <div class="stat">
+    <span class="label">REACHED 🔥</span>
+    <span class="number green" id="reached">0</span>
+  </div>
+
+  <div class="stat">
+    <span class="label">NEAR 🟡</span>
+    <span class="number yellow" id="near">0</span>
+  </div>
+
+  <div class="stat">
+    <span class="label">APPROACHING 🔵</span>
+    <span class="number blue" id="approaching">0</span>
+  </div>
+
 </div>
 
-<div class="stat">
-  <div class="label">REACHED 🔥</div>
-  <div id="signals" class="num">0</div>
-</div>
+<div class="section">
 
-<div class="stat">
-  <div class="label">NEAR 🟡</div>
-  <div id="near" class="num">0</div>
-</div>
-
-<div class="stat">
-  <div class="label">APPROACHING 🔵</div>
-  <div id="approaching" class="num">0</div>
-</div>
-
-<div class="stat">
-  <div class="label">INVALID</div>
-  <div id="invalid" class="num">0</div>
-</div>
-
-  </div></header><div class="section">  <div class="section-title">
+  <div class="section-title">
     🎯 نتایج اسکن
-  </div>  <div id="scanInfo" class="scan-info">
+  </div>
+
+  <div id="scanInfo" class="status">
     هنوز اسکن انجام نشده است.
-  </div>  <div id="results" class="results"><div class="message">
-  🔎 برای شروع روی
-  <b>«اسکن همین الان»</b>
-  بزن.
+  </div>
+
+  <div id="results" class="results">
+    <div class="empty">
+      برای شروع روی «اسکن همین الان» بزنید.
+    </div>
+  </div>
+
 </div>
 
-  </div>  <div id="lastScan" class="last"></div></div><div class="footer">
-  PUMP-SCANNER-BYBIT-PPR-V7
-</div></div><script>
+<div class="footer">
+  Pump Scanner · Bybit · PUMP-SCANNER-BYBIT-PPR-V8
+</div>
 
-/* =========================================================
-   WORKER
-========================================================= */
+</div>
+
+<script>
 
 const WORKER =
   "https://pump-scanner.29mah12.workers.dev";
 
+let autoTimer = null;
 
-/* =========================================================
-   CONFIG
-========================================================= */
+let liveTimers = {};
 
-const SCAN_INTERVAL = 45000;
+let previousReached = new Set();
 
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let autoRunning = false;
-let scanBusy = false;
-let timer = null;
 let audioContext = null;
 
-const alertedSignals =
-  new Set();
+
+/* =========================
+   Helpers
+========================= */
+
+function esc(value){
+
+  if(value === null ||
+     value === undefined){
+    return "-";
+  }
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 
 
-/* =========================================================
-   DOM
-========================================================= */
+function num(value,digits=2){
 
-const $ = id =>
-  document.getElementById(id);
-
-
-/* =========================================================
-   NUMBER
-========================================================= */
-
-function fmt(value,digits=8){
-
-  if(
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(Number(value))
-  ){
+  if(value === null ||
+     value === undefined ||
+     value === "" ||
+     Number.isNaN(Number(value))){
     return "-";
   }
 
@@ -477,951 +613,1872 @@ function fmt(value,digits=8){
 }
 
 
-function pct(value){
+function pct(value,digits=2){
 
-  if(
-    value === null ||
-    value === undefined ||
-    !Number.isFinite(Number(value))
-  ){
+  if(value === null ||
+     value === undefined ||
+     Number.isNaN(Number(value))){
     return "-";
   }
 
-  return Number(value).toFixed(2) + "%";
+  return num(value,digits) + "%";
 }
 
 
-function dateTime(value){
+function signedPct(value,digits=2){
 
-  if(!value) return "-";
+  if(value === null ||
+     value === undefined ||
+     Number.isNaN(Number(value))){
+    return "-";
+  }
+
+  const n = Number(value);
+
+  return (n >= 0 ? "+" : "") +
+         num(n,digits) +
+         "%";
+}
+
+
+function formatDuration(ms){
+
+  if(ms === null ||
+     ms === undefined ||
+     Number.isNaN(Number(ms))){
+    return "-";
+  }
+
+  const n = Number(ms);
+
+  if(n < 1000){
+    return Math.round(n) + " ms";
+  }
+
+  return (n / 1000).toFixed(1) + " s";
+}
+
+
+function formatTime(ts){
+
+  if(!ts){
+    return "-";
+  }
+
+  const d = new Date(
+    Number(ts)
+  );
+
+  if(Number.isNaN(d.getTime())){
+    return "-";
+  }
+
+  return d.toLocaleTimeString(
+    "fa-IR",
+    {
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit"
+    }
+  );
+}
+
+
+function formatDate(ts){
+
+  if(!ts){
+    return "-";
+  }
+
+  const d = new Date(
+    Number(ts)
+  );
+
+  if(Number.isNaN(d.getTime())){
+    return "-";
+  }
+
+  return d.toLocaleString(
+    "fa-IR"
+  );
+}
+
+
+/* =========================
+   Sound
+========================= */
+
+function beep(
+  frequency=720,
+  duration=0.15
+){
 
   try{
 
-    return new Date(value).toLocaleString(
-      "fa-IR",
-      {
-        dateStyle:"short",
-        timeStyle:"short"
-      }
+    if(!audioContext){
+
+      audioContext =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+    const osc =
+      audioContext.createOscillator();
+
+    const gain =
+      audioContext.createGain();
+
+    osc.frequency.value =
+      frequency;
+
+    osc.type = "sine";
+
+    gain.gain.value = 0.08;
+
+    osc.connect(gain);
+
+    gain.connect(
+      audioContext.destination
     );
 
-  }catch{
+    osc.start();
 
-    return "-";
-  }
-}
+    setTimeout(
+      () => osc.stop(),
+      duration * 1000
+    );
 
+  }catch(e){}
 
-/* =========================================================
-   STATUS
-========================================================= */
-
-function setStatus(
-  text,
-  type=""
-){
-
-  const el =
-    $("status");
-
-  el.textContent =
-    text;
-
-  el.className =
-    "status " + type;
-}
-
-
-/* =========================================================
-   AUDIO
-========================================================= */
-
-function getAudio(){
-
-  if(!audioContext){
-
-    const AC =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if(!AC) return null;
-
-    audioContext =
-      new AC();
-  }
-
-  if(
-    audioContext.state === "suspended"
-  ){
-
-    audioContext.resume();
-  }
-
-  return audioContext;
-}
-
-
-function beep(
-  frequency=800,
-  duration=.18,
-  delay=0
-){
-
-  const ctx =
-    getAudio();
-
-  if(!ctx) return;
-
-  const oscillator =
-    ctx.createOscillator();
-
-  const gain =
-    ctx.createGain();
-
-  oscillator.frequency.value =
-    frequency;
-
-  oscillator.type =
-    "sine";
-
-  gain.gain.setValueAtTime(
-    .0001,
-    ctx.currentTime + delay
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    .22,
-    ctx.currentTime +
-    delay +
-    .02
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    .0001,
-    ctx.currentTime +
-    delay +
-    duration
-  );
-
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-
-  oscillator.start(
-    ctx.currentTime + delay
-  );
-
-  oscillator.stop(
-    ctx.currentTime +
-    delay +
-    duration +
-    .02
-  );
-}
-
-
-function alertSignal(item){
-
-  if(!item || !item.id){
-    return;
-  }
-
-  if(
-    alertedSignals.has(item.id)
-  ){
-    return;
-  }
-
-  alertedSignals.add(item.id);
-
-  beep(880,.20,0);
-  beep(1100,.20,.25);
-  beep(1400,.28,.50);
-
-  if(
-    "Notification" in window &&
-    Notification.permission === "granted"
-  ){
-
-    try{
-
-      new Notification(
-        "🔥 Pump Scanner",
-        {
-          body:
-            `${item.symbol} به Pullback Zone رسید`
-        }
-      );
-
-    }catch{}
-  }
 }
 
 
 function testSound(){
 
-  beep(700,.18,0);
-  beep(1000,.18,.25);
-  beep(1300,.25,.50);
+  beep(900,.15);
 
-  if(
-    "Notification" in window &&
-    Notification.permission === "default"
-  ){
-
-    Notification.requestPermission();
-  }
-}
-
-
-/* =========================================================
-   HEALTH
-========================================================= */
-
-async function health(){
-
-  setStatus(
-    "🟡 در حال اتصال به Worker...",
-    "loading"
+  setTimeout(
+    () => beep(1200,.2),
+    180
   );
 
-  try{
-
-    const response =
-      await fetch(
-        WORKER +
-        "/health?_" +
-        Date.now(),
-        {
-          method:"GET",
-          cache:"no-store"
-        }
-      );
-
-    if(!response.ok){
-
-      throw new Error(
-        "HTTP " +
-        response.status
-      );
-    }
-
-    const data =
-      await response.json();
-
-    if(!data.ok){
-
-      throw new Error(
-        data.error ||
-        "Worker error"
-      );
-    }
-
-    setStatus(
-      `🟢 Worker متصل است — ${data.version}`,
-      "success"
-    );
-
-    return true;
-
-  }catch(error){
-
-    setStatus(
-      "🔴 اتصال به Worker برقرار نشد — " +
-      error.message,
-      "error"
-    );
-
-    return false;
-  }
 }
 
 
-/* =========================================================
-   SCAN
-========================================================= */
-
-async function scanNow(){
-
-  if(scanBusy){
-
-    return;
-  }
-
-  scanBusy = true;
-
-  const scanBtn =
-    $("scanBtn");
-
-  scanBtn.disabled =
-    true;
-
-  scanBtn.textContent =
-    "⏳ در حال اسکن...";
-
-  setStatus(
-    "🟡 در حال اسکن 15M بازار Bybit — لطفاً صبر کنید...",
-    "loading"
-  );
-
-  $("scanInfo").innerHTML =
-    "⏳ Worker در حال بررسی ارزهای Bybit است...";
-
-  try{
-
-    const response =
-      await fetch(
-        WORKER +
-        "/scan?_" +
-        Date.now(),
-        {
-          method:"GET",
-          cache:"no-store"
-        }
-      );
-
-    if(!response.ok){
-
-      throw new Error(
-        "HTTP " +
-        response.status
-      );
-    }
-
-    const data =
-      await response.json();
-
-    if(
-      !data ||
-      data.ok !== true
-    ){
-
-      throw new Error(
-        data?.error ||
-        "پاسخ نامعتبر از Worker"
-      );
-    }
-
-    updateStats(data);
-
-    renderScanInfo(data);
-
-    const results =
-      Array.isArray(data.results)
-        ? data.results
-        : [];
-
-    renderResults(results);
-
-    $("lastScan").textContent =
-      "آخرین اسکن: " +
-      new Date().toLocaleString(
-        "fa-IR"
-      );
-
-    setStatus(
-      `🟢 اسکن کامل شد — ${data.scannedSymbols || 0} ارز بررسی شد — ${data.setups || 0} Setup`,
-      "success"
-    );
-
-    /*
-      هشدار فقط برای REACHED
-    */
-
-    for(
-      const item of results
-    ){
-
-      if(
-        item &&
-        item.state === "REACHED"
-      ){
-
-        alertSignal(item);
-      }
-    }
-
-  }catch(error){
-
-    console.error(
-      "SCAN ERROR:",
-      error
-    );
-
-    setStatus(
-      "🔴 خطا در اسکن — " +
-      error.message,
-      "error"
-    );
-
-    $("scanInfo").innerHTML = `
-      <b>❌ اسکن انجام نشد</b>
-      <br>
-      ${escapeHtml(error.message)}
-      <br>
-      <small>
-        آدرس Worker:
-        ${escapeHtml(WORKER)}
-      </small>
-    `;
-
-  }finally{
-
-    scanBusy = false;
-
-    scanBtn.disabled =
-      false;
-
-    scanBtn.textContent =
-      "🔎 اسکن همین الان";
-  }
-}
-
-
-/* =========================================================
-   STATS
-========================================================= */
-
-function updateStats(data){
-
-  $("scanned").textContent =
-    Number(data.scannedSymbols || 0);
-
-  $("candidates").textContent =
-    Number(data.candidates || 0);
-
-  $("setups").textContent =
-    Number(data.setups || 0);
-
-  $("signals").textContent =
-    Number(data.signals || 0);
-
-  $("near").textContent =
-    Number(data.near || 0);
-
-  $("approaching").textContent =
-    Number(data.approaching || 0);
-
-  $("invalid").textContent =
-    Number(data.invalid || 0);
-}
-
-
-/* =========================================================
-   SCAN INFO
-========================================================= */
-
-function renderScanInfo(data){
-
-  const duration =
-    data.durationMs
-      ? (Number(data.durationMs) / 1000).toFixed(1)
-      : "-";
-
-  $("scanInfo").innerHTML = `
-
-    🟢 <b>اسکن واقعی Bybit انجام شد</b>
-
-    <br>
-
-    ارزهای بررسی‌شده:
-    <b>${Number(data.scannedSymbols || 0).toLocaleString("en-US")}</b>
-
-    ·
-
-    Candidate:
-    <b>${Number(data.candidates || 0)}</b>
-
-    ·
-
-    Setup:
-    <b>${Number(data.setups || 0)}</b>
-
-    <br>
-
-    REACHED:
-    <b>${Number(data.signals || 0)}</b>
-
-    ·
-
-    NEAR:
-    <b>${Number(data.near || 0)}</b>
-
-    ·
-
-    APPROACHING:
-    <b>${Number(data.approaching || 0)}</b>
-
-    ·
-
-    زمان:
-    <b>${duration}s</b>
-
-  `;
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHtml(value){
-
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-function stateInfo(state){
-
-  if(state === "REACHED"){
-
-    return {
-      cls:"reached",
-      text:"🔥 رسید به Zone"
-    };
-  }
-
-  if(state === "NEAR"){
-
-    return {
-      cls:"near",
-      text:"🟡 نزدیک Zone"
-    };
-  }
-
-  if(state === "APPROACHING"){
-
-    return {
-      cls:"approaching",
-      text:"🔵 در حال نزدیک شدن"
-    };
-  }
-
-  if(state === "BELOW_ZONE"){
-
-    return {
-      cls:"below",
-      text:"⚪ زیر Zone"
-    };
-  }
-
-  if(state === "INVALID"){
-
-    return {
-      cls:"invalid",
-      text:"🔴 نامعتبر"
-    };
-  }
-
-  return {
-    cls:"below",
-    text:state || "نامشخص"
-  };
-}
-
-
-/* =========================================================
-   RENDER RESULTS
-========================================================= */
-
-function renderResults(results){
-
-  const box =
-    $("results");
-
-  /*
-    Worker در V7 فقط Setupهای سالم
-    را برمی‌گرداند.
-  */
-
-  const valid =
-    results.filter(
-      x =>
-        x &&
-        x.pump &&
-        x.pullback
-    );
-
-  if(!valid.length){
-
-    box.innerHTML = `
-      <div class="message">
-
-        🔎 این اسکن انجام شد،
-        اما در حال حاضر
-        <b>Pump Setup</b>
-        قابل معامله‌ای وجود ندارد.
-
-        <br><br>
-
-        سیستم هر حرکت کوچک را نمایش نمی‌دهد.
-        فقط ساختار کامل
-        <b>PUMP → RED CANDLE → PULLBACK</b>
-        نمایش داده می‌شود.
-
-      </div>
-    `;
-
-    return;
-  }
-
-  box.innerHTML =
-    valid
-      .map(renderCard)
-      .join("");
-}
-
-
-/* =========================================================
-   DISTANCE PROGRESS
-========================================================= */
-
-function progressPercent(
-  state,
-  distance
+/* =========================
+   API
+========================= */
+
+async function api(
+  path
 ){
 
-  const d =
-    Number(distance);
+  const separator =
+    path.includes("?")
+      ? "&"
+      : "?";
 
-  if(state === "REACHED"){
-    return 100;
-  }
+  const url =
+    WORKER +
+    path +
+    separator +
+    "_=" +
+    Date.now();
 
-  if(state === "NEAR"){
-    return 85;
-  }
-
-  if(state === "APPROACHING"){
-
-    /*
-      صرفاً نمایش بصری است.
-      روی منطق Worker تأثیری ندارد.
-    */
-
-    return Math.max(
-      5,
-      Math.min(
-        80,
-        80 - d * 5
-      )
+  const response =
+    await fetch(
+      url,
+      {
+        cache:"no-store"
+      }
     );
+
+  if(!response.ok){
+
+    throw new Error(
+      "HTTP " + response.status
+    );
+
   }
 
-  return 0;
+  return response.json();
+
 }
 
 
-/* =========================================================
-   CARD
-========================================================= */
+/* =========================
+   Health
+========================= */
 
-function renderCard(item){
+async function checkHealth(){
+
+  try{
+
+    const data =
+      await api("/health");
+
+    document.getElementById(
+      "version"
+    ).textContent =
+      data.version ||
+      "Pump Scanner";
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+    status.className =
+      "status ok";
+
+    status.innerHTML =
+      "🟢 اتصال برقرار است — " +
+      "Bybit · Worker V8";
+
+  }catch(error){
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+    status.className =
+      "status error";
+
+    status.innerHTML =
+      "🔴 اتصال به Worker برقرار نیست";
+
+  }
+
+}
+
+
+/* =========================
+   Scan
+========================= */
+
+async function runScan(){
+
+  const status =
+    document.getElementById(
+      "status"
+    );
 
   const info =
-    stateInfo(item.state);
-
-  const pump =
-    item.pump || {};
-
-  const pb =
-    item.pullback || {};
-
-  const progress =
-    progressPercent(
-      item.state,
-      item.distancePercent
+    document.getElementById(
+      "scanInfo"
     );
+
+  status.className =
+    "status";
+
+  status.innerHTML =
+    "🔄 در حال اسکن واقعی بازار Bybit...";
+
+  info.innerHTML =
+    "⏳ در حال بررسی ارزها...";
+
+  try{
+
+    const started =
+      performance.now();
+
+    const data =
+      await api("/scan");
+
+    const elapsed =
+      performance.now() - started;
+
+    renderScan(
+      data,
+      elapsed
+    );
+
+    status.className =
+      "status ok";
+
+    status.innerHTML =
+      "🟢 اسکن واقعی Bybit انجام شد";
+
+  }catch(error){
+
+    status.className =
+      "status error";
+
+    status.innerHTML =
+      "🔴 خطا در اسکن: " +
+      esc(error.message);
+
+    info.innerHTML =
+      "اسکن انجام نشد.";
+
+  }
+
+}
+
+
+/* =========================
+   Render Scan
+========================= */
+
+function renderScan(
+  data,
+  clientElapsed
+){
+
+  const scanned =
+    data.scannedSymbols ??
+    data.scanned ??
+    0;
+
+  const candidates =
+    data.candidates?.length ??
+    data.candidateCount ??
+    0;
+
+  const setups =
+    data.setups?.length ??
+    data.setupCount ??
+    0;
+
+  const reached =
+    data.reached?.length ??
+    data.reachedCount ??
+    0;
+
+  const near =
+    data.near?.length ??
+    data.nearCount ??
+    0;
+
+  const approaching =
+    data.approaching?.length ??
+    data.approachingCount ??
+    0;
+
+  document.getElementById(
+    "scanned"
+  ).textContent =
+    num(scanned,0);
+
+  document.getElementById(
+    "candidates"
+  ).textContent =
+    num(candidates,0);
+
+  document.getElementById(
+    "setups"
+  ).textContent =
+    num(setups,0);
+
+  document.getElementById(
+    "reached"
+  ).textContent =
+    num(reached,0);
+
+  document.getElementById(
+    "near"
+  ).textContent =
+    num(near,0);
+
+  document.getElementById(
+    "approaching"
+  ).textContent =
+    num(approaching,0);
+
+
+  const workerDuration =
+    data.scanDurationMs ??
+    data.durationMs ??
+    null;
+
+  const duration =
+    workerDuration ??
+    clientElapsed;
+
+
+  document.getElementById(
+    "scanInfo"
+  ).innerHTML =
+
+    "🟢 اسکن واقعی Bybit انجام شد" +
+    "<br>" +
+
+    "ارزهای بررسی‌شده: " +
+    "<b>" +
+    num(scanned,0) +
+    "</b>" +
+
+    " · Candidate: " +
+    "<b>" +
+    num(candidates,0) +
+    "</b>" +
+
+    " · Setup: " +
+    "<b>" +
+    num(setups,0) +
+    "</b>" +
+
+    "<br>" +
+
+    "REACHED: " +
+    "<b>" +
+    num(reached,0) +
+    "</b>" +
+
+    " · NEAR: " +
+    "<b>" +
+    num(near,0) +
+    "</b>" +
+
+    " · APPROACHING: " +
+    "<b>" +
+    num(approaching,0) +
+    "</b>" +
+
+    " · زمان: " +
+    "<b>" +
+    formatDuration(duration) +
+    "</b>" +
+
+    "<br>" +
+
+    "آخرین اسکن: " +
+    "<b>" +
+    formatDate(
+      data.timestamp ||
+      data.time ||
+      Date.now()
+    ) +
+    "</b>";
+
+
+  renderResults(
+    data
+  );
+
+}
+
+
+/* =========================
+   Results
+========================= */
+
+function getItems(data){
+
+  if(Array.isArray(data.setups))
+    return data.setups;
+
+  if(Array.isArray(data.results))
+    return data.results;
+
+  if(Array.isArray(data.items))
+    return data.items;
+
+  if(Array.isArray(data.candidates))
+    return data.candidates;
+
+  return [];
+
+}
+
+
+function renderResults(
+  data
+){
+
+  const root =
+    document.getElementById(
+      "results"
+    );
+
+  const items =
+    getItems(data);
+
+  if(!items.length){
+
+    const details =
+      Array.isArray(
+        data.candidateDetails
+      )
+        ? data.candidateDetails
+        : [];
+
+    if(details.length){
+
+      root.innerHTML =
+        details
+          .slice(0,20)
+          .map(renderCandidate)
+          .join("");
+
+      return;
+
+    }
+
+    root.innerHTML =
+      `<div class="empty">
+        در این اسکن Setup فعالی پیدا نشد.
+      </div>`;
+
+    return;
+
+  }
+
+  root.innerHTML =
+    items
+      .map(renderSetup)
+      .join("");
+
+  items.forEach(
+    item => {
+
+      const symbol =
+        normalizeSymbol(
+          item.symbol
+        );
+
+      if(symbol){
+
+        startLive(
+          symbol
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================
+   Candidate
+========================= */
+
+function renderCandidate(
+  item
+){
+
+  const symbol =
+    normalizeSymbol(
+      item.symbol
+    );
+
+  const reason =
+    item.reason ||
+    item.rejectionReason ||
+    item.message ||
+    "Setup کامل نشده است.";
 
   return `
 
-    <div class="card ${info.cls}">
+    <div class="card invalid">
 
-      <div class="top">
+      <div class="card-head">
 
         <div class="symbol">
-          🚀 ${escapeHtml(item.symbol)}
+          ${esc(symbol)}
         </div>
 
-        <div class="badge ${info.cls}">
-          ${info.text}
-        </div>
+        <span class="badge invalid">
+          INVALID / Candidate
+        </span>
 
       </div>
 
-
-      <div class="price">
-        ${fmt(item.currentPrice,8)}
+      <div class="reason">
+        ${esc(reason)}
       </div>
 
+    </div>
 
-      <div class="grid">
+  `;
 
-        <div class="item">
-          <small>قدرت Pump</small>
-          <strong>
-            ${pct(pump.percent)}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>حجم نسبت به قبل</small>
-          <strong>
-            ${fmt(pump.volumeRatio,2)}x
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>کندل‌های Pump</small>
-          <strong>
-            ${pump.candles ?? "-"}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>نسبت کندل سبز</small>
-          <strong>
-            ${pct(
-              Number(pump.greenRatio || 0) * 100
-            )}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>امتیاز Pump</small>
-          <strong>
-            ${fmt(pump.score,2)}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>فاصله از Zone</small>
-          <strong>
-            ${pct(item.distancePercent)}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>بدنه کندل قرمز</small>
-          <strong>
-            ${pct(pb.bodyPercent)}
-          </strong>
-        </div>
-
-        <div class="item">
-          <small>Retrace</small>
-          <strong>
-            ${pct(pb.retracePercent)}
-          </strong>
-        </div>
-
-      </div>
+}
 
 
-      <div class="zone">
+/* =========================
+   Setup
+========================= */
 
-        <div class="zone-title">
-          🎯 محدوده Pullback Zone
-        </div>
+function renderSetup(
+  item
+){
 
-        <div class="zone-price">
+  const symbol =
+    normalizeSymbol(
+      item.symbol
+    );
 
-          ${fmt(pb.zoneLow,8)}
+  const state =
+    String(
+      item.state ||
+      item.status ||
+      "APPROACHING"
+    ).toUpperCase();
 
-          &nbsp; → &nbsp;
+  const stateClass =
+    state.toLowerCase();
 
-          ${fmt(pb.zoneHigh,8)}
+  const market =
+    String(
+      item.market ||
+      item.category ||
+      "UNKNOWN"
+    ).toUpperCase();
 
-        </div>
+  const pump =
+    item.pump ||
+    {};
 
-        <div class="progress ${info.cls}">
+  const pullback =
+    item.pullback ||
+    {};
+
+  const zone =
+    item.zone ||
+    {};
+
+  const current =
+    item.currentPrice ??
+    item.price ??
+    item.current ??
+    null;
+
+  return `
+
+    <div
+      class="card ${esc(stateClass)}"
+      id="card-${safeId(symbol)}"
+    >
+
+      <div class="card-head">
+
+        <div>
+          <div class="symbol">
+            ${esc(symbol)}
+          </div>
 
           <div
-            class="progress-bar"
-            style="width:${progress}%"
-          ></div>
-
+            style="
+              color:#7795a5;
+              font-size:12px;
+              margin-top:5px
+            "
+          >
+            ${esc(market)} · 15M
+          </div>
         </div>
 
-      </div>
+        <span
+          class="badge ${esc(stateClass)}"
+        >
+          ${stateEmoji(state)}
+          ${esc(state)}
+        </span>
 
+      </div>
 
       <div class="grid">
 
-        <div class="item">
-          <small>Base Pump</small>
-          <strong>
-            ${fmt(pump.basePrice,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Pump
+          </div>
+          <div class="value green">
+            ${pct(
+              pump.percent ??
+              item.pumpPercent
+            )}
+          </div>
         </div>
 
-        <div class="item">
-          <small>End Pump</small>
-          <strong>
-            ${fmt(pump.price,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Pump Candles
+          </div>
+          <div class="value">
+            ${num(
+              pump.candles ??
+              item.pumpCandles,
+              0
+            )}
+          </div>
         </div>
 
-        <div class="item">
-          <small>High Pump</small>
-          <strong>
-            ${fmt(pump.high,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Green Ratio
+          </div>
+          <div class="value">
+            ${pct(
+              ((pump.greenRatio ??
+                item.greenRatio ??
+                0) * 100)
+            )}
+          </div>
         </div>
 
-        <div class="item">
-          <small>Low Pump</small>
-          <strong>
-            ${fmt(pump.low,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Volume Ratio
+          </div>
+          <div class="value">
+            ${num(
+              pump.volumeRatio ??
+              item.volumeRatio,
+              2
+            )}x
+          </div>
         </div>
 
-        <div class="item">
-          <small>Open کندل قرمز</small>
-          <strong>
-            ${fmt(pb.open,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Pump Score
+          </div>
+          <div class="value yellow">
+            ${num(
+              pump.score ??
+              item.pumpScore,
+              2
+            )}
+          </div>
         </div>
 
-        <div class="item">
-          <small>Close کندل قرمز</small>
-          <strong>
-            ${fmt(pb.close,8)}
-          </strong>
+        <div class="box">
+          <div class="label">
+            Pullback
+          </div>
+          <div class="value red">
+            ${pct(
+              pullback.percent ??
+              item.pullbackPercent
+            )}
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="label">
+            Zone Low
+          </div>
+          <div class="value">
+            ${num(
+              zone.low ??
+              item.zoneLow,
+              8
+            )}
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="label">
+            Zone High
+          </div>
+          <div class="value">
+            ${num(
+              zone.high ??
+              item.zoneHigh,
+              8
+            )}
+          </div>
         </div>
 
       </div>
 
+      <div
+        class="live-panel"
+        id="live-${safeId(symbol)}"
+      >
 
-      <div style="
-        margin-top:14px;
-        color:#6f7d91;
-        font-size:11px;
-        line-height:2;
-      ">
+        <div class="live-head">
 
-        🚀 Pump:
-        ${dateTime(pump.startTime)}
-        →
-        ${dateTime(pump.endTime)}
+          <div class="live-title">
+            🔴 LIVE MARKET DATA
+          </div>
 
-        <br>
+          <div
+            class="live-time"
+            id="live-time-${safeId(symbol)}"
+          >
+            در حال دریافت...
+          </div>
 
-        🔴 Pullback:
-        ${dateTime(pb.time)}
+        </div>
+
+        <div class="live-content">
+
+          <div
+            class="loading"
+            id="live-loading-${safeId(symbol)}"
+          >
+            ⏳ دریافت Footprint، Order Book، OI و Funding...
+          </div>
+
+        </div>
 
       </div>
 
     </div>
 
   `;
+
 }
 
 
-/* =========================================================
-   AUTO SCAN
-========================================================= */
+/* =========================
+   Live
+========================= */
 
-function toggleAuto(){
+function normalizeSymbol(
+  symbol
+){
 
-  if(autoRunning){
+  if(!symbol)
+    return "";
 
-    stopAuto();
+  return String(symbol)
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,"");
 
-  }else{
-
-    startAuto();
-
-  }
 }
 
 
-function startAuto(){
+function safeId(
+  symbol
+){
 
-  if(autoRunning){
-    return;
-  }
-
-  autoRunning = true;
-
-  $("autoBtn").textContent =
-    "🟢 اسکن خودکار فعال است";
-
-  $("autoBtn").classList.add(
-    "active"
+  return normalizeSymbol(
+    symbol
+  ).replace(
+    /[^A-Z0-9_-]/g,
+    "_"
   );
 
-  scanNow();
+}
 
-  timer =
+
+function stateEmoji(
+  state
+){
+
+  if(state === "REACHED")
+    return "🔥";
+
+  if(state === "NEAR")
+    return "🟡";
+
+  if(state === "APPROACHING")
+    return "🔵";
+
+  return "⚪";
+
+}
+
+
+function startLive(
+  symbol
+){
+
+  if(!symbol)
+    return;
+
+  if(liveTimers[symbol])
+    return;
+
+  loadLive(symbol);
+
+  liveTimers[symbol] =
     setInterval(
-      scanNow,
-      SCAN_INTERVAL
+      () => loadLive(symbol),
+      3000
     );
 
-  if(
-    "Notification" in window &&
-    Notification.permission === "default"
-  ){
-
-    Notification.requestPermission();
-  }
 }
 
 
-function stopAuto(){
+async function loadLive(
+  symbol
+){
 
-  autoRunning = false;
+  const id =
+    safeId(symbol);
 
-  if(timer){
+  try{
 
-    clearInterval(timer);
+    const data =
+      await api(
+        "/live?symbol=" +
+        encodeURIComponent(symbol)
+      );
 
-    timer = null;
+    renderLive(
+      symbol,
+      data
+    );
+
+  }catch(error){
+
+    const loading =
+      document.getElementById(
+        "live-loading-" + id
+      );
+
+    if(loading){
+
+      loading.className =
+        "reason";
+
+      loading.textContent =
+        "خطا در دریافت Live Data: " +
+        error.message;
+
+    }
+
   }
 
-  $("autoBtn").textContent =
-    "▶️ شروع اسکن خودکار";
-
-  $("autoBtn").classList.remove(
-    "active"
-  );
-
-  setStatus(
-    "⏹ اسکن خودکار متوقف شد",
-    ""
-  );
 }
 
 
-/* =========================================================
-   STARTUP
-========================================================= */
+/* =========================
+   Live Render
+========================= */
 
-(async function(){
+function renderLive(
+  symbol,
+  data
+){
 
-  const connected =
-    await health();
+  const id =
+    safeId(symbol);
 
-  /*
-    اگر Worker وصل بود،
-    یک بار اتوماتیک اسکن اولیه انجام بده.
-  */
+  const panel =
+    document.querySelector(
+      "#live-" + id +
+      " .live-content"
+    );
 
-  if(connected){
+  if(!panel)
+    return;
 
-    await scanNow();
+  const price =
+    data.price ??
+    data.currentPrice ??
+    data.ticker?.lastPrice ??
+    null;
+
+  const footprint =
+    data.footprint ||
+    {};
+
+  const orderbook =
+    data.orderbook ||
+    {};
+
+  const oi =
+    data.openInterest ||
+    data.oi ||
+    {};
+
+  const funding =
+    data.funding ||
+    {};
+
+  const trades =
+    data.trades ||
+    data.recentTrades ||
+    footprint.lastTrades ||
+    [];
+
+  const market =
+    String(
+      data.market ||
+      data.category ||
+      ""
+    ).toUpperCase();
+
+
+  const liveTime =
+    document.getElementById(
+      "live-time-" + id
+    );
+
+  if(liveTime){
+
+    liveTime.textContent =
+      "🟢 LIVE · " +
+      formatTime(
+        data.timestamp ||
+        data.time ||
+        Date.now()
+      );
+
   }
 
-})();
 
-</script></body>
+  let html = `
+
+    <div class="grid">
+
+      <div class="box">
+        <div class="label">
+          قیمت لحظه‌ای
+        </div>
+        <div class="value blue">
+          ${num(price,8)}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Market
+        </div>
+        <div class="value">
+          ${esc(
+            market ||
+            data.category ||
+            "-"
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          آخرین معامله
+        </div>
+        <div class="value">
+          ${formatTime(
+            data.timestamp ||
+            data.time ||
+            Date.now()
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          وضعیت داده
+        </div>
+        <div class="value green">
+          LIVE
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sub-title">
+      📊 Footprint واقعی معاملات
+    </div>
+
+    ${renderFootprint(
+      footprint
+    )}
+
+    <div class="sub-title">
+      📖 Order Book
+    </div>
+
+    ${renderOrderbook(
+      orderbook
+    )}
+
+  `;
+
+
+  const isFutures =
+    market.includes("FUTURES") ||
+    market.includes("LINEAR") ||
+    market.includes("INVERSE") ||
+    !!data.openInterest ||
+    !!data.funding;
+
+
+  if(isFutures){
+
+    html += `
+
+      <div class="sub-title">
+        📈 Futures — OI & Funding
+      </div>
+
+      ${renderDerivatives(
+        oi,
+        funding,
+        data
+      )}
+
+    `;
+
+  }
+
+
+  html += `
+
+    <div class="sub-title">
+      💱 آخرین معاملات Bybit
+    </div>
+
+    ${renderTrades(
+      trades
+    )}
+
+  `;
+
+
+  panel.innerHTML =
+    html;
+
+}
+
+
+/* =========================
+   Footprint
+========================= */
+
+function renderFootprint(
+  fp
+){
+
+  const windows = [
+    ["15s","15s"],
+    ["30s","30s"],
+    ["1m","1m"],
+    ["3m","3m"],
+    ["5m","5m"]
+  ];
+
+  return `
+
+    <div class="fp-grid">
+
+      ${windows.map(
+        ([key,title]) => {
+
+          const x =
+            fp[key] ||
+            {};
+
+          const buy =
+            x.buyVolume ??
+            x.buy ??
+            0;
+
+          const sell =
+            x.sellVolume ??
+            x.sell ??
+            0;
+
+          const delta =
+            x.delta ??
+            (Number(buy) -
+             Number(sell));
+
+          const deltaPercent =
+            x.deltaPercent ??
+            (
+              Number(buy) +
+              Number(sell)
+                ? Number(delta) /
+                  (
+                    Number(buy) +
+                    Number(sell)
+                  ) *
+                  100
+                : 0
+            );
+
+          return `
+
+            <div class="fp">
+
+              <div class="fp-title">
+                ${title}
+              </div>
+
+              <div class="fp-row">
+                <span>Buy</span>
+                <span class="buy">
+                  ${num(buy,4)}
+                </span>
+              </div>
+
+              <div class="fp-row">
+                <span>Sell</span>
+                <span class="sell">
+                  ${num(sell,4)}
+                </span>
+              </div>
+
+              <div class="fp-row">
+                <span>Delta</span>
+                <span
+                  class="delta ${
+                    Number(delta) >= 0
+                      ? "buy"
+                      : "sell"
+                  }"
+                >
+                  ${Number(delta) >= 0 ? "+" : ""}
+                  ${num(delta,4)}
+                </span>
+              </div>
+
+              <div class="fp-row">
+                <span>Delta %</span>
+                <span>
+                  ${signedPct(
+                    deltaPercent,
+                    2
+                  )}
+                </span>
+              </div>
+
+              <div class="fp-row">
+                <span>Pressure</span>
+                <span>
+                  ${
+                    deltaPercent >= 10
+                      ? "🟢 BUY"
+                      : deltaPercent <= -10
+                        ? "🔴 SELL"
+                        : "⚪ NEUTRAL"
+                  }
+                </span>
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      ).join("")}
+
+    </div>
+
+    <div class="grid" style="margin-top:10px">
+
+      <div class="box">
+        <div class="label">
+          Buy Notional
+        </div>
+        <div class="value buy">
+          ${num(
+            fp.buyNotional,
+            2
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Sell Notional
+        </div>
+        <div class="value sell">
+          ${num(
+            fp.sellNotional,
+            2
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Large Buy
+        </div>
+        <div class="value buy">
+          ${num(
+            fp.largeBuyVolume,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Large Sell
+        </div>
+        <div class="value sell">
+          ${num(
+            fp.largeSellVolume,
+            4
+          )}
+        </div>
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   Order Book
+========================= */
+
+function renderOrderbook(
+  ob
+){
+
+  const buyLiquidity =
+    ob.buyLiquidity ??
+    ob.bidLiquidity ??
+    0;
+
+  const sellLiquidity =
+    ob.sellLiquidity ??
+    ob.askLiquidity ??
+    0;
+
+  const total =
+    ob.totalLiquidity ??
+    Number(buyLiquidity) +
+    Number(sellLiquidity);
+
+  const buyShare =
+    ob.buyShare ??
+    (
+      total
+        ? Number(buyLiquidity) /
+          Number(total) *
+          100
+        : 0
+    );
+
+  const sellShare =
+    ob.sellShare ??
+    (
+      total
+        ? Number(sellLiquidity) /
+          Number(total) *
+          100
+        : 0
+    );
+
+  const pressure =
+    ob.pressure ||
+    ob.signal ||
+    (
+      buyShare > sellShare + 8
+        ? "BUY_PRESSURE"
+        : sellShare > buyShare + 8
+          ? "SELL_PRESSURE"
+          : "NEUTRAL"
+    );
+
+  return `
+
+    <div class="order-grid">
+
+      <div class="box">
+        <div class="label">
+          Best Bid
+        </div>
+        <div class="value buy">
+          ${num(
+            ob.bestBid,
+            8
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Best Ask
+        </div>
+        <div class="value sell">
+          ${num(
+            ob.bestAsk,
+            8
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Bid Liquidity
+        </div>
+        <div class="value buy">
+          ${num(
+            buyLiquidity,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Ask Liquidity
+        </div>
+        <div class="value sell">
+          ${num(
+            sellLiquidity,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Buy Share
+        </div>
+        <div class="value buy">
+          ${pct(buyShare)}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Sell Share
+        </div>
+        <div class="value sell">
+          ${pct(sellShare)}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Total Liquidity
+        </div>
+        <div class="value">
+          ${num(total,4)}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Pressure
+        </div>
+        <div class="value ${
+          String(pressure)
+            .includes("BUY")
+            ? "buy"
+            : String(pressure)
+              .includes("SELL")
+                ? "sell"
+                : "yellow"
+        }">
+          ${
+            String(pressure)
+              .includes("BUY")
+              ? "🟢 BUY"
+              : String(pressure)
+                .includes("SELL")
+                  ? "🔴 SELL"
+                  : "⚪ NEUTRAL"
+          }
+        </div>
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   OI + Funding
+========================= */
+
+function renderDerivatives(
+  oi,
+  funding,
+  data
+){
+
+  const currentOI =
+    oi.current ??
+    oi.currentOI ??
+    oi.value ??
+    0;
+
+  const previousOI =
+    oi.previous ??
+    oi.previousOI ??
+    0;
+
+  const oiChange =
+    oi.changePercent ??
+    oi.percentChange ??
+    (
+      previousOI
+        ? (
+          (
+            Number(currentOI) -
+            Number(previousOI)
+          ) /
+          Number(previousOI)
+        ) *
+        100
+        : 0
+    );
+
+  const oiTrend =
+    oi.trend ||
+    (
+      Number(oiChange) > 0
+        ? "INCREASING"
+        : Number(oiChange) < 0
+          ? "DECREASING"
+          : "FLAT"
+    );
+
+
+  const currentFunding =
+    data.currentFundingRate ??
+    funding.current ??
+    funding.currentRate ??
+    funding.rate ??
+    0;
+
+  const previousFunding =
+    funding.previous ??
+    funding.previousRate ??
+    0;
+
+  const fundingChange =
+    funding.changePercent ??
+    funding.percentChange ??
+    (
+      previousFunding
+        ? (
+          (
+            Number(currentFunding) -
+            Number(previousFunding)
+          ) /
+          Math.abs(
+            Number(previousFunding)
+          )
+        ) *
+        100
+        : 0
+    );
+
+
+  return `
+
+    <div class="derivatives-grid">
+
+      <div class="box">
+        <div class="label">
+          Open Interest
+        </div>
+        <div class="value blue">
+          ${num(
+            currentOI,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          OI قبلی
+        </div>
+        <div class="value">
+          ${num(
+            previousOI,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          تغییر OI
+        </div>
+        <div class="value ${
+          Number(oiChange) >= 0
+            ? "buy"
+            : "sell"
+        }">
+          ${signedPct(
+            oiChange
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          روند OI
+        </div>
+        <div class="value">
+          ${
+            oiTrend === "INCREASING"
+              ? "🟢 افزایش"
+              : oiTrend === "DECREASING"
+                ? "🔴 کاهش"
+                : "⚪ ثابت"
+          }
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Funding فعلی
+        </div>
+        <div class="value ${
+          Number(currentFunding) >= 0
+            ? "buy"
+            : "sell"
+        }">
+          ${pct(
+            Number(currentFunding) * 100,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          Funding قبلی
+        </div>
+        <div class="value">
+          ${pct(
+            Number(previousFunding) * 100,
+            4
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          تغییر Funding
+        </div>
+        <div class="value ${
+          Number(fundingChange) >= 0
+            ? "buy"
+            : "sell"
+        }">
+          ${signedPct(
+            fundingChange
+          )}
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="label">
+          منبع
+        </div>
+        <div class="value blue">
+          Bybit Futures
+        </div>
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   Trades
+========================= */
+
+function renderTrades(
+  trades
+){
+
+  if(!Array.isArray(trades) ||
+     !trades.length){
+
+    return `
+      <div class="empty">
+        معامله‌ای دریافت نشد.
+      </div>
+    `;
+
+  }
+
+  const rows =
+    trades
+      .slice(0,50)
+      .map(
+        trade => {
+
+          const side =
+            String(
+              trade.side ||
+              trade.S ||
+              ""
+            ).toLowerCase();
+
+          const isBuy =
+            side === "buy";
+
+          const price =
+            trade.price ??
+            trade.p ??
+            0;
+
+          const size =
+            trade.size ??
+            trade.qty ??
+            trade.q ??
+            0;
+
+          const notional =
+            Number(price) *
+            Number(size);
+
+          const time =
+            trade.time ??
+            trade.T ??
+            null;
+
+          const block =
+            trade.isBlockTrade ??
+            trade.isBlock ??
+            false;
+
+          return `
+
+            <tr>
+
+              <td class="${
+                isBuy
+                  ? "buy"
+                  : "sell"
+              }">
+
+                ${
+                  isBuy
+                    ? "🟢 BUY"
+                    : "🔴 SELL"
+                }
+
+              </td>
+
+              <td>
+                ${num(price,8)}
+              </td>
+
+              <td>
+                ${num(size,6)}
+              </td>
+
+              <td>
+                ${num(
+                  notional,
+                  2
+                )}
+              </td>
+
+              <td>
+                ${
+                  block
+                    ? "🔥 BLOCK"
+                    : "-"
+                }
+              </td>
+
+              <td>
+                ${formatTime(time)}
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  return `
+
+    <div class="trade-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Side</th>
+            <th>Price</th>
+            <th>Size</th>
+            <th>Notional</th>
+            <th>Block</th>
+            <th>Time</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+          ${rows}
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   Auto Scan
+========================= */
+
+function startAutoScan(){
+
+  if(autoTimer)
+    return;
+
+  runScan();
+
+  autoTimer =
+    setInterval(
+      runScan,
+      45000
+    );
+
+  document.getElementById(
+    "status"
+  ).innerHTML =
+    "🟢 اسکن خودکار فعال شد — هر 45 ثانیه";
+
+}
+
+
+function stopAutoScan(){
+
+  if(autoTimer){
+
+    clearInterval(
+      autoTimer
+    );
+
+    autoTimer = null;
+
+  }
+
+  document.getElementById(
+    "status"
+  ).innerHTML =
+    "⏹ اسکن خودکار متوقف شد";
+
+}
+
+
+/* =========================
+   Initial
+========================= */
+
+checkHealth();
+
+setTimeout(
+  runScan,
+  700
+);
+
+</script>
+
+</body>
 </html>
