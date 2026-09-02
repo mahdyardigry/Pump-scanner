@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html><html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>اسکنر هوشمند جهش قیمت بای‌بیت</title>
-
-<style>
+<title>اسکنر هوشمند جهش قیمت بای‌بیت</title><style>
 *{box-sizing:border-box}
 
 html,body{
@@ -324,6 +321,30 @@ td{
   direction:ltr;
 }
 
+.buy{
+  color:#27d17f !important;
+  font-weight:bold;
+}
+
+.sell{
+  color:#ff5b68 !important;
+  font-weight:bold;
+}
+
+.positive{
+  color:#27d17f !important;
+  font-weight:bold;
+}
+
+.negative{
+  color:#ff5b68 !important;
+  font-weight:bold;
+}
+
+.neutral{
+  color:#d5dee5 !important;
+}
+
 .empty{
   padding:30px;
   text-align:center;
@@ -371,160 +392,136 @@ td{
     width:100%;
   }
 }
-</style>
-</head>
+</style></head><body><div class="container">  <div class="header"><h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
 
-<body>
+<div class="subtitle">
+  شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
+  بر پایه داده‌های واقعی بازار بای‌بیت
+</div>
 
-<div class="container">
+<div id="status" class="status">
+  ⏳ در حال اتصال به بای‌بیت...
+</div>
 
-  <div class="header">
+<div class="controls">
 
-    <h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
+  <button
+    id="startBtn"
+    class="btn-green">
+    ▶️ شروع اسکن
+  </button>
 
-    <div class="subtitle">
-      شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
-      بر پایه داده‌های واقعی بازار بای‌بیت
-    </div>
+  <button
+    id="stopBtn"
+    class="btn-red">
+    ⏹ توقف اسکن
+  </button>
 
-    <div id="status" class="status">
-      ⏳ در حال اتصال به بای‌بیت...
-    </div>
+  <button
+    id="testSoundBtn"
+    class="btn-orange">
+    🔊 آزمایش صدا
+  </button>
 
-    <div class="controls">
+</div>
 
-      <button
-        id="startBtn"
-        class="btn-green">
-        ▶️ شروع اسکن
-      </button>
+<div class="search">
 
-      <button
-        id="stopBtn"
-        class="btn-red">
-        ⏹ توقف اسکن
-      </button>
+  <input
+    id="symbolInput"
+    placeholder="مثلاً BTCUSDT"
+    autocomplete="off">
 
-      <button
-        id="testSoundBtn"
-        class="btn-orange">
-        🔊 آزمایش صدا
-      </button>
+  <button
+    id="analyzeBtn"
+    class="btn-blue">
+    🔎 تحلیل عمیق
+  </button>
 
-    </div>
+</div>
 
-    <div class="search">
+<div class="sound-panel">
+
+  <div class="sound-title">
+    🔔 هشدار صوتی
+  </div>
+
+  <div class="sound-row">
+
+    <label class="switch">
 
       <input
-        id="symbolInput"
-        placeholder="مثلاً BTCUSDT"
-        autocomplete="off">
+        type="checkbox"
+        id="soundEnabled">
 
-      <button
-        id="analyzeBtn"
-        class="btn-blue">
-        🔎 تحلیل عمیق
-      </button>
+      <span>
+        فعال کردن هشدار
+      </span>
 
-    </div>
+    </label>
 
-    <div class="sound-panel">
+    <div class="sound-range">
 
-      <div class="sound-title">
-        🔔 هشدار صوتی
-      </div>
+      <span>🔈</span>
 
-      <div class="sound-row">
+      <input
+        id="soundVolume"
+        type="range"
+        min="0"
+        max="100"
+        value="70">
 
-        <label class="switch">
-
-          <input
-            type="checkbox"
-            id="soundEnabled">
-
-          <span>
-            فعال کردن هشدار
-          </span>
-
-        </label>
-
-        <div class="sound-range">
-
-          <span>🔈</span>
-
-          <input
-            id="soundVolume"
-            type="range"
-            min="0"
-            max="100"
-            value="70">
-
-          <span id="volumeText">
-            70٪
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="small">
-        هشدار صوتی هنگام نزدیک شدن قیمت به ناحیه ورود و ورود به ناحیه پخش می‌شود.
-      </div>
+      <span id="volumeText">
+        70٪
+      </span>
 
     </div>
 
   </div>
 
-
-  <div class="stats">
-
-    <div class="stat">
-      وضعیت اسکن
-      <b id="scanState">
-        خاموش
-      </b>
-    </div>
-
-    <div class="stat">
-      تعداد ارزها
-      <b id="resultCount">
-        0
-      </b>
-    </div>
-
-    <div class="stat">
-      وارد ناحیه
-      <b id="reachedCount">
-        0
-      </b>
-    </div>
-
-    <div class="stat">
-      نزدیک ناحیه
-      <b id="nearCount">
-        0
-      </b>
-    </div>
-
-  </div>
-
-
-  <div id="results">
-
-    <div
-      class="empty"
-      id="emptyState">
-
-      هنوز ارزی شناسایی نشده است.
-
-    </div>
-
+  <div class="small">
+    هشدار صوتی هنگام نزدیک شدن قیمت به ناحیه ورود و ورود به ناحیه پخش می‌شود.
   </div>
 
 </div>
 
+  </div>  <div class="stats"><div class="stat">
+  وضعیت اسکن
+  <b id="scanState">
+    خاموش
+  </b>
+</div>
 
-<script>
+<div class="stat">
+  تعداد ارزها
+  <b id="resultCount">
+    0
+  </b>
+</div>
+
+<div class="stat">
+  وارد ناحیه
+  <b id="reachedCount">
+    0
+  </b>
+</div>
+
+<div class="stat">
+  نزدیک ناحیه
+  <b id="nearCount">
+    0
+  </b>
+</div>
+
+  </div>  <div id="results"><div
+  class="empty"
+  id="emptyState">
+
+  هنوز ارزی شناسایی نشده است.
+
+</div>
+
+  </div></div><script>
 
 "use strict";
 
@@ -948,6 +945,121 @@ function pct(
 }
 
 
+/* رنگ‌بندی عدد بر اساس مثبت/منفی */
+
+function valueClass(value){
+
+  const n =
+    Number(value);
+
+  if(!Number.isFinite(n)){
+    return "neutral";
+  }
+
+  if(n > 0){
+    return "positive";
+  }
+
+  if(n < 0){
+    return "negative";
+  }
+
+  return "neutral";
+}
+
+
+/* رنگ‌بندی درصد اختلاف */
+
+function deltaPercentClass(value){
+
+  const n =
+    Number(value);
+
+  if(!Number.isFinite(n)){
+    return "neutral";
+  }
+
+  if(n > 0){
+    return "positive";
+  }
+
+  if(n < 0){
+    return "negative";
+  }
+
+  return "neutral";
+}
+
+
+/*
+  تبدیل زمان معامله بای‌بیت به
+  تاریخ و ساعت خوانا بر اساس زمان
+  دستگاه کاربر
+*/
+
+function formatTradeTime(value){
+
+  if(
+    value === null ||
+    value === undefined ||
+    value === ""
+  ){
+    return "-";
+  }
+
+  let ts =
+    Number(value);
+
+  if(!Number.isFinite(ts)){
+    return String(value);
+  }
+
+  /*
+    اگر timestamp ده رقمی باشد
+    ثانیه است و به میلی‌ثانیه
+    تبدیل می‌شود.
+  */
+
+  if(
+    ts < 100000000000
+  ){
+    ts *= 1000;
+  }
+
+  const date =
+    new Date(ts);
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+    return String(value);
+  }
+
+  try{
+
+    return date.toLocaleString(
+      "fa-IR",
+      {
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit",
+        hour12:false
+      }
+    );
+
+  }catch(e){
+
+    return date.toLocaleString();
+
+  }
+}
+
+
 function getSymbol(item){
 
   return String(
@@ -1089,11 +1201,6 @@ function maybeAlert(
     s
   );
 
-
-  /*
-    فقط زمانی هشدار بده که
-    وضعیت جدید شده باشد.
-  */
 
   if(
     oldState === s
@@ -1430,7 +1537,6 @@ function createCard(item){
 
 /* =========================
    بروزرسانی کارت
-   بدون حذف پنجره تحلیل
 ========================= */
 
 function updateCard(
@@ -1577,7 +1683,6 @@ function updateCard(
 
 /* =========================
    نمایش نتایج
-   کارت‌های قبلی حذف نمی‌شوند
 ========================= */
 
 function renderResults(
@@ -1671,9 +1776,7 @@ function renderResults(
 
 
   if(empty){
-
     empty.remove();
-
   }
 
 
@@ -2042,6 +2145,38 @@ function buildDeepHtml(
     }
 
 
+    const buyVolume =
+      Number(
+        v.buyVolume || 0
+      );
+
+    const sellVolume =
+      Number(
+        v.sellVolume || 0
+      );
+
+    const delta =
+      Number.isFinite(
+        Number(v.delta)
+      )
+        ? Number(v.delta)
+        : buyVolume - sellVolume;
+
+    const deltaPercent =
+      Number.isFinite(
+        Number(v.deltaPercent)
+      )
+        ? Number(v.deltaPercent)
+        : (
+          (buyVolume + sellVolume) > 0
+            ? (
+              delta /
+              (buyVolume + sellVolume)
+            ) * 100
+            : 0
+        );
+
+
     html += `
 
       <tr>
@@ -2052,35 +2187,27 @@ function buildDeepHtml(
           )}
         </td>
 
-        <td>
+        <td class="buy">
           ${num(
-            v.buyVolume
+            buyVolume
           )}
         </td>
 
-        <td>
+        <td class="sell">
           ${num(
-            v.sellVolume
+            sellVolume
           )}
         </td>
 
-        <td>
+        <td class="${valueClass(delta)}">
           ${num(
-            v.delta ??
-            (
-              Number(
-                v.buyVolume || 0
-              ) -
-              Number(
-                v.sellVolume || 0
-              )
-            )
+            delta
           )}
         </td>
 
-        <td>
+        <td class="${deltaPercentClass(deltaPercent)}">
           ${pct(
-            v.deltaPercent
+            deltaPercent
           )}
         </td>
 
@@ -2172,7 +2299,7 @@ function buildDeepHtml(
 
       <tr>
 
-        <td>
+        <td class="buy">
           خرید
         </td>
 
@@ -2222,7 +2349,7 @@ function buildDeepHtml(
 
       <tr>
 
-        <td>
+        <td class="sell">
           فروش
         </td>
 
@@ -2333,6 +2460,14 @@ function buildDeepHtml(
     }
 
 
+    const oiChange =
+      Number(v.change);
+
+
+    const oiChangePercent =
+      Number(v.changePercent);
+
+
     html += `
 
       <tr>
@@ -2355,19 +2490,25 @@ function buildDeepHtml(
           )}
         </td>
 
-        <td>
+        <td class="${valueClass(oiChange)}">
           ${num(
             v.change
           )}
         </td>
 
-        <td>
+        <td class="${valueClass(oiChangePercent)}">
           ${pct(
             v.changePercent
           )}
         </td>
 
-        <td>
+        <td class="${
+          String(v.trend || "").toUpperCase().includes("UP")
+            ? "positive"
+            : String(v.trend || "").toUpperCase().includes("DOWN")
+              ? "negative"
+              : "neutral"
+        }">
           ${escapeHtml(
             v.trend ||
             "-"
@@ -2396,6 +2537,17 @@ function buildDeepHtml(
   /* =========================
      تأمین مالی
   ========================= */
+
+  const fundingChange =
+    Number(
+      funding.change
+    );
+
+  const fundingChangePercent =
+    Number(
+      funding.changePercent
+    );
+
 
   html += `
 
@@ -2430,7 +2582,7 @@ function buildDeepHtml(
 
         <div class="info">
           <span>تغییر</span>
-          <b>
+          <b class="${valueClass(fundingChange)}">
             ${pct(
               funding.change
             )}
@@ -2440,7 +2592,7 @@ function buildDeepHtml(
 
         <div class="info">
           <span>درصد تغییر</span>
-          <b>
+          <b class="${valueClass(fundingChangePercent)}">
             ${pct(
               funding.changePercent
             )}
@@ -2457,6 +2609,42 @@ function buildDeepHtml(
   /* =========================
      معاملات اخیر
   ========================= */
+
+  /*
+    فقط معاملات معتبر دارای ارزش معامله
+    را برای محاسبه سهم درصدی در نظر می‌گیریم.
+  */
+
+  const tradeRows =
+    Array.isArray(trades)
+      ? trades.slice(0,100)
+      : [];
+
+
+  let totalTradeNotional =
+    0;
+
+
+  for(
+    const t of tradeRows
+  ){
+
+    const notional =
+      Number(
+        t.notional
+      );
+
+
+    if(
+      Number.isFinite(notional) &&
+      notional > 0
+    ){
+
+      totalTradeNotional +=
+        notional;
+    }
+  }
+
 
   html += `
 
@@ -2479,7 +2667,7 @@ function buildDeepHtml(
               <th>نوع معامله</th>
               <th>قیمت</th>
               <th>حجم</th>
-              <th>ارزش معامله</th>
+              <th>سهم ارزش معامله</th>
 
             </tr>
 
@@ -2490,63 +2678,101 @@ function buildDeepHtml(
   `;
 
 
-  if(
-    Array.isArray(trades)
+  for(
+    const t of tradeRows
   ){
 
-    for(
-      const t of trades.slice(
-        0,
-        100
+    const notional =
+      Number(
+        t.notional
+      );
+
+
+    const tradePercent =
+      (
+        Number.isFinite(notional) &&
+        notional > 0 &&
+        totalTradeNotional > 0
       )
-    ){
+        ? (
+          notional /
+          totalTradeNotional
+        ) * 100
+        : 0;
 
-      html += `
 
-        <tr>
+    const side =
+      String(
+        t.side ||
+        ""
+      ).toUpperCase();
 
-          <td>
-            ${escapeHtml(
-              t.time ||
-              t.timestamp ||
-              "-"
-            )}
-          </td>
 
-          <td>
-            ${escapeHtml(
-              t.side === "Buy"
-                ? "خرید"
-                : t.side === "Sell"
-                  ? "فروش"
-                  : t.side || "-"
-            )}
-          </td>
+    const isBuy =
+      side === "BUY";
 
-          <td>
-            ${num(
-              t.price,
-              8
-            )}
-          </td>
+    const isSell =
+      side === "SELL";
 
-          <td>
-            ${num(
-              t.size ??
-              t.qty
-            )}
-          </td>
 
-          <td>
-            ${num(
-              t.notional
-            )}
-          </td>
+    const sideClass =
+      isBuy
+        ? "buy"
+        : isSell
+          ? "sell"
+          : "neutral";
 
-        </tr>
 
-      `;
-    }
+    const sideText =
+      isBuy
+        ? "خرید"
+        : isSell
+          ? "فروش"
+          : t.side || "-";
+
+
+    html += `
+
+      <tr>
+
+        <td>
+          ${escapeHtml(
+            formatTradeTime(
+              t.time ??
+              t.timestamp
+            )
+          )}
+        </td>
+
+        <td class="${sideClass}">
+          ${escapeHtml(
+            sideText
+          )}
+        </td>
+
+        <td>
+          ${num(
+            t.price,
+            8
+          )}
+        </td>
+
+        <td>
+          ${num(
+            t.size ??
+            t.qty
+          )}
+        </td>
+
+        <td class="${sideClass}">
+          ${pct(
+            tradePercent
+          )}
+        </td>
+
+      </tr>
+
+    `;
   }
 
 
@@ -2556,6 +2782,10 @@ function buildDeepHtml(
 
         </table>
 
+      </div>
+
+      <div class="small" style="padding:10px 13px 13px;">
+        سهم ارزش هر معامله از مجموع ارزش معاملات نمایش‌داده‌شده محاسبه شده است.
       </div>
 
     </div>
@@ -2911,8 +3141,6 @@ function stopScan(){
 
   /*
     کارت‌های پیدا شده حذف نمی‌شوند.
-    تا زمانی که کاربر روی بستن نزند
-    در صفحه باقی می‌مانند.
   */
 }
 
@@ -3132,7 +3360,5 @@ checkHealth();
 
 updateStats();
 
-</script>
-
-</body>
+</script></body>
 </html>
