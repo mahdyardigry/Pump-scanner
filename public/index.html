@@ -3,23 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>اسکنر هوشمند جهش قیمت بای‌بیت</title>
 
 <style>
-
 *{
   box-sizing:border-box;
 }
 
 html{
-  scroll-behavior:smooth;
+  scroll-behavior:auto;
 }
 
 body{
   margin:0;
-  background:#071018;
-  color:#e8f0f7;
+  background:#07111f;
+  color:#e8eef7;
   font-family:
     Tahoma,
     Arial,
@@ -28,12 +26,17 @@ body{
 }
 
 button,
-input{
-  font-family:inherit;
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
 }
 
 .container{
-  width:min(1250px,96%);
+  width:min(1500px,96%);
   margin:auto;
   padding:18px 0 50px;
 }
@@ -42,117 +45,126 @@ input{
   background:
     linear-gradient(
       135deg,
-      #0d1c28,
-      #09141d
+      #0d1b2f,
+      #10243d
     );
-  border:1px solid #1b3445;
+  border:1px solid #1d3858;
   border-radius:18px;
   padding:22px;
-  margin-bottom:15px;
-  box-shadow:
-    0 10px 35px rgba(0,0,0,.25);
+  margin-bottom:16px;
+  box-shadow:0 12px 35px rgba(0,0,0,.25);
 }
 
 .header h1{
-  margin:0 0 6px;
-  font-size:25px;
+  margin:0 0 8px;
+  font-size:27px;
 }
 
 .header p{
   margin:0;
-  color:#9eb0bd;
+  color:#aebed3;
 }
 
 .status{
-  margin-top:14px;
+  margin-top:15px;
   padding:10px 13px;
   border-radius:10px;
-  background:#0a1620;
-  border:1px solid #1a3445;
-  color:#79d7ff;
+  background:#0a1728;
+  border:1px solid #203b59;
+  color:#9fc0df;
+}
+
+.status.ok{
+  color:#52e39a;
+  border-color:#1b704b;
+}
+
+.status.bad{
+  color:#ff7676;
+  border-color:#733333;
 }
 
 .controls{
   display:grid;
-  grid-template-columns:
-    repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+
+.panel{
+  background:#0c1828;
+  border:1px solid #1d344f;
+  border-radius:16px;
+  padding:16px;
+}
+
+.panel-title{
+  font-weight:bold;
+  font-size:17px;
+  margin-bottom:12px;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
   gap:10px;
-  margin-bottom:15px;
 }
 
 button{
-  border:0;
-  border-radius:11px;
-  padding:12px 15px;
-  cursor:pointer;
-  font-weight:bold;
-  color:#fff;
-  background:#12648a;
-  transition:.2s;
+  border:1px solid #294764;
+  background:#10263e;
+  color:#e9f3ff;
+  padding:10px 15px;
+  border-radius:10px;
+  transition:.15s;
 }
 
 button:hover{
-  transform:translateY(-1px);
-  filter:brightness(1.12);
+  background:#163452;
 }
 
-button:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-  transform:none;
+button.main{
+  background:#087f56;
+  border-color:#13a774;
 }
 
-.start{
-  background:#087f52;
+button.main:hover{
+  background:#099365;
 }
 
-.stop{
-  background:#9c2834;
+button.danger{
+  background:#6d2630;
+  border-color:#9e3946;
 }
 
-.test{
-  background:#7255a8;
+button.secondary{
+  background:#17283b;
 }
 
 .search{
   display:flex;
-  gap:9px;
-  margin-bottom:15px;
+  gap:10px;
 }
 
 .search input{
   flex:1;
   min-width:0;
-  background:#091720;
-  color:#fff;
-  border:1px solid #284453;
-  border-radius:11px;
-  padding:12px;
-  outline:none;
-}
-
-.search input:focus{
-  border-color:#39bdf8;
+  background:#071321;
+  color:white;
+  border:1px solid #2a4662;
+  border-radius:10px;
+  padding:11px 13px;
+  direction:ltr;
+  text-align:left;
 }
 
 .sound-panel{
   display:flex;
   flex-wrap:wrap;
   align-items:center;
-  gap:15px;
-  background:#091720;
-  border:1px solid #1b3445;
-  border-radius:13px;
-  padding:12px 14px;
-  margin-bottom:15px;
-}
-
-.sound-panel label{
-  color:#c8d5de;
+  gap:12px;
 }
 
 .sound-panel input[type="range"]{
-  width:150px;
+  width:160px;
 }
 
 .stats{
@@ -160,68 +172,48 @@ button:disabled{
   grid-template-columns:
     repeat(4,minmax(0,1fr));
   gap:10px;
-  margin-bottom:15px;
 }
 
 .stat{
-  background:#091720;
-  border:1px solid #1b3445;
+  background:#091625;
+  border:1px solid #1c344e;
   border-radius:12px;
   padding:12px;
   text-align:center;
 }
 
-.stat-title{
-  color:#8da3b1;
-  font-size:13px;
-}
-
-.stat-value{
-  font-size:21px;
-  font-weight:bold;
-  margin-top:4px;
+.stat b{
+  display:block;
+  font-size:20px;
+  margin-top:3px;
 }
 
 .empty{
   text-align:center;
-  padding:45px 20px;
-  background:#091720;
-  border:1px dashed #294354;
-  border-radius:15px;
-  color:#879ba8;
+  padding:35px 15px;
+  color:#8297ad;
+  border:1px dashed #29435f;
+  border-radius:14px;
 }
 
 .coin-card{
-  background:
-    linear-gradient(
-      145deg,
-      #0a1822,
-      #08131b
-    );
-  border:1px solid #1d394a;
+  background:#0b1727;
+  border:1px solid #203b58;
   border-radius:17px;
-  padding:17px;
-  margin-bottom:15px;
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.18);
+  margin-top:15px;
+  overflow:hidden;
+  box-shadow:0 8px 25px rgba(0,0,0,.18);
 }
 
-.coin-card.reached{
-  border-color:#11b879;
+.coin-head{
+  padding:16px;
+  border-bottom:1px solid #1b3048;
 }
 
-.coin-card.near{
-  border-color:#e7b93d;
-}
-
-.coin-card.approaching{
-  border-color:#3b91e6;
-}
-
-.card-head{
+.coin-title{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:10px;
   flex-wrap:wrap;
 }
@@ -229,12 +221,12 @@ button:disabled{
 .symbol{
   font-size:22px;
   font-weight:bold;
+  direction:ltr;
 }
 
-.category{
-  color:#8ca4b3;
-  font-size:12px;
-  margin-right:7px;
+.price{
+  font-size:21px;
+  direction:ltr;
 }
 
 .badge{
@@ -245,292 +237,376 @@ button:disabled{
   border-radius:999px;
   font-size:12px;
   font-weight:bold;
+  white-space:nowrap;
 }
 
 .badge-reached{
-  background:#063d2b;
-  color:#45e7a9;
+  background:#063f2c;
+  color:#48e6a0;
+  border:1px solid #157c58;
 }
 
 .badge-near{
-  background:#4b3b08;
-  color:#ffd65b;
+  background:#4a3607;
+  color:#ffd75a;
+  border:1px solid #8e6b13;
 }
 
 .badge-approaching{
-  background:#092f52;
-  color:#66baff;
+  background:#102e50;
+  color:#70b9ff;
+  border:1px solid #25639a;
 }
 
 .badge-waiting{
-  background:#303640;
-  color:#c5ccd4;
+  background:#29313d;
+  color:#c2cfdd;
+  border:1px solid #495767;
 }
 
 .badge-invalid{
-  background:#421c22;
-  color:#ff8490;
-}
-
-.price{
-  font-size:20px;
-  font-weight:bold;
-  color:#fff;
+  background:#431d25;
+  color:#ff8585;
+  border:1px solid #803844;
 }
 
 .grid{
   display:grid;
   grid-template-columns:
     repeat(6,minmax(0,1fr));
-  gap:8px;
-  margin-top:13px;
+  gap:9px;
+  padding:14px 16px;
 }
 
 .info{
-  background:#09141c;
-  border:1px solid #1a303e;
+  background:#091422;
+  border:1px solid #1b3047;
   border-radius:10px;
-  padding:9px;
+  padding:10px;
   min-width:0;
 }
 
-.info-title{
-  color:#8298a6;
-  font-size:11px;
+.info small{
+  display:block;
+  color:#7e93a9;
+  margin-bottom:3px;
 }
 
-.info-value{
-  font-weight:bold;
-  margin-top:3px;
+.info strong{
+  display:block;
   overflow-wrap:anywhere;
 }
 
-.positive{
-  color:#25d98d!important;
+.positive,
+.buy{
+  color:#45df91 !important;
 }
 
-.negative{
-  color:#ff5968!important;
+.negative,
+.sell{
+  color:#ff6969 !important;
 }
 
 .neutral{
-  color:#c8d1d8!important;
-}
-
-.buy,
-.buy-data{
-  color:#25d98d!important;
-}
-
-.sell,
-.sell-data{
-  color:#ff5968!important;
+  color:#d5dce5 !important;
 }
 
 .actions{
   display:flex;
-  gap:8px;
   flex-wrap:wrap;
-  margin-top:13px;
-}
-
-.actions button{
-  padding:9px 12px;
-  font-size:12px;
+  gap:9px;
+  padding:0 16px 15px;
 }
 
 .deep{
-  margin-top:15px;
-  border-top:1px solid #203847;
-  padding-top:15px;
+  border-top:1px solid #1c324a;
+  padding:16px;
 }
 
 .section{
-  background:#08151e;
-  border:1px solid #1b3545;
+  margin-top:15px;
+  border:1px solid #1d344d;
+  background:#091523;
   border-radius:13px;
-  padding:13px;
-  margin-top:12px;
+  padding:14px;
+}
+
+.section:first-child{
+  margin-top:0;
 }
 
 .section h3{
-  margin:0 0 11px;
+  margin:0 0 12px;
   font-size:16px;
 }
 
 .table-wrap{
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
-
-table{
   width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  border:1px solid #1d344c;
+  border-radius:10px;
+  direction:ltr;
+  scrollbar-gutter:stable;
+}
+
+.table-wrap table{
+  direction:rtl;
+  width:max-content;
+  min-width:100%;
   border-collapse:collapse;
-  min-width:650px;
+  table-layout:auto;
 }
 
-th,
-td{
-  padding:8px 9px;
-  border-bottom:1px solid #1b303c;
-  text-align:center;
+.table-wrap th,
+.table-wrap td{
+  padding:9px 11px;
+  border-bottom:1px solid #182c42;
   white-space:nowrap;
+  text-align:center;
 }
 
-th{
-  color:#8fa6b4;
-  background:#0b1a24;
+.table-wrap th{
+  background:#102137;
+  color:#a9bfd6;
   font-size:12px;
+  position:sticky;
+  top:0;
+  z-index:2;
 }
 
-td{
-  font-size:12px;
+.table-wrap tr:last-child td{
+  border-bottom:0;
+}
+
+.table-wrap tbody tr:hover{
+  background:#0e2035;
 }
 
 .trade-filter{
-  margin-top:14px;
-  padding-top:14px;
-  border-top:1px solid #203847;
+  margin-top:15px;
+  background:#0a1726;
+  border:1px solid #24405d;
+  border-radius:13px;
+  padding:14px;
+}
+
+.trade-filter-title{
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:10px;
 }
 
 .filter-grid{
   display:grid;
   grid-template-columns:
     repeat(4,minmax(0,1fr));
-  gap:9px;
+  gap:10px;
 }
 
 .filter-box{
-  background:#09151e;
-  border:1px solid #1c3645;
-  border-radius:10px;
-  padding:8px;
+  min-width:0;
 }
 
 .filter-box label{
   display:block;
-  color:#8298a6;
-  font-size:11px;
-  margin-bottom:4px;
+  color:#8ea5bc;
+  font-size:12px;
+  margin-bottom:5px;
 }
 
 .filter-box input{
   width:100%;
-  background:#071018;
-  color:#fff;
-  border:1px solid #284453;
-  border-radius:8px;
-  padding:8px;
+  background:#071321;
+  border:1px solid #2b4763;
+  color:#f4f8fc;
+  border-radius:9px;
+  padding:9px 10px;
   outline:none;
+}
+
+.filter-box input:focus{
+  border-color:#5ca8ef;
+  box-shadow:0 0 0 2px rgba(92,168,239,.12);
 }
 
 .filter-actions{
   display:flex;
+  flex-wrap:wrap;
   gap:8px;
-  margin-top:9px;
-}
-
-.filter-actions button{
-  font-size:12px;
-  padding:8px 12px;
-}
-
-.clear-filter{
-  background:#4a5660;
+  margin-top:11px;
 }
 
 .filter-note{
-  color:#8196a3;
-  font-size:11px;
-  margin-top:8px;
+  color:#8298ae;
+  font-size:12px;
+  margin-top:9px;
 }
 
 .trade-summary{
   display:grid;
   grid-template-columns:
-    repeat(10,minmax(0,1fr));
-  gap:7px;
+    repeat(6,minmax(0,1fr));
+  gap:8px;
   margin-top:12px;
 }
 
 .summary-box{
-  background:#09151e;
-  border:1px solid #1b3545;
-  border-radius:9px;
-  padding:7px;
+  background:#081321;
+  border:1px solid #1c334b;
+  border-radius:10px;
+  padding:9px;
   text-align:center;
 }
 
-.summary-title{
-  color:#8196a3;
-  font-size:10px;
+.summary-box small{
+  display:block;
+  color:#8095ab;
+  font-size:11px;
 }
 
-.summary-value{
-  font-size:12px;
-  font-weight:bold;
+.summary-box strong{
+  display:block;
   margin-top:2px;
+  direction:ltr;
   overflow-wrap:anywhere;
 }
 
-.filter-result{
-  color:#9cb0bd;
+.result-note{
+  margin-top:10px;
+  color:#9bb0c5;
   font-size:12px;
-  margin:10px 0;
 }
 
 .price-aggregation{
-  margin-top:13px;
+  margin-top:14px;
 }
 
-.agg-buy{
-  background:rgba(37,217,141,.05);
-}
-
-.agg-sell{
-  background:rgba(255,89,104,.05);
-}
-
-.total-row{
-  background:#0d202b;
+.price-aggregation-title{
   font-weight:bold;
+  margin-bottom:9px;
+}
+
+.delta-positive{
+  color:#43df91;
+  font-weight:bold;
+}
+
+.delta-negative{
+  color:#ff6868;
+  font-weight:bold;
+}
+
+.delta-neutral{
+  color:#c9d3df;
+  font-weight:bold;
+}
+
+.side-buy{
+  color:#42df90;
+}
+
+.side-sell{
+  color:#ff6868;
+}
+
+.avg-positive{
+  color:#48dc92;
+}
+
+.avg-negative{
+  color:#ff7070;
 }
 
 .live-label{
   display:inline-flex;
   align-items:center;
   gap:5px;
-  color:#48e5a2;
   font-size:11px;
+  color:#56df98;
+  margin-right:8px;
 }
 
 .live-dot{
   width:7px;
   height:7px;
   border-radius:50%;
-  background:#25d98d;
-  box-shadow:
-    0 0 9px #25d98d;
+  background:#4ce29a;
+  box-shadow:0 0 8px #4ce29a;
 }
 
-@media(max-width:1000px){
+.loading{
+  color:#88a0b8;
+  padding:10px 0;
+}
 
+.error-box{
+  color:#ff7c7c;
+  background:#351b22;
+  border:1px solid #6d303b;
+  padding:10px;
+  border-radius:10px;
+}
+
+.mini-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+
+.mini{
+  background:#081321;
+  border:1px solid #1b3047;
+  padding:9px;
+  border-radius:9px;
+}
+
+.mini small{
+  color:#8197ad;
+  display:block;
+}
+
+.hidden{
+  display:none !important;
+}
+
+@media(max-width:950px){
   .grid{
     grid-template-columns:
       repeat(3,minmax(0,1fr));
   }
 
-  .trade-summary{
+  .filter-grid{
     grid-template-columns:
-      repeat(5,minmax(0,1fr));
+      repeat(2,minmax(0,1fr));
   }
 
+  .trade-summary{
+    grid-template-columns:
+      repeat(3,minmax(0,1fr));
+  }
+
+  .mini-grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
 }
 
-@media(max-width:700px){
+@media(max-width:650px){
+  .container{
+    width:98%;
+    padding-top:8px;
+  }
 
-  .controls{
-    grid-template-columns:1fr;
+  .header{
+    padding:16px;
+  }
+
+  .header h1{
+    font-size:21px;
   }
 
   .stats{
@@ -538,30 +614,22 @@ td{
       repeat(2,minmax(0,1fr));
   }
 
+  .grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+    padding:11px;
+  }
+
+  .coin-head{
+    padding:13px;
+  }
+
+  .deep{
+    padding:11px;
+  }
+
   .filter-grid{
-    grid-template-columns:
-      repeat(2,minmax(0,1fr));
-  }
-
-  .grid{
-    grid-template-columns:
-      repeat(2,minmax(0,1fr));
-  }
-
-}
-
-@media(max-width:500px){
-
-  .container{
-    width:94%;
-  }
-
-  .search{
-    flex-direction:column;
-  }
-
-  .grid{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
   }
 
   .trade-summary{
@@ -569,16 +637,18 @@ td{
       repeat(2,minmax(0,1fr));
   }
 
-  .filter-grid{
+  .search{
+    flex-direction:column;
+  }
+
+  .actions button{
+    flex:1;
+  }
+
+  .mini-grid{
     grid-template-columns:1fr;
   }
-
-  .header h1{
-    font-size:21px;
-  }
-
 }
-
 </style>
 </head>
 
@@ -588,16 +658,15 @@ td{
 
   <div class="header">
 
-    <h1>
-      🚀 اسکنر هوشمند جهش قیمت بای‌بیت
-    </h1>
+    <h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
 
     <p>
-      شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد بر پایه داده‌های واقعی بازار بای‌بیت
+      شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
+      بر پایه داده‌های واقعی بازار بای‌بیت
     </p>
 
     <div id="status" class="status">
-      ⏳ در حال اتصال به Worker...
+      🔄 در حال بررسی اتصال به Worker...
     </div>
 
   </div>
@@ -605,120 +674,134 @@ td{
 
   <div class="controls">
 
-    <button
-      id="startScan"
-      class="start"
-    >
-      ▶️ شروع اسکن
-    </button>
+    <div class="panel">
 
-    <button
-      id="stopScan"
-      class="stop"
-      disabled
-    >
-      ⏹️ توقف اسکن
-    </button>
+      <div class="panel-title">
+        🎯 کنترل اسکن
+      </div>
 
-    <button
-      id="testSound"
-      class="test"
-    >
-      🔊 تست صدا
-    </button>
+      <div class="row">
 
-  </div>
+        <button
+          id="startScan"
+          class="main"
+        >
+          ▶️ شروع اسکن
+        </button>
 
+        <button
+          id="stopScan"
+          class="danger"
+        >
+          ⏹ توقف اسکن
+        </button>
 
-  <div class="search">
+        <button
+          id="testSound"
+          class="secondary"
+        >
+          🔊 تست صدا
+        </button>
 
-    <input
-      id="symbolInput"
-      type="text"
-      placeholder="مثلاً BTCUSDT یا PEPE"
-      autocomplete="off"
-    >
+      </div>
 
-    <button id="analyzeBtn">
-      🔎 تحلیل عمیق
-    </button>
-
-  </div>
+    </div>
 
 
-  <div class="sound-panel">
+    <div class="panel">
 
-    <label>
-      <input
-        type="checkbox"
-        id="soundEnabled"
-      >
-      🔊 هشدار صوتی
-    </label>
+      <div class="panel-title">
+        🔎 تحلیل دستی ارز
+      </div>
 
-    <label>
-      میزان صدا:
-      <input
-        type="range"
-        id="soundVolume"
-        min="0"
-        max="1"
-        step="0.05"
-        value="0.5"
-      >
-    </label>
+      <div class="search">
 
-  </div>
+        <input
+          id="symbolInput"
+          type="text"
+          placeholder="BTCUSDT یا PEPE"
+          autocomplete="off"
+          spellcheck="false"
+        >
+
+        <button
+          id="analyzeBtn"
+          class="main"
+        >
+          🔎 تحلیل عمیق
+        </button>
+
+      </div>
+
+    </div>
 
 
-  <div class="stats">
+    <div class="panel">
 
-    <div class="stat">
-      <div class="stat-title">
+      <div class="panel-title">
+        🔊 هشدار صوتی
+      </div>
+
+      <div class="sound-panel">
+
+        <label>
+          <input
+            type="checkbox"
+            id="soundEnabled"
+          >
+          فعال بودن هشدار
+        </label>
+
+        <label>
+          صدا:
+          <input
+            type="range"
+            id="soundVolume"
+            min="0"
+            max="100"
+            value="70"
+          >
+        </label>
+
+        <span id="volumeValue">
+          70%
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="stats">
+
+      <div class="stat">
         وضعیت اسکن
+        <b id="scanState">
+          متوقف
+        </b>
       </div>
-      <div
-        id="scanState"
-        class="stat-value"
-      >
-        متوقف
-      </div>
-    </div>
 
-    <div class="stat">
-      <div class="stat-title">
-        تعداد نتایج
+      <div class="stat">
+        نتایج
+        <b id="resultCount">
+          ۰
+        </b>
       </div>
-      <div
-        id="resultCount"
-        class="stat-value"
-      >
-        0
-      </div>
-    </div>
 
-    <div class="stat">
-      <div class="stat-title">
+      <div class="stat">
         وارد ناحیه
+        <b id="reachedCount">
+          ۰
+        </b>
       </div>
-      <div
-        id="reachedCount"
-        class="stat-value buy"
-      >
-        0
-      </div>
-    </div>
 
-    <div class="stat">
-      <div class="stat-title">
+      <div class="stat">
         نزدیک ناحیه
+        <b id="nearCount">
+          ۰
+        </b>
       </div>
-      <div
-        id="nearCount"
-        class="stat-value"
-      >
-        0
-      </div>
+
     </div>
 
   </div>
@@ -726,8 +809,12 @@ td{
 
   <div id="results">
 
-    <div class="empty">
-      برای شروع، اسکن را فعال کنید یا یک نماد را تحلیل کنید.
+    <div
+      id="emptyState"
+      class="empty"
+    >
+      هنوز نتیجه‌ای دریافت نشده است.
+      اسکن را شروع کنید یا یک ارز را برای تحلیل دستی وارد کنید.
     </div>
 
   </div>
@@ -736,6 +823,12 @@ td{
 
 
 <script>
+"use strict";
+
+
+/* =========================
+   CONFIG
+========================= */
 
 const WORKER =
   "https://pump-scanner.29mah12.workers.dev";
@@ -745,6 +838,11 @@ const LIVE_INTERVAL =
 
 const SCAN_INTERVAL =
   10000;
+
+
+/* =========================
+   STATE
+========================= */
 
 let scanning = false;
 
@@ -765,489 +863,249 @@ const previousStates =
 const liveTimers =
   new Map();
 
-let audioContext = null;
+let audioContext =
+  null;
+
+
+/*
+  برای جلوگیری از پرش اسکرول جدول
+  وضعیت اسکرول هر جدول نگهداری می‌شود.
+*/
+const tableScrollPositions =
+  new WeakMap();
+
+
+/*
+  وقتی کاربر در حال انتخاب زمان/قیمت است،
+  Live نباید DOM آن بخش را تغییر دهد.
+*/
+let filterEditingCount = 0;
 
 
 /* =========================
-   SOUND
+   DOM HELPERS
 ========================= */
 
-const soundEnabled =
-  document.getElementById(
-    "soundEnabled"
-  );
-
-const soundVolume =
-  document.getElementById(
-    "soundVolume"
-  );
-
-
-soundEnabled.checked =
-  localStorage.getItem(
-    "pump_sound_enabled"
-  ) !== "false";
-
-
-soundVolume.value =
-  localStorage.getItem(
-    "pump_sound_volume"
-  ) || "0.5";
-
-
-soundEnabled.addEventListener(
-  "change",
-  () => {
-
-    localStorage.setItem(
-      "pump_sound_enabled",
-      String(
-        soundEnabled.checked
-      )
-    );
-
-  }
-);
-
-
-soundVolume.addEventListener(
-  "input",
-  () => {
-
-    localStorage.setItem(
-      "pump_sound_volume",
-      soundVolume.value
-    );
-
-  }
-);
-
-
-function unlockAudio(){
-
-  try{
-
-    if(!audioContext){
-
-      audioContext =
-        new (
-          window.AudioContext ||
-          window.webkitAudioContext
-        )();
-
-    }
-
-    if(
-      audioContext.state ===
-      "suspended"
-    ){
-
-      audioContext.resume();
-
-    }
-
-  }catch{}
-
+function $(id){
+  return document.getElementById(id);
 }
 
-
-function beep(
-  frequency = 700,
-  duration = 140,
-  delay = 0
-){
-
-  if(
-    !soundEnabled.checked
-  ){
-    return;
-  }
-
-  setTimeout(
-    () => {
-
-      try{
-
-        unlockAudio();
-
-        const osc =
-          audioContext.createOscillator();
-
-        const gain =
-          audioContext.createGain();
-
-        osc.type =
-          "sine";
-
-        osc.frequency.value =
-          frequency;
-
-        gain.gain.setValueAtTime(
-          0,
-          audioContext.currentTime
-        );
-
-        gain.gain.linearRampToValueAtTime(
-          Number(
-            soundVolume.value
-          ) * 0.22,
-          audioContext.currentTime +
-            0.01
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.001,
-          audioContext.currentTime +
-            duration / 1000
-        );
-
-        osc.connect(gain);
-
-        gain.connect(
-          audioContext.destination
-        );
-
-        osc.start();
-
-        osc.stop(
-          audioContext.currentTime +
-            duration / 1000 +
-            0.02
-        );
-
-      }catch{}
-
-    },
-    delay
-  );
-
-}
-
-
-function playAlert(state){
-
-  if(state === "REACHED"){
-
-    beep(900,160,0);
-    beep(1100,160,210);
-    beep(1300,190,420);
-
-  }
-  else if(state === "NEAR"){
-
-    beep(760,150,0);
-    beep(950,170,210);
-
-  }
-  else if(state === "APPROACHING"){
-
-    beep(650,150,0);
-
-  }
-
-}
-
-
-document.addEventListener(
-  "pointerdown",
-  unlockAudio,
-  { once:true }
-);
-
-
-document.getElementById(
-  "testSound"
-).addEventListener(
-  "click",
-  () => {
-
-    unlockAudio();
-
-    beep(700,140,0);
-    beep(900,160,210);
-    beep(1100,180,420);
-
-  }
-);
-
-
-/* =========================
-   HELPERS
-========================= */
 
 function escapeHtml(value){
 
-  return String(
-    value ?? ""
-  )
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;")
-  .replaceAll('"',"&quot;")
-  .replaceAll("'","&#039;");
-
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
-function num(
-  value,
-  fallback = 0
-){
+function num(value){
 
   const n =
     Number(value);
 
   return Number.isFinite(n)
     ? n
-    : fallback;
-
+    : 0;
 }
 
 
-function pct(
-  value,
-  digits = 2
-){
-
-  return num(value).toFixed(
-    digits
-  ) + "%";
-
-}
-
-
-function valueClass(
-  value
-){
+function fmt(value, digits = 4){
 
   const n =
     num(value);
 
-  if(n > 0){
-    return "positive";
-  }
-
-  if(n < 0){
-    return "negative";
-  }
-
-  return "neutral";
-
-}
-
-
-function deltaPercentClass(
-  value
-){
-
-  return valueClass(value);
-
-}
-
-
-function formatNumber(
-  value,
-  digits = 4
-){
-
-  const n =
-    Number(value);
-
-  if(
-    !Number.isFinite(n)
-  ){
+  if (!Number.isFinite(n)){
     return "0";
   }
 
   return n.toLocaleString(
     "en-US",
     {
-      maximumFractionDigits:
-        digits
+      maximumFractionDigits:digits
     }
   );
-
 }
 
 
-function formatPrice(
-  value
-){
+function fmtInteger(value){
+
+  return num(value)
+    .toLocaleString(
+      "en-US",
+      {
+        maximumFractionDigits:0
+      }
+    );
+}
+
+
+function fmtCompact(value){
 
   const n =
-    Number(value);
+    num(value);
 
-  if(
-    !Number.isFinite(n)
-  ){
-    return "0";
+  if (Math.abs(n) >= 1e9){
+    return (
+      (n / 1e9).toFixed(2) +
+      "B"
+    );
   }
 
-  if(n >= 1000){
-    return n.toLocaleString(
+  if (Math.abs(n) >= 1e6){
+    return (
+      (n / 1e6).toFixed(2) +
+      "M"
+    );
+  }
+
+  if (Math.abs(n) >= 1e3){
+    return (
+      (n / 1e3).toFixed(2) +
+      "K"
+    );
+  }
+
+  return fmt(n,4);
+}
+
+
+function pct(value){
+
+  const n =
+    num(value);
+
+  return (
+    n.toLocaleString(
       "en-US",
       {
         maximumFractionDigits:2
       }
-    );
-  }
-
-  if(n >= 1){
-    return n.toLocaleString(
-      "en-US",
-      {
-        maximumFractionDigits:6
-      }
-    );
-  }
-
-  return n.toLocaleString(
-    "en-US",
-    {
-      maximumFractionDigits:12
-    }
+    ) +
+    "%"
   );
-
 }
 
 
-function formatTradeTime(
-  timestamp
-){
+function valueClass(value){
 
-  let t =
-    Number(timestamp);
+  const n =
+    num(value);
 
-  if(
-    !Number.isFinite(t) ||
-    t <= 0
-  ){
-    return "--";
+  if (n > 0){
+    return "positive";
   }
 
-  if(
-    t < 100000000000
-  ){
-    t *= 1000;
+  if (n < 0){
+    return "negative";
+  }
+
+  return "neutral";
+}
+
+
+function formatTradeTime(value){
+
+  let ts =
+    num(value);
+
+  if (!ts){
+    return "-";
+  }
+
+  if (ts < 100000000000){
+    ts *= 1000;
   }
 
   const d =
-    new Date(t);
+    new Date(ts);
 
-  if(
+  if (
     Number.isNaN(
       d.getTime()
     )
   ){
-    return "--";
+    return "-";
   }
 
-  return [
-    String(
-      d.getHours()
-    ).padStart(2,"0"),
-
-    String(
-      d.getMinutes()
-    ).padStart(2,"0"),
-
-    String(
-      d.getSeconds()
-    ).padStart(2,"0")
-  ].join(":");
-
+  return d.toLocaleTimeString(
+    "fa-IR",
+    {
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit"
+    }
+  );
 }
 
 
-function getSymbol(
-  item
-){
+function getSymbol(item){
 
   return String(
     item?.symbol ||
+    item?.setup?.symbol ||
     ""
   ).toUpperCase();
-
 }
 
 
-function stateClass(
-  state
-){
+function stateClass(state){
 
-  return String(
-    state || ""
-  ).toLowerCase();
-
-}
-
-
-function stateLabel(
-  state
-){
-
-  switch(state){
+  switch(String(state).toUpperCase()){
 
     case "REACHED":
-      return "وارد ناحیه ورود شده";
+      return "badge-reached";
 
     case "NEAR":
-      return "نزدیک ناحیه ورود";
+      return "badge-near";
 
     case "APPROACHING":
-      return "در مسیر ناحیه ورود";
+      return "badge-approaching";
 
     case "WAITING":
     case "WAITING_RED":
-      return "در انتظار شکل‌گیری شرایط";
-
-    case "INVALID":
-      return "شرایط نامعتبر شده";
+      return "badge-waiting";
 
     default:
-      return state || "نامشخص";
-
+      return "badge-invalid";
   }
-
 }
 
 
-function badgeClass(
-  state
-){
+function stateLabel(state){
 
-  if(
-    state === "REACHED"
-  ){
-    return "badge-reached";
+  switch(String(state).toUpperCase()){
+
+    case "REACHED":
+      return "🟢 وارد ناحیه ورود شده";
+
+    case "NEAR":
+      return "🟡 نزدیک ناحیه ورود";
+
+    case "APPROACHING":
+      return "🔵 در مسیر ناحیه ورود";
+
+    case "WAITING":
+    case "WAITING_RED":
+      return "⏳ در انتظار شکل‌گیری شرایط";
+
+    case "INVALID":
+      return "🔴 شرایط نامعتبر";
+
+    default:
+      return "⏳ در انتظار";
   }
-
-  if(
-    state === "NEAR"
-  ){
-    return "badge-near";
-  }
-
-  if(
-    state === "APPROACHING"
-  ){
-    return "badge-approaching";
-  }
-
-  if(
-    state === "INVALID"
-  ){
-    return "badge-invalid";
-  }
-
-  return "badge-waiting";
-
 }
 
 
-function normalizeItem(
-  item
-){
+/* =========================
+   NORMALIZE
+========================= */
+
+function normalizeItem(item){
 
   const pump =
     item?.pump || {};
@@ -1263,6 +1121,14 @@ function normalizeItem(
       "WAITING"
     ).toUpperCase();
 
+  const price =
+    num(
+      item?.price ||
+      item?.ticker?.lastPrice ||
+      item?.currentPrice ||
+      setup?.currentPrice
+    );
+
   return {
 
     ...item,
@@ -1273,22 +1139,18 @@ function normalizeItem(
     category:
       item?.category || "",
 
-    price:
-      num(
-        item?.price ??
-        item?.ticker?.lastPrice ??
-        item?.currentPrice ??
-        setup?.price
-      ),
+    price,
 
     pumpPercent:
       num(
+        item?.pumpPercent ??
         pump?.pumpPercent ??
         setup?.pumpPercent
       ),
 
     volumeMultiplier:
       num(
+        item?.volumeMultiplier ??
         pump?.volumeMultiplier ??
         pump?.volumeRatio ??
         setup?.volumeMultiplier
@@ -1299,41 +1161,278 @@ function normalizeItem(
 
     pullbackPercent:
       num(
+        item?.pullbackPercent ??
         setup?.pullbackPercent
       ),
 
     zoneLow:
       num(
+        item?.zoneLow ??
         setup?.zoneLow
       ),
 
     zoneHigh:
       num(
+        item?.zoneHigh ??
         setup?.zoneHigh
       ),
 
     zonePrice:
       num(
+        item?.zonePrice ??
         setup?.zonePrice
       ),
 
     distancePercent:
       num(
-        setup?.distancePercent ??
         item?.distancePercent ??
-        item?.currentState?.distancePercent
+        setup?.distancePercent
       ),
 
     score:
       num(
+        item?.score ??
         pump?.score
       ),
 
     state
 
   };
+}
+
+
+/* =========================
+   AUDIO
+========================= */
+
+const soundEnabledEl =
+  $("soundEnabled");
+
+const soundVolumeEl =
+  $("soundVolume");
+
+const volumeValueEl =
+  $("volumeValue");
+
+
+soundEnabledEl.checked =
+  localStorage.getItem(
+    "pump_sound_enabled"
+  ) !== "false";
+
+
+const savedVolume =
+  num(
+    localStorage.getItem(
+      "pump_sound_volume"
+    )
+  );
+
+
+if (
+  savedVolume >= 0 &&
+  savedVolume <= 100
+){
+
+  soundVolumeEl.value =
+    savedVolume;
 
 }
+
+
+function updateVolumeText(){
+
+  volumeValueEl.textContent =
+    soundVolumeEl.value +
+    "%";
+}
+
+
+updateVolumeText();
+
+
+soundEnabledEl.addEventListener(
+  "change",
+  () => {
+
+    localStorage.setItem(
+      "pump_sound_enabled",
+      String(
+        soundEnabledEl.checked
+      )
+    );
+
+    unlockAudio();
+
+  }
+);
+
+
+soundVolumeEl.addEventListener(
+  "input",
+  () => {
+
+    localStorage.setItem(
+      "pump_sound_volume",
+      soundVolumeEl.value
+    );
+
+    updateVolumeText();
+
+  }
+);
+
+
+function unlockAudio(){
+
+  try{
+
+    if (!audioContext){
+
+      audioContext =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+    if (
+      audioContext.state ===
+      "suspended"
+    ){
+
+      audioContext.resume()
+        .catch(()=>{});
+
+    }
+
+  }catch{}
+
+}
+
+
+function beep(
+  frequency,
+  duration,
+  delay = 0
+){
+
+  if (
+    !soundEnabledEl.checked
+  ){
+    return;
+  }
+
+  try{
+
+    unlockAudio();
+
+    if (!audioContext){
+      return;
+    }
+
+    const oscillator =
+      audioContext.createOscillator();
+
+    const gain =
+      audioContext.createGain();
+
+    oscillator.type =
+      "sine";
+
+    oscillator.frequency.value =
+      frequency;
+
+    const volume =
+      num(
+        soundVolumeEl.value
+      ) / 100;
+
+    const start =
+      audioContext.currentTime +
+      delay;
+
+    const end =
+      start +
+      duration;
+
+    gain.gain.setValueAtTime(
+      0.0001,
+      start
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      Math.max(
+        0.001,
+        volume * 0.18
+      ),
+      start + 0.02
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      end
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start(start);
+    oscillator.stop(end + 0.02);
+
+  }catch{}
+
+}
+
+
+function playAlert(state){
+
+  if (state === "REACHED"){
+
+    beep(880,0.16,0);
+    beep(1046,0.16,0.22);
+    beep(1318,0.20,0.44);
+
+  }else if (state === "NEAR"){
+
+    beep(880,0.16,0);
+    beep(1046,0.18,0.24);
+
+  }else if (
+    state === "APPROACHING"
+  ){
+
+    beep(740,0.18,0);
+
+  }
+
+}
+
+
+$("testSound")
+  .addEventListener(
+    "click",
+    () => {
+
+      unlockAudio();
+
+      beep(660,0.15,0);
+      beep(880,0.15,0.22);
+      beep(1100,0.18,0.44);
+
+    }
+  );
+
+
+document.addEventListener(
+  "pointerdown",
+  unlockAudio,
+  {
+    passive:true,
+    once:false
+  }
+);
 
 
 /* =========================
@@ -1345,12 +1444,16 @@ function maybeAlert(
   state
 ){
 
-  if(
+  const s =
+    String(state)
+      .toUpperCase();
+
+  if (
     ![
       "REACHED",
       "NEAR",
       "APPROACHING"
-    ].includes(state)
+    ].includes(s)
   ){
     return;
   }
@@ -1362,19 +1465,19 @@ function maybeAlert(
 
   previousStates.set(
     symbol,
-    state
+    s
   );
 
-  if(
-    previous === state
+  if (
+    previous === s
   ){
     return;
   }
 
   const key =
-    symbol + ":" + state;
+    symbol + ":" + s;
 
-  if(
+  if (
     alertedStates.has(key)
   ){
     return;
@@ -1382,8 +1485,7 @@ function maybeAlert(
 
   alertedStates.add(key);
 
-  playAlert(state);
-
+  playAlert(s);
 }
 
 
@@ -1392,11 +1494,6 @@ function maybeAlert(
 ========================= */
 
 async function checkHealth(){
-
-  const status =
-    document.getElementById(
-      "status"
-    );
 
   try{
 
@@ -1408,7 +1505,7 @@ async function checkHealth(){
         }
       );
 
-    if(!res.ok){
+    if (!res.ok){
       throw new Error(
         "HTTP " + res.status
       );
@@ -1417,18 +1514,25 @@ async function checkHealth(){
     const data =
       await res.json();
 
-    if(!data.ok){
+    if (!data?.ok){
       throw new Error(
-        "Worker error"
+        data?.error ||
+        "Worker unavailable"
       );
     }
 
-    status.textContent =
+    $("status").className =
+      "status ok";
+
+    $("status").textContent =
       "🟢 اتصال برقرار است — Bybit";
 
   }catch(error){
 
-    status.textContent =
+    $("status").className =
+      "status bad";
+
+    $("status").textContent =
       "🔴 اتصال به Worker برقرار نیست";
 
   }
@@ -1440,12 +1544,15 @@ async function checkHealth(){
    CARD
 ========================= */
 
-function createCard(
-  item
-){
+function createCard(rawItem){
 
-  const data =
-    normalizeItem(item);
+  const item =
+    normalizeItem(
+      rawItem
+    );
+
+  const symbol =
+    item.symbol;
 
   const card =
     document.createElement(
@@ -1453,38 +1560,39 @@ function createCard(
     );
 
   card.className =
-    "coin-card " +
-    stateClass(
-      data.state
-    );
+    "coin-card";
 
   card.dataset.symbol =
-    data.symbol;
+    symbol;
 
   card.innerHTML = `
 
-    <div class="card-head">
+    <div class="coin-head">
 
-      <div>
+      <div class="coin-title">
 
-        <span class="symbol">
-          ${escapeHtml(data.symbol)}
-        </span>
+        <div>
+          <span class="symbol">
+            ${escapeHtml(symbol)}
+          </span>
 
-        <span class="category">
-          ${escapeHtml(data.category)}
-        </span>
+          <span class="live-label">
+            <span class="live-dot"></span>
+            Live
+          </span>
+        </div>
 
-      </div>
-
-      <div>
+        <div
+          class="price js-price"
+        >
+          ${fmt(item.price,8)}
+        </div>
 
         <span
-          class="badge ${badgeClass(data.state)}"
-          data-field="state"
+          class="badge ${stateClass(item.state)} js-state"
         >
           ${escapeHtml(
-            stateLabel(data.state)
+            stateLabel(item.state)
           )}
         </span>
 
@@ -1493,92 +1601,55 @@ function createCard(
     </div>
 
 
-    <div
-      class="price"
-      data-field="price"
-    >
-      ${formatPrice(data.price)}
-    </div>
-
-
     <div class="grid">
 
       <div class="info">
-        <div class="info-title">
-          درصد جهش
-        </div>
-        <div
-          class="info-value positive"
-          data-field="pumpPercent"
-        >
-          ${pct(data.pumpPercent)}
-        </div>
+        <small>جهش قیمت</small>
+        <strong class="${valueClass(item.pumpPercent)} js-pump">
+          ${pct(item.pumpPercent)}
+        </strong>
       </div>
 
       <div class="info">
-        <div class="info-title">
-          ضریب حجم
-        </div>
-        <div
-          class="info-value"
-          data-field="volumeMultiplier"
-        >
-          ${formatNumber(data.volumeMultiplier,2)}x
-        </div>
+        <small>ضریب حجم</small>
+        <strong class="js-volume">
+          ${fmt(item.volumeMultiplier,2)}x
+        </strong>
       </div>
 
       <div class="info">
-        <div class="info-title">
-          کندل قرمز
-        </div>
-        <div
-          class="info-value"
-          data-field="redCandle"
-        >
-          ${
-            data.redCandle
-              ? "تشکیل شده"
-              : "در انتظار"
-          }
-        </div>
+        <small>کندل قرمز</small>
+        <strong class="js-red">
+          ${item.redCandle ? "تشکیل شده" : "هنوز نه"}
+        </strong>
       </div>
 
       <div class="info">
-        <div class="info-title">
-          پولبک
-        </div>
-        <div
-          class="info-value"
-          data-field="pullbackPercent"
-        >
-          ${pct(data.pullbackPercent)}
-        </div>
+        <small>پولبک</small>
+        <strong class="${valueClass(-item.pullbackPercent)} js-pullback">
+          ${pct(item.pullbackPercent)}
+        </strong>
       </div>
 
       <div class="info">
-        <div class="info-title">
-          ناحیه ورود
-        </div>
-        <div
-          class="info-value"
-          data-field="zone"
+        <small>ناحیه ورود</small>
+        <strong
+          class="js-zone"
+          dir="ltr"
         >
-          ${formatPrice(data.zoneLow)}
+          ${fmt(item.zoneLow,8)}
           تا
-          ${formatPrice(data.zoneHigh)}
-        </div>
+          ${fmt(item.zoneHigh,8)}
+        </strong>
       </div>
 
       <div class="info">
-        <div class="info-title">
-          فاصله
-        </div>
-        <div
-          class="info-value"
-          data-field="distancePercent"
+        <small>فاصله</small>
+        <strong
+          class="js-distance"
         >
-          ${pct(data.distancePercent)}
-        </div>
+          ${pct(item.distancePercent)}
+        </strong>
       </div>
 
     </div>
@@ -1587,203 +1658,201 @@ function createCard(
     <div class="actions">
 
       <button
-        data-action="deep"
+        class="main js-deep"
       >
         🔬 تحلیل عمیق
       </button>
 
       <button
-        data-action="close"
-        style="background:#374651"
+        class="danger js-close"
       >
-        ✖️ بستن
+        ✖ بستن
       </button>
 
     </div>
 
 
-    <div
-      class="deep"
-      data-field="deep"
-      hidden
-    >
-      <div class="empty">
-        در حال دریافت تحلیل عمیق...
+    <div class="deep js-deep-container hidden">
+
+      <div class="loading">
+        در حال دریافت تحلیل...
       </div>
+
     </div>
 
   `;
 
 
-  card
-    .querySelector(
-      '[data-action="deep"]'
+  card.querySelector(
+    ".js-deep"
+  ).addEventListener(
+    "click",
+    () => openDeep(
+      symbol,
+      card
     )
-    .addEventListener(
-      "click",
-      () => {
-
-        openDeep(
-          data.symbol,
-          card
-        );
-
-      }
-    );
+  );
 
 
-  card
-    .querySelector(
-      '[data-action="close"]'
+  card.querySelector(
+    ".js-close"
+  ).addEventListener(
+    "click",
+    () => closeCoin(
+      symbol
     )
-    .addEventListener(
-      "click",
-      () => {
-
-        closeCoin(
-          data.symbol
-        );
-
-      }
-    );
+  );
 
 
   return card;
-
 }
 
 
+/* =========================
+   CARD UPDATE
+========================= */
+
 function updateCard(
-  card,
-  item
+  rawItem,
+  card
 ){
 
-  const data =
-    normalizeItem(item);
-
-  card.className =
-    "coin-card " +
-    stateClass(
-      data.state
+  const item =
+    normalizeItem(
+      rawItem
     );
 
   const price =
     card.querySelector(
-      '[data-field="price"]'
+      ".js-price"
     );
 
   const state =
     card.querySelector(
-      '[data-field="state"]'
+      ".js-state"
     );
 
-  if(price){
+  const pump =
+    card.querySelector(
+      ".js-pump"
+    );
+
+  const volume =
+    card.querySelector(
+      ".js-volume"
+    );
+
+  const red =
+    card.querySelector(
+      ".js-red"
+    );
+
+  const pullback =
+    card.querySelector(
+      ".js-pullback"
+    );
+
+  const zone =
+    card.querySelector(
+      ".js-zone"
+    );
+
+  const distance =
+    card.querySelector(
+      ".js-distance"
+    );
+
+
+  if (price){
     price.textContent =
-      formatPrice(
-        data.price
-      );
+      fmt(item.price,8);
   }
 
-  if(state){
+
+  if (state){
 
     state.className =
       "badge " +
-      badgeClass(
-        data.state
+      stateClass(
+        item.state
       );
 
     state.textContent =
       stateLabel(
-        data.state
+        item.state
       );
 
   }
 
-  const pump =
-    card.querySelector(
-      '[data-field="pumpPercent"]'
-    );
 
-  if(pump){
+  if (pump){
+
+    pump.className =
+      "js-pump " +
+      valueClass(
+        item.pumpPercent
+      );
 
     pump.textContent =
       pct(
-        data.pumpPercent
+        item.pumpPercent
       );
 
   }
 
-  const vm =
-    card.querySelector(
-      '[data-field="volumeMultiplier"]'
-    );
 
-  if(vm){
+  if (volume){
 
-    vm.textContent =
-      formatNumber(
-        data.volumeMultiplier,
+    volume.textContent =
+      fmt(
+        item.volumeMultiplier,
         2
       ) + "x";
 
   }
 
-  const red =
-    card.querySelector(
-      '[data-field="redCandle"]'
-    );
 
-  if(red){
+  if (red){
 
     red.textContent =
-      data.redCandle
+      item.redCandle
         ? "تشکیل شده"
-        : "در انتظار";
+        : "هنوز نه";
 
   }
 
-  const pb =
-    card.querySelector(
-      '[data-field="pullbackPercent"]'
-    );
 
-  if(pb){
+  if (pullback){
 
-    pb.textContent =
+    pullback.className =
+      "js-pullback " +
+      valueClass(
+        -item.pullbackPercent
+      );
+
+    pullback.textContent =
       pct(
-        data.pullbackPercent
+        item.pullbackPercent
       );
 
   }
 
-  const zone =
-    card.querySelector(
-      '[data-field="zone"]'
-    );
 
-  if(zone){
+  if (zone){
 
     zone.textContent =
-      formatPrice(
-        data.zoneLow
-      ) +
+      fmt(item.zoneLow,8) +
       " تا " +
-      formatPrice(
-        data.zoneHigh
-      );
+      fmt(item.zoneHigh,8);
 
   }
 
-  const dist =
-    card.querySelector(
-      '[data-field="distancePercent"]'
-    );
 
-  if(dist){
+  if (distance){
 
-    dist.textContent =
+    distance.textContent =
       pct(
-        data.distancePercent
+        item.distancePercent
       );
 
   }
@@ -1799,70 +1868,53 @@ function renderResults(
   items
 ){
 
-  if(
-    !Array.isArray(items)
-  ){
+  if (!Array.isArray(items)){
     return;
   }
 
-  const results =
-    document.getElementById(
-      "results"
-    );
+  const valid =
+    items
+      .map(normalizeItem)
+      .filter(
+        x =>
+          x.symbol &&
+          !closedCoins.has(
+            x.symbol
+          )
+      );
 
-  const validSymbols =
-    new Set();
 
-
-  for(
-    const raw of items
+  for (
+    const item of valid
   ){
-
-    const item =
-      normalizeItem(raw);
-
-    if(
-      !item.symbol
-    ){
-      continue;
-    }
-
-    if(
-      closedCoins.has(
-        item.symbol
-      )
-    ){
-      continue;
-    }
-
-    validSymbols.add(
-      item.symbol
-    );
 
     let card =
       cards.get(
         item.symbol
       );
 
-    if(!card){
+    if (!card){
 
       card =
-        createCard(item);
+        createCard(
+          item
+        );
 
       cards.set(
         item.symbol,
         card
       );
 
-      results.appendChild(
-        card
-      );
+      $("results")
+        .appendChild(
+          card
+        );
 
     }else{
 
       updateCard(
-        card,
-        item
+        item,
+        card
       );
 
     }
@@ -1876,15 +1928,15 @@ function renderResults(
 
 
   const empty =
-    results.querySelector(
-      ".empty"
+    $("emptyState");
+
+  if (empty){
+
+    empty.classList.toggle(
+      "hidden",
+      cards.size > 0
     );
 
-  if(
-    empty &&
-    cards.size > 0
-  ){
-    empty.remove();
   }
 
 
@@ -1896,6 +1948,30 @@ function renderResults(
 /* =========================
    CLOSE
 ========================= */
+
+function stopLive(
+  symbol
+){
+
+  const timer =
+    liveTimers.get(
+      symbol
+    );
+
+  if (timer){
+
+    clearInterval(
+      timer
+    );
+
+    liveTimers.delete(
+      symbol
+    );
+
+  }
+
+}
+
 
 function closeCoin(
   symbol
@@ -1914,22 +1990,20 @@ function closeCoin(
       symbol
     );
 
-  if(card){
-    card.remove();
-  }
+  if (card){
 
-  cards.delete(
-    symbol
-  );
+    card.remove();
+
+    cards.delete(
+      symbol
+    );
+
+  }
 
   updateStats();
 
 }
 
-
-/* =========================
-   MANUAL REOPEN
-========================= */
 
 function reopenManual(
   symbol
@@ -1957,19 +2031,17 @@ async function openDeep(
 
   const deep =
     card.querySelector(
-      '[data-field="deep"]'
+      ".js-deep-container"
     );
 
-  deep.hidden =
-    false;
+  deep.classList.remove(
+    "hidden"
+  );
 
-  deep.innerHTML = `
-
-    <div class="empty">
-      ⏳ در حال دریافت داده‌های واقعی Bybit...
-    </div>
-
-  `;
+  deep.innerHTML =
+    `<div class="loading">
+       🔄 در حال دریافت داده‌های واقعی Bybit...
+     </div>`;
 
 
   try{
@@ -1986,59 +2058,59 @@ async function openDeep(
         }
       );
 
-    if(!res.ok){
-
-      throw new Error(
-        "HTTP " + res.status
-      );
-
-    }
-
     const data =
       await res.json();
 
-    if(!data.ok){
+    if (
+      !res.ok ||
+      !data?.ok
+    ){
 
       throw new Error(
-        data.error ||
-        "Analysis failed"
+        data?.error ||
+        "خطا در تحلیل"
       );
 
     }
 
+
     updateCard(
-      card,
-      data
+      data,
+      card
     );
+
 
     deep.innerHTML =
       buildDeepHtml(
         data
       );
 
+
+    attachTradeFilter(
+      deep,
+      data.recentTrades || []
+    );
+
+
+    /*
+      قبل از شروع Live
+      اطلاعات فعلی را نگه می‌داریم.
+    */
     startLive(
       symbol,
       card
     );
 
+
   }catch(error){
 
     deep.innerHTML = `
-
-      <div class="section">
-
-        <h3>
-          ❌ خطا در تحلیل
-        </h3>
-
-        <div class="negative">
-          ${escapeHtml(
-            error.message
-          )}
-        </div>
-
+      <div class="error-box">
+        ❌ خطا:
+        ${escapeHtml(
+          error.message
+        )}
       </div>
-
     `;
 
   }
@@ -2054,20 +2126,12 @@ function buildDeepHtml(
   data
 ){
 
-  const pump =
-    data?.pump || {};
-
-  const setup =
-    data?.setup || {};
-
-  const ticker =
-    data?.ticker || {};
-
   const footprint =
     data?.footprint || {};
 
   const orderbook =
-    data?.orderbook || {};
+    data?.orderbook ||
+    {};
 
   const walls =
     data?.walls ||
@@ -2075,21 +2139,26 @@ function buildDeepHtml(
 
   const oi =
     data?.openInterest ||
-    data?.oi ||
     {};
 
   const funding =
     data?.funding ||
     {};
 
+  const trades =
+    Array.isArray(
+      data?.recentTrades
+    )
+      ? data.recentTrades
+      : [];
 
-  let html = `
 
-    <div class="live-label">
-      <span class="live-dot"></span>
-      تحلیل زنده
-    </div>
+  let html = "";
 
+
+  /* ---------- STATUS ---------- */
+
+  html += `
 
     <div class="section">
 
@@ -2097,86 +2166,74 @@ function buildDeepHtml(
         📊 وضعیت تحلیل
       </h3>
 
-      <div class="grid">
+      <div class="mini-grid">
 
-        <div class="info">
-          <div class="info-title">
-            نماد
-          </div>
-          <div class="info-value">
+        <div class="mini">
+          <small>نماد</small>
+          <b dir="ltr">
             ${escapeHtml(
-              data.symbol
+              data?.symbol || "-"
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            قیمت
-          </div>
-          <div
-            class="info-value"
-            data-deep-field="price"
-          >
-            ${formatPrice(
-              data.price
+        <div class="mini">
+          <small>قیمت</small>
+          <b dir="ltr">
+            ${fmt(
+              data?.price,
+              8
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            وضعیت
-          </div>
-          <div
-            class="info-value"
-            data-deep-field="state"
-          >
+        <div class="mini">
+          <small>وضعیت</small>
+          <b>
             ${escapeHtml(
               stateLabel(
-                data.state
+                data?.state ||
+                data?.currentState?.state
               )
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            جهش
-          </div>
-          <div class="info-value positive">
+        <div class="mini">
+          <small>جهش</small>
+          <b class="${valueClass(
+            data?.pump?.pumpPercent
+          )}">
             ${pct(
-              pump.pumpPercent
+              data?.pump?.pumpPercent
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            ضریب حجم
-          </div>
-          <div class="info-value">
-            ${formatNumber(
-              pump.volumeMultiplier ??
-              pump.volumeRatio,
+        <div class="mini">
+          <small>ضریب حجم</small>
+          <b dir="ltr">
+            ${fmt(
+              data?.pump?.volumeMultiplier ||
+              data?.pump?.volumeRatio,
               2
             )}x
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            ناحیه ورود
-          </div>
-          <div class="info-value">
-            ${formatPrice(
-              setup.zoneLow
+        <div class="mini">
+          <small>ناحیه ورود</small>
+          <b dir="ltr">
+            ${fmt(
+              data?.setup?.zoneLow,
+              8
             )}
             تا
-            ${formatPrice(
-              setup.zoneHigh
+            ${fmt(
+              data?.setup?.zoneHigh,
+              8
             )}
-          </div>
+          </b>
         </div>
 
       </div>
@@ -2186,32 +2243,30 @@ function buildDeepHtml(
   `;
 
 
-  /* =====================
-     FOOTPRINT
-  ===================== */
+  /* ---------- FOOTPRINT ---------- */
 
   html += `
-
     <div class="section">
 
       <h3>
-        👣 Footprint معاملات واقعی
+        👣 Footprint معاملات
       </h3>
 
       <div class="table-wrap">
-
         <table>
 
           <thead>
             <tr>
               <th>بازه</th>
               <th>تعداد</th>
-              <th>حجم خرید</th>
-              <th>حجم فروش</th>
+              <th>خرید</th>
+              <th>فروش</th>
               <th>ارزش خرید</th>
               <th>ارزش فروش</th>
               <th>Delta</th>
               <th>فشار</th>
+              <th>خرید بزرگ</th>
+              <th>فروش بزرگ</th>
             </tr>
           </thead>
 
@@ -2219,23 +2274,12 @@ function buildDeepHtml(
   `;
 
 
-  for(
-    const key of [
-      "1m",
-      "3m",
-      "5m",
-      "15m",
-      "30m",
-      "1h"
-    ]
+  for (
+    const [key, fp] of
+    Object.entries(
+      footprint
+    )
   ){
-
-    const f =
-      footprint[key];
-
-    if(!f){
-      continue;
-    }
 
     html += `
 
@@ -2243,78 +2287,70 @@ function buildDeepHtml(
 
         <td>
           ${escapeHtml(
-            f.label || key
+            fp?.label || key
           )}
         </td>
 
         <td>
-          ${formatNumber(
-            f.tradeCount,
-            0
+          ${fmtInteger(
+            fp?.tradeCount
           )}
         </td>
 
-        <td class="buy-data">
-          ${formatNumber(
-            f.buyVolume,
+        <td class="buy">
+          ${fmt(
+            fp?.buyVolume,
             6
           )}
         </td>
 
-        <td class="sell-data">
-          ${formatNumber(
-            f.sellVolume,
+        <td class="sell">
+          ${fmt(
+            fp?.sellVolume,
             6
           )}
         </td>
 
-        <td class="buy-data">
-          ${formatNumber(
-            f.buyNotional,
-            2
+        <td class="buy" dir="ltr">
+          ${fmtCompact(
+            fp?.buyNotional
           )}
         </td>
 
-        <td class="sell-data">
-          ${formatNumber(
-            f.sellNotional,
-            2
+        <td class="sell" dir="ltr">
+          ${fmtCompact(
+            fp?.sellNotional
           )}
         </td>
 
-        <td
-          class="${valueClass(f.delta)}"
-        >
-          ${formatNumber(
-            f.delta,
+        <td class="${valueClass(
+          fp?.delta
+        )}" dir="ltr">
+          ${fmtCompact(
+            fp?.delta
+          )}
+        </td>
+
+        <td class="${valueClass(
+          fp?.deltaPercent
+        )}">
+          ${escapeHtml(
+            fp?.pressure || "NEUTRAL"
+          )}
+        </td>
+
+        <td class="buy">
+          ${fmt(
+            fp?.largeBuyVolume,
             6
           )}
-          <br>
-          ${pct(
-            f.deltaPercent
-          )}
         </td>
 
-        <td
-          class="${
-            f.pressure ===
-            "BUY_PRESSURE"
-              ? "buy-data"
-              : f.pressure ===
-                "SELL_PRESSURE"
-                ? "sell-data"
-                : "neutral"
-          }"
-        >
-          ${
-            f.pressure ===
-            "BUY_PRESSURE"
-              ? "خرید"
-              : f.pressure ===
-                "SELL_PRESSURE"
-                ? "فروش"
-                : "خنثی"
-          }
+        <td class="sell">
+          ${fmt(
+            fp?.largeSellVolume,
+            6
+          )}
         </td>
 
       </tr>
@@ -2325,190 +2361,139 @@ function buildDeepHtml(
 
 
   html += `
-
           </tbody>
-
         </table>
-
       </div>
 
     </div>
-
   `;
 
 
-  /* =====================
-     WALLS
-  ===================== */
+  /* ---------- ORDERBOOK ---------- */
 
   html += `
 
     <div class="section">
 
       <h3>
-        🧱 دیوارهای سفارشات
+        🧱 دیوار سفارشات
       </h3>
 
-      <div class="table-wrap">
+      <div class="mini-grid">
+
+        <div class="mini">
+          <small>نقدینگی خرید</small>
+          <b class="buy" dir="ltr">
+            ${fmtCompact(
+              orderbook?.buyLiquidity
+            )}
+          </b>
+        </div>
+
+        <div class="mini">
+          <small>نقدینگی فروش</small>
+          <b class="sell" dir="ltr">
+            ${fmtCompact(
+              orderbook?.sellLiquidity
+            )}
+          </b>
+        </div>
+
+        <div class="mini">
+          <small>سهم خرید</small>
+          <b class="buy">
+            ${pct(
+              orderbook?.buyShare
+            )}
+          </b>
+        </div>
+
+        <div class="mini">
+          <small>سهم فروش</small>
+          <b class="sell">
+            ${pct(
+              orderbook?.sellShare
+            )}
+          </b>
+        </div>
+
+      </div>
+
+      <div
+        class="table-wrap"
+        style="margin-top:12px"
+      >
 
         <table>
 
           <thead>
+
             <tr>
-              <th>نوع</th>
               <th>قیمت</th>
-              <th>حجم</th>
-              <th>ارزش</th>
-              <th>فاصله</th>
-              <th>قدرت</th>
+              <th>خرید / تعداد</th>
+              <th>خرید / حجم</th>
+              <th>خرید / ارزش</th>
+              <th>میانگین خرید</th>
+              <th>فروش / تعداد</th>
+              <th>فروش / حجم</th>
+              <th>فروش / ارزش</th>
+              <th>میانگین فروش</th>
+              <th>Delta</th>
+              <th>نوع فشار</th>
             </tr>
+
           </thead>
 
           <tbody>
   `;
 
 
-  const buyWalls =
-    walls.buyWalls ||
-    walls.buy ||
-    orderbook.buyWalls ||
-    [];
-
-  const sellWalls =
-    walls.sellWalls ||
-    walls.sell ||
-    orderbook.sellWalls ||
-    [];
+  const aggregatedWalls =
+    aggregateOrderbookByPrice(
+      orderbook,
+      walls
+    );
 
 
-  for(
-    const wall of buyWalls
+  if (
+    aggregatedWalls.length
   ){
 
-    html += `
+    for (
+      const row of
+      aggregatedWalls
+    ){
 
-      <tr>
+      html +=
+        renderOrderbookAggregateRow(
+          row
+        );
 
-        <td class="buy-data">
-          خرید
-        </td>
+    }
 
-        <td class="buy-data">
-          ${formatPrice(
-            wall.price
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            wall.size,
-            8
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            wall.notional,
-            2
-          )}
-        </td>
-
-        <td>
-          ${pct(
-            wall.distancePercent
-          )}
-        </td>
-
-        <td>
-          ${formatNumber(
-            wall.strength,
-            2
-          )}x
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  for(
-    const wall of sellWalls
-  ){
+  }else{
 
     html += `
-
       <tr>
-
-        <td class="sell-data">
-          فروش
-        </td>
-
-        <td class="sell-data">
-          ${formatPrice(
-            wall.price
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            wall.size,
-            8
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            wall.notional,
-            2
-          )}
-        </td>
-
-        <td>
-          ${pct(
-            wall.distancePercent
-          )}
-        </td>
-
-        <td>
-          ${formatNumber(
-            wall.strength,
-            2
-          )}x
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  if(
-    !buyWalls.length &&
-    !sellWalls.length
-  ){
-
-    html += `
-
-      <tr>
-        <td colspan="6">
-          دیوار قابل توجهی پیدا نشد.
+        <td colspan="11">
+          دیوار قابل نمایش پیدا نشد.
         </td>
       </tr>
-
     `;
 
   }
 
 
   html += `
-
           </tbody>
 
         </table>
 
+      </div>
+
+      <div class="result-note">
+        هر قیمت فقط یک ردیف دارد و سفارش‌های خرید و فروش همان قیمت
+        در همان ردیف تجمیع شده‌اند.
       </div>
 
     </div>
@@ -2516,19 +2501,7 @@ function buildDeepHtml(
   `;
 
 
-  /* =====================
-     AGGREGATED ORDERBOOK
-  ===================== */
-
-  html +=
-    buildOrderbookAggregationHtml(
-      orderbook
-    );
-
-
-  /* =====================
-     OPEN INTEREST
-  ===================== */
+  /* ---------- OI ---------- */
 
   html += `
 
@@ -2541,16 +2514,14 @@ function buildDeepHtml(
   `;
 
 
-  if(
-    oi.available === false
+  if (
+    oi?.available === false
   ){
 
     html += `
-
-      <div class="neutral">
-        برای Spot اطلاعات Open Interest وجود ندارد.
+      <div class="result-note">
+        داده Open Interest برای این بازار در دسترس نیست.
       </div>
-
     `;
 
   }else{
@@ -2573,12 +2544,12 @@ function buildDeepHtml(
           </thead>
 
           <tbody>
-
     `;
 
-    for(
+
+    for (
       const row of
-      oi.rows || []
+      oi?.rows || []
     ){
 
       html += `
@@ -2587,57 +2558,53 @@ function buildDeepHtml(
 
           <td>
             ${escapeHtml(
-              row.label ||
-              row.key ||
-              ""
+              row?.label ||
+              row?.key ||
+              "-"
             )}
           </td>
 
-          <td>
-            ${formatNumber(
-              row.current,
-              4
+          <td dir="ltr">
+            ${fmtCompact(
+              row?.current
             )}
           </td>
 
-          <td>
-            ${formatNumber(
-              row.previous,
-              4
+          <td dir="ltr">
+            ${fmtCompact(
+              row?.previous
             )}
           </td>
 
           <td
             class="${valueClass(
-              row.change
+              row?.change
             )}"
+            dir="ltr"
           >
-            ${formatNumber(
-              row.change,
-              4
+            ${fmtCompact(
+              row?.change
             )}
           </td>
 
           <td
             class="${valueClass(
-              row.changePercent
+              row?.changePercent
             )}"
           >
             ${pct(
-              row.changePercent
+              row?.changePercent
             )}
           </td>
 
-          <td>
-            ${
-              row.trend === "UP"
-                ? "🟢 افزایش"
-                : row.trend === "DOWN"
-                  ? "🔴 کاهش"
-                  : row.trend === "FLAT"
-                    ? "⚪ ثابت"
-                    : "⚠️ نامشخص"
-            }
+          <td
+            class="${valueClass(
+              row?.change
+            )}"
+          >
+            ${escapeHtml(
+              row?.trend || "-"
+            )}
           </td>
 
         </tr>
@@ -2646,14 +2613,12 @@ function buildDeepHtml(
 
     }
 
+
     html += `
-
           </tbody>
-
         </table>
 
       </div>
-
     `;
 
   }
@@ -2664,9 +2629,7 @@ function buildDeepHtml(
   `;
 
 
-  /* =====================
-     FUNDING
-  ===================== */
+  /* ---------- FUNDING ---------- */
 
   html += `
 
@@ -2679,89 +2642,71 @@ function buildDeepHtml(
   `;
 
 
-  if(
-    funding.available === false
+  if (
+    funding?.available === false
   ){
 
     html += `
-
-      <div class="neutral">
-        Funding برای Spot در دسترس نیست.
+      <div class="result-note">
+        Funding برای این بازار در دسترس نیست.
       </div>
-
     `;
 
   }else{
 
     html += `
 
-      <div class="grid">
+      <div class="mini-grid">
 
-        <div class="info">
-          <div class="info-title">
-            نرخ فعلی
-          </div>
-          <div
-            class="info-value ${valueClass(
-              funding.currentRate
-            )}"
-          >
+        <div class="mini">
+          <small>Funding فعلی</small>
+          <b class="${valueClass(
+            funding?.currentRate
+          )}">
             ${pct(
               num(
-                funding.currentRate
-              ) * 100,
-              4
+                funding?.currentRate
+              ) * 100
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            نرخ قبلی
-          </div>
-          <div class="info-value">
+        <div class="mini">
+          <small>Funding قبلی</small>
+          <b class="${valueClass(
+            funding?.previousRate
+          )}">
             ${pct(
               num(
-                funding.previousRate
-              ) * 100,
-              4
+                funding?.previousRate
+              ) * 100
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            تغییر
-          </div>
-          <div
-            class="info-value ${valueClass(
-              funding.change
-            )}"
-          >
+        <div class="mini">
+          <small>تغییر</small>
+          <b class="${valueClass(
+            funding?.change
+          )}">
             ${pct(
               num(
-                funding.change
-              ) * 100,
-              4
+                funding?.change
+              ) * 100
             )}
-          </div>
+          </b>
         </div>
 
-        <div class="info">
-          <div class="info-title">
-            جهت
-          </div>
-          <div class="info-value">
-            ${
-              funding.direction ===
-              "POSITIVE"
-                ? "🟢 مثبت"
-                : funding.direction ===
-                  "NEGATIVE"
-                  ? "🔴 منفی"
-                  : "⚪ خنثی"
-            }
-          </div>
+        <div class="mini">
+          <small>جهت</small>
+          <b class="${valueClass(
+            funding?.currentRate
+          )}">
+            ${escapeHtml(
+              funding?.direction ||
+              "-"
+            )}
+          </b>
         </div>
 
       </div>
@@ -2776,58 +2721,35 @@ function buildDeepHtml(
   `;
 
 
-  /* =====================
-     RECENT TRADES
-  ===================== */
-
-  const trades =
-    Array.isArray(
-      data.recentTrades
-    )
-      ? data.recentTrades
-      : [];
-
+  /* ---------- RECENT TRADES ---------- */
 
   html += `
 
     <div class="section">
 
       <h3>
-        🔄 معاملات اخیر بازار
+        📋 معاملات اخیر بازار
+        <span class="live-label">
+          <span class="live-dot"></span>
+          داده واقعی Bybit
+        </span>
       </h3>
 
-      <div class="table-wrap">
+      <div
+        class="table-wrap js-recent-wrap"
+      >
 
         <table>
 
           <thead>
 
             <tr>
-
-              <th>
-                زمان
-              </th>
-
-              <th>
-                نوع
-              </th>
-
-              <th>
-                قیمت
-              </th>
-
-              <th>
-                حجم
-              </th>
-
-              <th>
-                ارزش معامله
-              </th>
-
-              <th>
-                سهم
-              </th>
-
+              <th>زمان</th>
+              <th>سمت</th>
+              <th>قیمت</th>
+              <th>حجم</th>
+              <th>ارزش</th>
+              <th>نوع</th>
             </tr>
 
           </thead>
@@ -2836,63 +2758,25 @@ function buildDeepHtml(
   `;
 
 
-  const displayedTrades =
-    trades.slice(
-      -100
-    ).reverse();
+  const displayTrades =
+    trades
+      .slice(-100)
+      .reverse();
 
 
-  let displayedTotal =
-    displayedTrades.reduce(
-      (
-        sum,
-        t
-      ) => {
-
-        const price =
-          num(t.price);
-
-        const size =
-          num(t.size);
-
-        return sum +
-          price * size;
-
-      },
-      0
-    );
-
-
-  for(
-    const trade
-    of displayedTrades
+  for (
+    const trade of
+    displayTrades
   ){
-
-    const price =
-      num(trade.price);
-
-    const size =
-      num(trade.size);
-
-    const notional =
-      price * size;
 
     const side =
       String(
-        trade.side ||
-        ""
+        trade?.side || ""
       ).toLowerCase();
+
 
     const isBuy =
       side === "buy";
-
-    const share =
-      displayedTotal > 0
-        ? (
-            notional /
-            displayedTotal
-          ) * 100
-        : 0;
 
 
     html += `
@@ -2901,40 +2785,28 @@ function buildDeepHtml(
 
         <td>
           ${formatTradeTime(
-            trade.time ||
-            trade.timestamp
+            trade?.time ||
+            trade?.timestamp
           )}
         </td>
 
-        <td
-          class="${
-            isBuy
-              ? "buy-data"
-              : "sell-data"
-          }"
-        >
+        <td class="${
+          isBuy
+            ? "buy"
+            : "sell"
+        }">
+
           ${
             isBuy
-              ? "🟢 خرید"
-              : "🔴 فروش"
+              ? "خرید"
+              : "فروش"
           }
+
         </td>
 
-        <td>
-          ${formatPrice(
-            price
-          )}
-        </td>
-
-        <td
-          class="${
-            isBuy
-              ? "buy-data"
-              : "sell-data"
-          }"
-        >
-          ${formatNumber(
-            size,
+        <td dir="ltr">
+          ${fmt(
+            trade?.price,
             8
           )}
         </td>
@@ -2942,21 +2814,39 @@ function buildDeepHtml(
         <td
           class="${
             isBuy
-              ? "buy-data"
-              : "sell-data"
+              ? "buy"
+              : "sell"
           }"
+          dir="ltr"
         >
-          ${formatNumber(
-            notional,
-            2
+          ${fmt(
+            trade?.size ??
+            trade?.qty,
+            8
+          )}
+        </td>
+
+        <td
+          class="${
+            isBuy
+              ? "buy"
+              : "sell"
+          }"
+          dir="ltr"
+        >
+          ${fmtCompact(
+            tradeNotional(
+              trade
+            )
           )}
         </td>
 
         <td>
-          ${pct(
-            share,
-            3
-          )}
+          ${
+            trade?.isBlockTrade
+              ? "🧱 Block"
+              : "عادی"
+          }
         </td>
 
       </tr>
@@ -2966,18 +2856,16 @@ function buildDeepHtml(
   }
 
 
-  if(
-    !displayedTrades.length
+  if (
+    !displayTrades.length
   ){
 
     html += `
-
       <tr>
         <td colspan="6">
           معامله‌ای دریافت نشده است.
         </td>
       </tr>
-
     `;
 
   }
@@ -2991,468 +2879,324 @@ function buildDeepHtml(
 
       </div>
 
-  `;
+      <div class="trade-filter js-trade-filter">
+
+        <div class="trade-filter-title">
+          🎯 فیلتر و تجمیع معاملات واقعی Bybit
+        </div>
+
+        <div class="filter-grid">
+
+          <div class="filter-box">
+
+            <label>
+              از ساعت
+            </label>
+
+            <input
+              class="js-from-time"
+              type="time"
+              step="1"
+            >
+
+          </div>
 
 
-  /* =====================
-     TRADE FILTER
-  ===================== */
+          <div class="filter-box">
 
-  html +=
-    buildTradeFilter(
-      trades
-    );
+            <label>
+              تا ساعت
+            </label>
+
+            <input
+              class="js-to-time"
+              type="time"
+              step="1"
+            >
+
+          </div>
 
 
-  html += `
+          <div class="filter-box">
+
+            <label>
+              حداقل قیمت
+            </label>
+
+            <input
+              class="js-min-price"
+              type="number"
+              step="any"
+              inputmode="decimal"
+              placeholder="مثلاً 0.7834"
+            >
+
+          </div>
+
+
+          <div class="filter-box">
+
+            <label>
+              حداکثر قیمت
+            </label>
+
+            <input
+              class="js-max-price"
+              type="number"
+              step="any"
+              inputmode="decimal"
+              placeholder="مثلاً 0.7973"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="filter-actions">
+
+          <button
+            type="button"
+            class="main js-apply-filter"
+          >
+            🔎 اعمال فیلتر
+          </button>
+
+          <button
+            type="button"
+            class="secondary js-clear-filter"
+          >
+            🔄 پاک کردن
+          </button>
+
+        </div>
+
+
+        <div class="filter-note">
+          می‌توانید فقط زمان، فقط قیمت، یا هر دو را همزمان مشخص کنید.
+          بازه زمانی شبانه نیز پشتیبانی می‌شود.
+        </div>
+
+
+        <div class="trade-summary">
+
+          <div class="summary-box">
+            <small>تعداد خرید</small>
+            <strong
+              class="buy js-buy-count"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>حجم خرید</small>
+            <strong
+              class="buy js-buy-volume"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>ارزش خرید</small>
+            <strong
+              class="buy js-buy-notional"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>تعداد فروش</small>
+            <strong
+              class="sell js-sell-count"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>حجم فروش</small>
+            <strong
+              class="sell js-sell-volume"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>ارزش فروش</small>
+            <strong
+              class="sell js-sell-notional"
+            >
+              ۰
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="trade-summary">
+
+          <div class="summary-box">
+            <small>سهم خرید</small>
+            <strong
+              class="buy js-buy-share"
+            >
+              ۰%
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>سهم فروش</small>
+            <strong
+              class="sell js-sell-share"
+            >
+              ۰%
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>Delta حجم</small>
+            <strong
+              class="js-delta-volume"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>Delta ارزش</small>
+            <strong
+              class="js-delta-notional"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>معاملات فیلترشده</small>
+            <strong
+              class="js-filtered-count"
+            >
+              ۰
+            </strong>
+          </div>
+
+          <div class="summary-box">
+            <small>فشار غالب</small>
+            <strong
+              class="js-pressure"
+            >
+              خنثی
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="result-note js-filter-result">
+          هنوز فیلتری اعمال نشده است.
+        </div>
+
+
+        <div class="price-aggregation">
+
+          <div class="price-aggregation-title">
+            📊 تجمیع تمام معاملات بر اساس قیمت
+          </div>
+
+          <div
+            class="table-wrap js-price-wrap"
+          >
+
+            <table>
+
+              <thead>
+
+                <tr>
+
+                  <th>قیمت</th>
+
+                  <th>تعداد خرید</th>
+                  <th>حجم خرید</th>
+                  <th>ارزش خرید</th>
+                  <th>میانگین خرید</th>
+
+                  <th>تعداد فروش</th>
+                  <th>حجم فروش</th>
+                  <th>ارزش فروش</th>
+                  <th>میانگین فروش</th>
+
+                  <th>Delta حجم</th>
+                  <th>Delta ارزش</th>
+
+                  <th>فشار</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody
+                class="js-price-body"
+              >
+                <tr>
+                  <td colspan="12">
+                    برای نمایش، فیلتر را اعمال کنید.
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
+
   `;
 
 
   return html;
-
 }
 
 
-/* =========================================================
-   TRADE FILTER
-========================================================= */
+/* =========================
+   TRADE HELPERS
+========================= */
 
-function buildTradeFilter(
-  trades
+function tradeNotional(
+  trade
 ){
 
-  const id =
-    "tradeFilter_" +
-    Math.random()
-      .toString(36)
-      .slice(2);
-
-
-  const wrapper =
-    document.createElement(
-      "div"
+  const price =
+    num(
+      trade?.price
     );
 
-  wrapper.className =
-    "trade-filter";
-
-
-  wrapper.innerHTML = `
-
-    <div>
-
-      <h3>
-        🎯 فیلتر و تجمیع معاملات واقعی Bybit
-      </h3>
-
-      <div class="filter-note">
-        می‌توانید فقط معاملات یک بازه زمانی، یک محدوده قیمت،
-        یا ترکیبی از زمان و قیمت را مشاهده و تجمیع کنید.
-      </div>
-
-    </div>
-
-
-    <div class="filter-grid">
-
-      <div class="filter-box">
-
-        <label>
-          از ساعت
-        </label>
-
-        <input
-          type="time"
-          data-filter="from"
-        >
-
-      </div>
-
-
-      <div class="filter-box">
-
-        <label>
-          تا ساعت
-        </label>
-
-        <input
-          type="time"
-          data-filter="to"
-        >
-
-      </div>
-
-
-      <div class="filter-box">
-
-        <label>
-          حداقل قیمت
-        </label>
-
-        <input
-          type="number"
-          step="any"
-          placeholder="مثلاً 0.7834"
-          data-filter="minPrice"
-        >
-
-      </div>
-
-
-      <div class="filter-box">
-
-        <label>
-          حداکثر قیمت
-        </label>
-
-        <input
-          type="number"
-          step="any"
-          placeholder="مثلاً 0.7973"
-          data-filter="maxPrice"
-        >
-
-      </div>
-
-    </div>
-
-
-    <div class="filter-actions">
-
-      <button
-        type="button"
-        data-action="apply-filter"
-      >
-        🔎 اعمال فیلتر
-      </button>
-
-      <button
-        type="button"
-        class="clear-filter"
-        data-action="clear-filter"
-      >
-        ♻️ پاک کردن
-      </button>
-
-    </div>
-
-
-    <div
-      class="filter-result"
-      data-field="filter-result"
-    >
-      همه معاملات دریافت‌شده از Worker
-    </div>
-
-
-    <div
-      class="trade-summary"
-      data-field="trade-summary"
-    >
-
-      <div class="summary-box">
-        <div class="summary-title">
-          تعداد خرید
-        </div>
-        <div
-          class="summary-value buy-data"
-          data-summary="buyCount"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          حجم خرید
-        </div>
-        <div
-          class="summary-value buy-data"
-          data-summary="buyVolume"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          ارزش خرید
-        </div>
-        <div
-          class="summary-value buy-data"
-          data-summary="buyNotional"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          سهم خرید
-        </div>
-        <div
-          class="summary-value buy-data"
-          data-summary="buyShare"
-        >
-          0%
-        </div>
-      </div>
-
-
-      <div class="summary-box">
-        <div class="summary-title">
-          تعداد فروش
-        </div>
-        <div
-          class="summary-value sell-data"
-          data-summary="sellCount"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          حجم فروش
-        </div>
-        <div
-          class="summary-value sell-data"
-          data-summary="sellVolume"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          ارزش فروش
-        </div>
-        <div
-          class="summary-value sell-data"
-          data-summary="sellNotional"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          سهم فروش
-        </div>
-        <div
-          class="summary-value sell-data"
-          data-summary="sellShare"
-        >
-          0%
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          Delta حجم
-        </div>
-        <div
-          class="summary-value"
-          data-summary="deltaVolume"
-        >
-          0
-        </div>
-      </div>
-
-      <div class="summary-box">
-        <div class="summary-title">
-          Delta ارزش
-        </div>
-        <div
-          class="summary-value"
-          data-summary="deltaNotional"
-        >
-          0
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="price-aggregation">
-
-      <h3>
-        📊 تجمیع خرید و فروش بر اساس قیمت
-      </h3>
-
-      <div class="table-wrap">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                قیمت
-              </th>
-
-              <th class="buy-data">
-                تعداد خرید
-              </th>
-
-              <th class="buy-data">
-                حجم خرید
-              </th>
-
-              <th class="buy-data">
-                ارزش خرید
-              </th>
-
-              <th class="sell-data">
-                تعداد فروش
-              </th>
-
-              <th class="sell-data">
-                حجم فروش
-              </th>
-
-              <th class="sell-data">
-                ارزش فروش
-              </th>
-
-              <th>
-                Delta حجم
-              </th>
-
-              <th>
-                Delta ارزش
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody
-            data-field="price-rows"
-          ></tbody>
-
-          <tfoot
-            data-field="price-total"
-          ></tfoot>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  const fromInput =
-    wrapper.querySelector(
-      '[data-filter="from"]'
+  const size =
+    num(
+      trade?.size ??
+      trade?.qty
     );
 
-  const toInput =
-    wrapper.querySelector(
-      '[data-filter="to"]'
-    );
-
-  const minPriceInput =
-    wrapper.querySelector(
-      '[data-filter="minPrice"]'
-    );
-
-  const maxPriceInput =
-    wrapper.querySelector(
-      '[data-filter="maxPrice"]'
-    );
-
-
-  function apply(){
-
-    const filtered =
-      filterTrades(
-        trades,
-        {
-          from:
-            fromInput.value,
-
-          to:
-            toInput.value,
-
-          minPrice:
-            minPriceInput.value,
-
-          maxPrice:
-            maxPriceInput.value
-        }
-      );
-
-
-    updateTradeFilterUI(
-      wrapper,
-      filtered,
-      trades
-    );
-
-  }
-
-
-  wrapper
-    .querySelector(
-      '[data-action="apply-filter"]'
-    )
-    .addEventListener(
-      "click",
-      apply
-    );
-
-
-  wrapper
-    .querySelector(
-      '[data-action="clear-filter"]'
-    )
-    .addEventListener(
-      "click",
-      () => {
-
-        fromInput.value = "";
-        toInput.value = "";
-        minPriceInput.value = "";
-        maxPriceInput.value = "";
-
-        updateTradeFilterUI(
-          wrapper,
-          trades,
-          trades
-        );
-
-      }
-    );
-
-
-  updateTradeFilterUI(
-    wrapper,
-    trades,
-    trades
-  );
-
-
-  return wrapper.outerHTML;
-
+  /*
+    طبق درخواست:
+    ارزش هر معامله = قیمت × حجم
+  */
+  return price * size;
 }
 
-
-/* =========================================================
-   TIME
-========================================================= */
 
 function timeToSeconds(
   value
 ){
 
-  if(
-    !value
-  ){
+  if (!value){
     return null;
   }
 
@@ -3461,7 +3205,8 @@ function timeToSeconds(
       .split(":")
       .map(Number);
 
-  if(
+
+  if (
     parts.some(
       x => !Number.isFinite(x)
     )
@@ -3469,7 +3214,8 @@ function timeToSeconds(
     return null;
   }
 
-  if(
+
+  if (
     parts.length === 2
   ){
 
@@ -3480,7 +3226,8 @@ function timeToSeconds(
 
   }
 
-  if(
+
+  if (
     parts.length === 3
   ){
 
@@ -3492,8 +3239,8 @@ function timeToSeconds(
 
   }
 
-  return null;
 
+  return null;
 }
 
 
@@ -3502,25 +3249,27 @@ function getTradeTimestamp(
 ){
 
   let ts =
-    Number(
+    num(
       trade?.time ??
       trade?.timestamp
     );
 
-  if(
-    !Number.isFinite(ts)
-  ){
+
+  if (!ts){
     return 0;
   }
 
-  if(
+
+  if (
     ts < 100000000000
   ){
+
     ts *= 1000;
+
   }
 
-  return ts;
 
+  return ts;
 }
 
 
@@ -3533,66 +3282,64 @@ function getTradeTimeSeconds(
       trade
     );
 
-  if(
-    !ts
-  ){
+
+  if (!ts){
     return null;
   }
+
 
   const d =
     new Date(ts);
 
-  if(
-    Number.isNaN(
-      d.getTime()
-    )
-  ){
-    return null;
-  }
 
   return (
     d.getHours() * 3600 +
     d.getMinutes() * 60 +
     d.getSeconds()
   );
-
 }
 
 
-/* =========================================================
-   FILTER TRADES
-========================================================= */
+/* =========================
+   FILTER
+========================= */
 
 function filterTrades(
   trades,
-  filters
+  options
 ){
 
-  const from =
+  const {
+    fromTime,
+    toTime,
+    minPrice,
+    maxPrice
+  } =
+    options;
+
+
+  const fromSec =
     timeToSeconds(
-      filters.from
+      fromTime
     );
 
-  const to =
+
+  const toSec =
     timeToSeconds(
-      filters.to
+      toTime
     );
 
-  const minPrice =
-    filters.minPrice !== "" &&
-    filters.minPrice !== undefined
-      ? Number(
-          filters.minPrice
-        )
-      : null;
 
-  const maxPrice =
-    filters.maxPrice !== "" &&
-    filters.maxPrice !== undefined
-      ? Number(
-          filters.maxPrice
-        )
-      : null;
+  const min =
+    minPrice === ""
+      ? null
+      : num(minPrice);
+
+
+  const max =
+    maxPrice === ""
+      ? null
+      : num(maxPrice);
 
 
   return trades.filter(
@@ -3600,99 +3347,92 @@ function filterTrades(
 
       const price =
         num(
-          trade.price
+          trade?.price
         );
 
-      if(
-        minPrice !== null &&
-        Number.isFinite(minPrice) &&
-        price < minPrice
-      ){
-        return false;
-      }
 
-      if(
-        maxPrice !== null &&
-        Number.isFinite(maxPrice) &&
-        price > maxPrice
+      if (
+        min !== null &&
+        price < min
       ){
         return false;
       }
 
 
-      if(
-        from !== null ||
-        to !== null
+      if (
+        max !== null &&
+        price > max
+      ){
+        return false;
+      }
+
+
+      if (
+        fromSec === null &&
+        toSec === null
+      ){
+        return true;
+      }
+
+
+      const sec =
+        getTradeTimeSeconds(
+          trade
+        );
+
+
+      if (sec === null){
+        return false;
+      }
+
+
+      if (
+        fromSec !== null &&
+        toSec !== null
       ){
 
-        const seconds =
-          getTradeTimeSeconds(
-            trade
+        if (
+          fromSec <= toSec
+        ){
+
+          return (
+            sec >= fromSec &&
+            sec <= toSec
           );
 
-        if(
-          seconds === null
-        ){
-          return false;
         }
 
 
-        if(
-          from !== null &&
-          to !== null
-        ){
+        /*
+          بازه شبانه:
+          23:00 تا 02:00
+        */
 
-          if(
-            from <= to
-          ){
-
-            if(
-              seconds < from ||
-              seconds > to
-            ){
-              return false;
-            }
-
-          }else{
-
-            /*
-              بازه عبوری از نیمه‌شب
-              مثال:
-              23:00 تا 02:00
-            */
-
-            if(
-              seconds > to &&
-              seconds < from
-            ){
-              return false;
-            }
-
-          }
-
-        }else if(
-          from !== null
-        ){
-
-          if(
-            seconds < from
-          ){
-            return false;
-          }
-
-        }else if(
-          to !== null
-        ){
-
-          if(
-            seconds > to
-          ){
-            return false;
-          }
-
-        }
+        return (
+          sec >= fromSec ||
+          sec <= toSec
+        );
 
       }
+
+
+      if (
+        fromSec !== null
+      ){
+
+        return sec >= fromSec;
+
+      }
+
+
+      if (
+        toSec !== null
+      ){
+
+        return sec <= toSec;
+
+      }
+
 
       return true;
 
@@ -3702,9 +3442,9 @@ function filterTrades(
 }
 
 
-/* =========================================================
-   AGGREGATE TRADES BY PRICE
-========================================================= */
+/* =========================
+   AGGREGATE TRADES
+========================= */
 
 function aggregateTradesByPrice(
   trades
@@ -3714,51 +3454,35 @@ function aggregateTradesByPrice(
     new Map();
 
 
-  for(
-    const trade
-    of trades
+  for (
+    const trade of trades
   ){
 
     const price =
       num(
-        trade.price
+        trade?.price
       );
 
-    const size =
-      num(
-        trade.size ??
-        trade.qty
-      );
 
-    if(
-      price <= 0 ||
-      size <= 0
+    if (
+      !Number.isFinite(price) ||
+      price <= 0
     ){
       continue;
     }
 
 
     /*
-      مقدار هر معامله همیشه:
-      قیمت × حجم
-    */
-
-    const notional =
-      price * size;
-
-
-    /*
-      استفاده از String قیمت
-      برای نگه داشتن قیمت دقیق دریافتی
+      برای جلوگیری از مشکل
+      تبدیل عددی قیمت‌ها،
+      کلید قیمت با 12 رقم ساخته می‌شود.
     */
 
     const key =
-      String(
-        trade.price
-      );
+      price.toFixed(12);
 
 
-    if(
+    if (
       !map.has(key)
     ){
 
@@ -3786,141 +3510,625 @@ function aggregateTradesByPrice(
 
     const side =
       String(
-        trade.side ||
-        ""
+        trade?.side || ""
       ).toLowerCase();
 
 
-    if(
+    const size =
+      num(
+        trade?.size ??
+        trade?.qty
+      );
+
+
+    const notional =
+      tradeNotional(
+        trade
+      );
+
+
+    if (
       side === "buy"
     ){
 
       row.buyCount++;
-
-      row.buyVolume +=
-        size;
-
-      row.buyNotional +=
-        notional;
+      row.buyVolume += size;
+      row.buyNotional += notional;
 
     }else{
 
       row.sellCount++;
-
-      row.sellVolume +=
-        size;
-
-      row.sellNotional +=
-        notional;
+      row.sellVolume += size;
+      row.sellNotional += notional;
 
     }
 
   }
 
 
-  return Array.from(
-    map.values()
-  )
-  .map(
-    row => ({
+  return Array
+    .from(
+      map.values()
+    )
+    .map(
+      row => {
 
-      ...row,
+        const buyAvgVolume =
+          row.buyCount > 0
+            ? row.buyVolume /
+              row.buyCount
+            : 0;
 
-      deltaVolume:
-        row.buyVolume -
-        row.sellVolume,
 
-      deltaNotional:
-        row.buyNotional -
-        row.sellNotional
+        const sellAvgVolume =
+          row.sellCount > 0
+            ? row.sellVolume /
+              row.sellCount
+            : 0;
 
-    })
-  )
-  .sort(
-    (a,b) =>
-      b.price -
-      a.price
+
+        const buyAvgNotional =
+          row.buyCount > 0
+            ? row.buyNotional /
+              row.buyCount
+            : 0;
+
+
+        const sellAvgNotional =
+          row.sellCount > 0
+            ? row.sellNotional /
+              row.sellCount
+            : 0;
+
+
+        const deltaVolume =
+          row.buyVolume -
+          row.sellVolume;
+
+
+        const deltaNotional =
+          row.buyNotional -
+          row.sellNotional;
+
+
+        return {
+
+          ...row,
+
+          buyAvgVolume,
+          sellAvgVolume,
+
+          buyAvgNotional,
+          sellAvgNotional,
+
+          deltaVolume,
+          deltaNotional,
+
+          pressure:
+            deltaNotional > 0
+              ? "خرید"
+              : deltaNotional < 0
+                ? "فروش"
+                : "خنثی"
+
+        };
+
+      }
+    )
+    .sort(
+      (a,b) =>
+        b.price -
+        a.price
+    );
+
+}
+
+
+/* =========================
+   PRICE AGGREGATION HTML
+========================= */
+
+function buildPriceAggregationHtml(
+  rows
+){
+
+  if (!rows.length){
+
+    return `
+      <tr>
+        <td colspan="12">
+          معامله‌ای با این فیلتر پیدا نشد.
+        </td>
+      </tr>
+    `;
+
+  }
+
+
+  return rows
+    .map(
+      row => {
+
+        const deltaVolume =
+          row.deltaVolume;
+
+        const deltaNotional =
+          row.deltaNotional;
+
+
+        const pressureClass =
+          deltaNotional > 0
+            ? "delta-positive"
+            : deltaNotional < 0
+              ? "delta-negative"
+              : "delta-neutral";
+
+
+        return `
+
+          <tr>
+
+            <td
+              dir="ltr"
+              style="font-weight:bold"
+            >
+              ${fmt(
+                row.price,
+                12
+              )}
+            </td>
+
+
+            <td class="side-buy">
+              ${fmtInteger(
+                row.buyCount
+              )}
+            </td>
+
+
+            <td class="side-buy" dir="ltr">
+              ${fmt(
+                row.buyVolume,
+                8
+              )}
+            </td>
+
+
+            <td class="side-buy" dir="ltr">
+              ${fmtCompact(
+                row.buyNotional
+              )}
+            </td>
+
+
+            <td
+              class="avg-positive"
+              dir="ltr"
+            >
+              ${fmt(
+                row.buyAvgVolume,
+                8
+              )}
+              /
+              ${fmtCompact(
+                row.buyAvgNotional
+              )}
+            </td>
+
+
+            <td class="side-sell">
+              ${fmtInteger(
+                row.sellCount
+              )}
+            </td>
+
+
+            <td class="side-sell" dir="ltr">
+              ${fmt(
+                row.sellVolume,
+                8
+              )}
+            </td>
+
+
+            <td class="side-sell" dir="ltr">
+              ${fmtCompact(
+                row.sellNotional
+              )}
+            </td>
+
+
+            <td
+              class="avg-negative"
+              dir="ltr"
+            >
+              ${fmt(
+                row.sellAvgVolume,
+                8
+              )}
+              /
+              ${fmtCompact(
+                row.sellAvgNotional
+              )}
+            </td>
+
+
+            <td
+              class="${pressureClass}"
+              dir="ltr"
+            >
+              ${fmt(
+                deltaVolume,
+                8
+              )}
+            </td>
+
+
+            <td
+              class="${pressureClass}"
+              dir="ltr"
+            >
+              ${fmtCompact(
+                deltaNotional
+              )}
+            </td>
+
+
+            <td
+              class="${pressureClass}"
+            >
+              ${escapeHtml(
+                row.pressure
+              )}
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    )
+    .join("");
+
+}
+
+
+/* =========================
+   TRADE FILTER UI
+========================= */
+
+function attachTradeFilter(
+  deep,
+  allTrades
+){
+
+  const filter =
+    deep.querySelector(
+      ".js-trade-filter"
+    );
+
+
+  if (!filter){
+    return;
+  }
+
+
+  /*
+    جلوگیری از submit شدن ناخواسته
+    و جلوگیری از bubbling مشکلات
+    روی کنترل‌های فیلتر.
+  */
+
+  filter.addEventListener(
+    "pointerdown",
+    event => {
+
+      const target =
+        event.target;
+
+      if (
+        target instanceof
+        HTMLInputElement
+      ){
+
+        filterEditingCount++;
+
+      }
+
+      /*
+        این event را به document
+        نمی‌فرستیم.
+      */
+
+      event.stopPropagation();
+
+    },
+    true
+  );
+
+
+  filter.addEventListener(
+    "focusin",
+    event => {
+
+      if (
+        event.target instanceof
+        HTMLInputElement
+      ){
+
+        filterEditingCount++;
+
+      }
+
+    }
+  );
+
+
+  filter.addEventListener(
+    "focusout",
+    event => {
+
+      if (
+        event.target instanceof
+        HTMLInputElement
+      ){
+
+        setTimeout(
+          () => {
+
+            filterEditingCount =
+              Math.max(
+                0,
+                filterEditingCount - 1
+              );
+
+          },
+          300
+        );
+
+      }
+
+    }
+  );
+
+
+  const applyBtn =
+    filter.querySelector(
+      ".js-apply-filter"
+    );
+
+
+  const clearBtn =
+    filter.querySelector(
+      ".js-clear-filter"
+    );
+
+
+  function getValues(){
+
+    return {
+
+      fromTime:
+        filter.querySelector(
+          ".js-from-time"
+        ).value,
+
+      toTime:
+        filter.querySelector(
+          ".js-to-time"
+        ).value,
+
+      minPrice:
+        filter.querySelector(
+          ".js-min-price"
+        ).value,
+
+      maxPrice:
+        filter.querySelector(
+          ".js-max-price"
+        ).value
+
+    };
+
+  }
+
+
+  function apply(){
+
+    const values =
+      getValues();
+
+
+    const filtered =
+      filterTrades(
+        allTrades,
+        values
+      );
+
+
+    renderTradeFilterResult(
+      filter,
+      filtered,
+      allTrades,
+      values
+    );
+
+  }
+
+
+  applyBtn.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      apply();
+
+    }
+  );
+
+
+  clearBtn.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+
+      filter.querySelector(
+        ".js-from-time"
+      ).value = "";
+
+
+      filter.querySelector(
+        ".js-to-time"
+      ).value = "";
+
+
+      filter.querySelector(
+        ".js-min-price"
+      ).value = "";
+
+
+      filter.querySelector(
+        ".js-max-price"
+      ).value = "";
+
+
+      apply();
+
+    }
+  );
+
+
+  /*
+    Enter داخل ورودی‌ها:
+    اعمال فیلتر.
+  */
+
+  filter
+    .querySelectorAll(
+      "input"
+    )
+    .forEach(
+      input => {
+
+        input.addEventListener(
+          "keydown",
+          event => {
+
+            if (
+              event.key ===
+              "Enter"
+            ){
+
+              event.preventDefault();
+              apply();
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  /*
+    در ابتدا همه معاملات دریافت‌شده
+    Worker را تجمیع می‌کنیم.
+  */
+
+  renderTradeFilterResult(
+    filter,
+    allTrades,
+    allTrades,
+    {
+      fromTime:"",
+      toTime:"",
+      minPrice:"",
+      maxPrice:""
+    },
+    true
   );
 
 }
 
 
-/* =========================================================
-   UPDATE TRADE FILTER UI
-========================================================= */
+/* =========================
+   FILTER RESULT
+========================= */
 
-function updateTradeFilterUI(
-  wrapper,
+function renderTradeFilterResult(
+  filter,
   filtered,
-  allTrades
+  allTrades,
+  values,
+  initial = false
 ){
 
-  const rows =
-    aggregateTradesByPrice(
-      filtered
+  const buy =
+    filtered.filter(
+      t =>
+        String(
+          t?.side || ""
+        ).toLowerCase() ===
+        "buy"
     );
 
 
-  let buyCount = 0;
-  let buyVolume = 0;
-  let buyNotional = 0;
-
-  let sellCount = 0;
-  let sellVolume = 0;
-  let sellNotional = 0;
-
-
-  for(
-    const trade
-    of filtered
-  ){
-
-    const price =
-      num(
-        trade.price
-      );
-
-    const size =
-      num(
-        trade.size ??
-        trade.qty
-      );
-
-    const notional =
-      price * size;
-
-    const side =
-      String(
-        trade.side ||
-        ""
-      ).toLowerCase();
+  const sell =
+    filtered.filter(
+      t =>
+        String(
+          t?.side || ""
+        ).toLowerCase() !==
+        "buy"
+    );
 
 
-    if(
-      side === "buy"
-    ){
+  const buyVolume =
+    buy.reduce(
+      (sum,t) =>
+        sum +
+        num(
+          t?.size ??
+          t?.qty
+        ),
+      0
+    );
 
-      buyCount++;
 
-      buyVolume +=
-        size;
+  const sellVolume =
+    sell.reduce(
+      (sum,t) =>
+        sum +
+        num(
+          t?.size ??
+          t?.qty
+        ),
+      0
+    );
 
-      buyNotional +=
-        notional;
 
-    }else{
+  const buyNotional =
+    buy.reduce(
+      (sum,t) =>
+        sum +
+        tradeNotional(t),
+      0
+    );
 
-      sellCount++;
 
-      sellVolume +=
-        size;
-
-      sellNotional +=
-        notional;
-
-    }
-
-  }
+  const sellNotional =
+    sell.reduce(
+      (sum,t) =>
+        sum +
+        tradeNotional(t),
+      0
+    );
 
 
   const totalNotional =
@@ -3930,19 +4138,17 @@ function updateTradeFilterUI(
 
   const buyShare =
     totalNotional > 0
-      ? (
-          buyNotional /
-          totalNotional
-        ) * 100
+      ? buyNotional /
+        totalNotional *
+        100
       : 0;
 
 
   const sellShare =
     totalNotional > 0
-      ? (
-          sellNotional /
-          totalNotional
-        ) * 100
+      ? sellNotional /
+        totalNotional *
+        100
       : 0;
 
 
@@ -3956,370 +4162,656 @@ function updateTradeFilterUI(
     sellNotional;
 
 
-  function setSummary(
-    key,
-    value
-  ){
+  const pressure =
+    deltaNotional > 0
+      ? "خرید"
+      : deltaNotional < 0
+        ? "فروش"
+        : "خنثی";
 
-    const el =
-      wrapper.querySelector(
-        `[data-summary="${key}"]`
-      );
 
-    if(el){
+  const pressureClass =
+    deltaNotional > 0
+      ? "buy"
+      : deltaNotional < 0
+        ? "sell"
+        : "neutral";
+
+
+  const set =
+    (
+      selector,
+      value,
+      className
+    ) => {
+
+      const el =
+        filter.querySelector(
+          selector
+        );
+
+      if (!el){
+        return;
+      }
+
       el.textContent =
         value;
+
+      if (
+        className
+      ){
+
+        el.className =
+          className;
+
+      }
+
+    };
+
+
+  set(
+    ".js-buy-count",
+    fmtInteger(
+      buy.length
+    ),
+    "buy js-buy-count"
+  );
+
+
+  set(
+    ".js-buy-volume",
+    fmt(
+      buyVolume,
+      8
+    ),
+    "buy js-buy-volume"
+  );
+
+
+  set(
+    ".js-buy-notional",
+    fmtCompact(
+      buyNotional
+    ),
+    "buy js-buy-notional"
+  );
+
+
+  set(
+    ".js-sell-count",
+    fmtInteger(
+      sell.length
+    ),
+    "sell js-sell-count"
+  );
+
+
+  set(
+    ".js-sell-volume",
+    fmt(
+      sellVolume,
+      8
+    ),
+    "sell js-sell-volume"
+  );
+
+
+  set(
+    ".js-sell-notional",
+    fmtCompact(
+      sellNotional
+    ),
+    "sell js-sell-notional"
+  );
+
+
+  set(
+    ".js-buy-share",
+    pct(
+      buyShare
+    ),
+    "buy js-buy-share"
+  );
+
+
+  set(
+    ".js-sell-share",
+    pct(
+      sellShare
+    ),
+    "sell js-sell-share"
+  );
+
+
+  set(
+    ".js-delta-volume",
+    fmt(
+      deltaVolume,
+      8
+    ),
+    pressureClass +
+    " js-delta-volume"
+  );
+
+
+  set(
+    ".js-delta-notional",
+    fmtCompact(
+      deltaNotional
+    ),
+    pressureClass +
+    " js-delta-notional"
+  );
+
+
+  set(
+    ".js-filtered-count",
+    fmtInteger(
+      filtered.length
+    ),
+    "neutral js-filtered-count"
+  );
+
+
+  set(
+    ".js-pressure",
+    pressure,
+    pressureClass +
+    " js-pressure"
+  );
+
+
+  const note =
+    filter.querySelector(
+      ".js-filter-result"
+    );
+
+
+  if (note){
+
+    if (initial){
+
+      note.textContent =
+        `تمام ${fmtInteger(
+          allTrades.length
+        )} معامله دریافت‌شده از Worker در تجمیع زیر لحاظ شده است.`;
+
+    }else{
+
+      note.textContent =
+        `${fmtInteger(
+          filtered.length
+        )} معامله از مجموع ${fmtInteger(
+          allTrades.length
+        )} معامله دریافت‌شده با فیلتر فعلی انتخاب شد.`;
+
     }
 
   }
 
 
-  setSummary(
-    "buyCount",
-    formatNumber(
-      buyCount,
-      0
-    )
-  );
-
-  setSummary(
-    "buyVolume",
-    formatNumber(
-      buyVolume,
-      8
-    )
-  );
-
-  setSummary(
-    "buyNotional",
-    formatNumber(
-      buyNotional,
-      2
-    )
-  );
-
-  setSummary(
-    "buyShare",
-    pct(
-      buyShare
-    )
-  );
-
-
-  setSummary(
-    "sellCount",
-    formatNumber(
-      sellCount,
-      0
-    )
-  );
-
-  setSummary(
-    "sellVolume",
-    formatNumber(
-      sellVolume,
-      8
-    )
-  );
-
-  setSummary(
-    "sellNotional",
-    formatNumber(
-      sellNotional,
-      2
-    )
-  );
-
-  setSummary(
-    "sellShare",
-    pct(
-      sellShare
-    )
-  );
-
-
-  setSummary(
-    "deltaVolume",
-    formatNumber(
-      deltaVolume,
-      8
-    )
-  );
-
-  setSummary(
-    "deltaNotional",
-    formatNumber(
-      deltaNotional,
-      2
-    )
-  );
-
-
-  const result =
-    wrapper.querySelector(
-      '[data-field="filter-result"]'
-    );
-
-  if(result){
-
-    result.textContent =
-      `از ${formatNumber(
-        allTrades.length,
-        0
-      )} معامله دریافت‌شده، ` +
-      `${formatNumber(
-        filtered.length,
-        0
-      )} معامله انتخاب شده است ` +
-      `(${formatNumber(
-        buyCount,
-        0
-      )} خرید و ${formatNumber(
-        sellCount,
-        0
-      )} فروش)`;
-
-  }
-
-
-  const tbody =
-    wrapper.querySelector(
-      '[data-field="price-rows"]'
+  const rows =
+    aggregateTradesByPrice(
+      filtered
     );
 
 
-  let html = "";
-
-
-  for(
-    const row
-    of rows
-  ){
-
-    html += `
-
-      <tr>
-
-        <td>
-          <strong>
-            ${formatPrice(
-              row.price
-            )}
-          </strong>
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyCount,
-            0
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyVolume,
-            8
-          )}
-          </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyNotional,
-            2
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellCount,
-            0
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellVolume,
-            8
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellNotional,
-            2
-          )}
-        </td>
-
-        <td
-          class="${valueClass(
-            row.deltaVolume
-          )}"
-        >
-          ${formatNumber(
-            row.deltaVolume,
-            8
-          )}
-        </td>
-
-        <td
-          class="${valueClass(
-            row.deltaNotional
-          )}"
-        >
-          ${formatNumber(
-            row.deltaNotional,
-            2
-          )}
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  if(
-    !rows.length
-  ){
-
-    html = `
-
-      <tr>
-
-        <td colspan="9">
-
-          برای این فیلتر معامله‌ای پیدا نشد.
-
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  tbody.innerHTML =
-    html;
-
-
-  const total =
-    wrapper.querySelector(
-      '[data-field="price-total"]'
+  const body =
+    filter.querySelector(
+      ".js-price-body"
     );
 
 
-  let totalBuyCount = 0;
-  let totalBuyVolume = 0;
-  let totalBuyNotional = 0;
+  if (body){
 
-  let totalSellCount = 0;
-  let totalSellVolume = 0;
-  let totalSellNotional = 0;
+    /*
+      قبل از تغییر HTML
+      scrollLeft را ذخیره می‌کنیم.
+    */
+
+    const wrap =
+      filter.querySelector(
+        ".js-price-wrap"
+      );
 
 
-  for(
-    const row
-    of rows
+    const oldScroll =
+      wrap
+        ? wrap.scrollLeft
+        : 0;
+
+
+    body.innerHTML =
+      buildPriceAggregationHtml(
+        rows
+      );
+
+
+    /*
+      بعد از render همان موقعیت
+      افقی قبلی را برمی‌گردانیم.
+    */
+
+    if (wrap){
+
+      requestAnimationFrame(
+        () => {
+
+          wrap.scrollLeft =
+            oldScroll;
+
+        }
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================
+   ORDERBOOK AGGREGATION
+========================= */
+
+function aggregateOrderbookByPrice(
+  orderbook,
+  walls
+){
+
+  const map =
+    new Map();
+
+
+  const add =
+    (
+      price,
+      size,
+      side
+    ) => {
+
+      price =
+        num(price);
+
+      size =
+        num(size);
+
+
+      if (
+        price <= 0 ||
+        size <= 0
+      ){
+        return;
+      }
+
+
+      const key =
+        price.toFixed(12);
+
+
+      if (
+        !map.has(key)
+      ){
+
+        map.set(
+          key,
+          {
+            price,
+
+            buyCount:0,
+            buyVolume:0,
+            buyNotional:0,
+
+            sellCount:0,
+            sellVolume:0,
+            sellNotional:0
+          }
+        );
+
+      }
+
+
+      const row =
+        map.get(key);
+
+
+      const notional =
+        price * size;
+
+
+      if (
+        side === "BUY"
+      ){
+
+        row.buyCount++;
+        row.buyVolume += size;
+        row.buyNotional += notional;
+
+      }else{
+
+        row.sellCount++;
+        row.sellVolume += size;
+        row.sellNotional += notional;
+
+      }
+
+    };
+
+
+  /*
+    ترجیح با bids/asks کامل Worker است.
+    بنابراین تمام سطوح موجود Order Book
+    در تجمیع قابل استفاده‌اند.
+  */
+
+  for (
+    const bid of
+    orderbook?.bids || []
   ){
 
-    totalBuyCount +=
-      row.buyCount;
+    if (
+      Array.isArray(bid)
+    ){
 
-    totalBuyVolume +=
-      row.buyVolume;
+      add(
+        bid[0],
+        bid[1],
+        "BUY"
+      );
 
-    totalBuyNotional +=
-      row.buyNotional;
+    }else{
 
-    totalSellCount +=
-      row.sellCount;
+      add(
+        bid?.price,
+        bid?.size,
+        "BUY"
+      );
 
-    totalSellVolume +=
-      row.sellVolume;
-
-    totalSellNotional +=
-      row.sellNotional;
+    }
 
   }
 
 
-  const totalDeltaVolume =
-    totalBuyVolume -
-    totalSellVolume;
+  for (
+    const ask of
+    orderbook?.asks || []
+  ){
+
+    if (
+      Array.isArray(ask)
+    ){
+
+      add(
+        ask[0],
+        ask[1],
+        "SELL"
+      );
+
+    }else{
+
+      add(
+        ask?.price,
+        ask?.size,
+        "SELL"
+      );
+
+    }
+
+  }
 
 
-  const totalDeltaNotional =
-    totalBuyNotional -
-    totalSellNotional;
+  /*
+    اگر Worker در نسخه‌ای bids/asks را
+    حذف کرده باشد، از walls استفاده می‌کنیم.
+  */
+
+  if (
+    map.size === 0
+  ){
+
+    for (
+      const x of
+      walls?.buyWalls ||
+      walls?.buy ||
+      []
+    ){
+
+      add(
+        x?.price,
+        x?.size,
+        "BUY"
+      );
+
+    }
 
 
-  total.innerHTML = `
+    for (
+      const x of
+      walls?.sellWalls ||
+      walls?.sell ||
+      []
+    ){
 
-    <tr class="total-row">
+      add(
+        x?.price,
+        x?.size,
+        "SELL"
+      );
 
-      <td>
-        جمع کل
-      </td>
+    }
 
-      <td class="buy-data">
-        ${formatNumber(
-          totalBuyCount,
-          0
+  }
+
+
+  return Array
+    .from(
+      map.values()
+    )
+    .map(
+      row => {
+
+        const buyAvgVolume =
+          row.buyCount
+            ? row.buyVolume /
+              row.buyCount
+            : 0;
+
+
+        const sellAvgVolume =
+          row.sellCount
+            ? row.sellVolume /
+              row.sellCount
+            : 0;
+
+
+        const buyAvgNotional =
+          row.buyCount
+            ? row.buyNotional /
+              row.buyCount
+            : 0;
+
+
+        const sellAvgNotional =
+          row.sellCount
+            ? row.sellNotional /
+              row.sellCount
+            : 0;
+
+
+        const deltaVolume =
+          row.buyVolume -
+          row.sellVolume;
+
+
+        const deltaNotional =
+          row.buyNotional -
+          row.sellNotional;
+
+
+        return {
+
+          ...row,
+
+          buyAvgVolume,
+          sellAvgVolume,
+
+          buyAvgNotional,
+          sellAvgNotional,
+
+          deltaVolume,
+          deltaNotional,
+
+          pressure:
+            deltaNotional > 0
+              ? "خرید"
+              : deltaNotional < 0
+                ? "فروش"
+                : "خنثی"
+
+        };
+
+      }
+    )
+    .sort(
+      (a,b) =>
+        b.price -
+        a.price
+    );
+
+}
+
+
+/* =========================
+   ORDERBOOK ROW
+========================= */
+
+function renderOrderbookAggregateRow(
+  row
+){
+
+  const pressureClass =
+    row.deltaNotional > 0
+      ? "delta-positive"
+      : row.deltaNotional < 0
+        ? "delta-negative"
+        : "delta-neutral";
+
+
+  return `
+
+    <tr>
+
+      <td
+        dir="ltr"
+        style="font-weight:bold"
+      >
+        ${fmt(
+          row.price,
+          12
         )}
       </td>
 
-      <td class="buy-data">
-        ${formatNumber(
-          totalBuyVolume,
+
+      <td class="side-buy">
+        ${fmtInteger(
+          row.buyCount
+        )}
+      </td>
+
+
+      <td class="side-buy" dir="ltr">
+        ${fmt(
+          row.buyVolume,
           8
         )}
       </td>
 
-      <td class="buy-data">
-        ${formatNumber(
-          totalBuyNotional,
-          2
+
+      <td class="side-buy" dir="ltr">
+        ${fmtCompact(
+          row.buyNotional
         )}
       </td>
 
-      <td class="sell-data">
-        ${formatNumber(
-          totalSellCount,
-          0
+
+      <td
+        class="avg-positive"
+        dir="ltr"
+      >
+        ${fmt(
+          row.buyAvgVolume,
+          8
+        )}
+        /
+        ${fmtCompact(
+          row.buyAvgNotional
         )}
       </td>
 
-      <td class="sell-data">
-        ${formatNumber(
-          totalSellVolume,
+
+      <td class="side-sell">
+        ${fmtInteger(
+          row.sellCount
+        )}
+      </td>
+
+
+      <td class="side-sell" dir="ltr">
+        ${fmt(
+          row.sellVolume,
           8
         )}
       </td>
 
-      <td class="sell-data">
-        ${formatNumber(
-          totalSellNotional,
-          2
+
+      <td class="side-sell" dir="ltr">
+        ${fmtCompact(
+          row.sellNotional
         )}
       </td>
 
-      <td class="${valueClass(
-        totalDeltaVolume
-      )}">
-        ${formatNumber(
-          totalDeltaVolume,
+
+      <td
+        class="avg-negative"
+        dir="ltr"
+      >
+        ${fmt(
+          row.sellAvgVolume,
+          8
+        )}
+        /
+        ${fmtCompact(
+          row.sellAvgNotional
+        )}
+      </td>
+
+
+      <td
+        class="${pressureClass}"
+        dir="ltr"
+      >
+        ${fmt(
+          row.deltaVolume,
           8
         )}
       </td>
 
-      <td class="${valueClass(
-        totalDeltaNotional
-      )}">
-        ${formatNumber(
-          totalDeltaNotional,
-          2
+
+      <td
+        class="${pressureClass}"
+        dir="ltr"
+      >
+        ${fmtCompact(
+          row.deltaNotional
+        )}
+      </td>
+
+
+      <td
+        class="${pressureClass}"
+      >
+        ${escapeHtml(
+          row.pressure
         )}
       </td>
 
@@ -4330,566 +4822,72 @@ function updateTradeFilterUI(
 }
 
 
-/* =========================================================
-   ORDERBOOK AGGREGATION
-========================================================= */
+/* =========================
+   TABLE SCROLL PROTECTION
+========================= */
 
-function aggregateOrderbook(
-  orderbook
+function preserveTableScroll(
+  root,
+  callback
 ){
 
-  const map =
-    new Map();
+  if (!root){
+    callback();
+    return;
+  }
 
 
-  function add(
-    price,
-    size,
-    side
-  ){
-
-    price =
-      num(price);
-
-    size =
-      num(size);
+  const wraps =
+    root.querySelectorAll(
+      ".table-wrap"
+    );
 
 
-    if(
-      price <= 0 ||
-      size <= 0
-    ){
-      return;
+  const positions =
+    [];
+
+
+  wraps.forEach(
+    wrap => {
+
+      positions.push({
+        wrap,
+        left:
+          wrap.scrollLeft,
+        top:
+          wrap.scrollTop
+      });
+
     }
+  );
 
 
-    const key =
-      String(
-        price
-      );
+  callback();
 
 
-    if(
-      !map.has(key)
-    ){
+  requestAnimationFrame(
+    () => {
 
-      map.set(
-        key,
-        {
+      positions.forEach(
+        p => {
 
-          price,
+          if (
+            p.wrap.isConnected
+          ){
 
-          buyCount:0,
-          buyVolume:0,
-          buyNotional:0,
+            p.wrap.scrollLeft =
+              p.left;
 
-          sellCount:0,
-          sellVolume:0,
-          sellNotional:0
+            p.wrap.scrollTop =
+              p.top;
+
+          }
 
         }
       );
 
     }
-
-
-    const row =
-      map.get(key);
-
-
-    const notional =
-      price * size;
-
-
-    if(
-      side === "BUY"
-    ){
-
-      row.buyCount++;
-
-      row.buyVolume +=
-        size;
-
-      row.buyNotional +=
-        notional;
-
-    }else{
-
-      row.sellCount++;
-
-      row.sellVolume +=
-        size;
-
-      row.sellNotional +=
-        notional;
-
-    }
-
-  }
-
-
-  for(
-    const level
-    of orderbook?.bids || []
-  ){
-
-    add(
-      level.price ??
-      level[0],
-
-      level.size ??
-      level[1],
-
-      "BUY"
-    );
-
-  }
-
-
-  for(
-    const level
-    of orderbook?.asks || []
-  ){
-
-    add(
-      level.price ??
-      level[0],
-
-      level.size ??
-      level[1],
-
-      "SELL"
-    );
-
-  }
-
-
-  return Array.from(
-    map.values()
-  )
-  .map(
-    row => {
-
-      const totalBuyCount =
-        row.buyCount;
-
-      const totalSellCount =
-        row.sellCount;
-
-
-      const averageBuyVolume =
-        totalBuyCount > 0
-          ? row.buyVolume /
-            totalBuyCount
-          : 0;
-
-
-      const averageSellVolume =
-        totalSellCount > 0
-          ? row.sellVolume /
-            totalSellCount
-          : 0;
-
-
-      const averageBuyNotional =
-        totalBuyCount > 0
-          ? row.buyNotional /
-            totalBuyCount
-          : 0;
-
-
-      const averageSellNotional =
-        totalSellCount > 0
-          ? row.sellNotional /
-            totalSellCount
-          : 0;
-
-
-      return {
-
-        ...row,
-
-        averageBuyVolume,
-
-        averageSellVolume,
-
-        averageBuyNotional,
-
-        averageSellNotional,
-
-        deltaVolume:
-          row.buyVolume -
-          row.sellVolume,
-
-        deltaNotional:
-          row.buyNotional -
-          row.sellNotional
-
-      };
-
-    }
-  )
-  .sort(
-    (a,b) =>
-      b.price -
-      a.price
   );
-
-}
-
-
-/* =========================================================
-   ORDERBOOK AGGREGATION HTML
-========================================================= */
-
-function buildOrderbookAggregationHtml(
-  orderbook
-){
-
-  const rows =
-    aggregateOrderbook(
-      orderbook
-    );
-
-
-  let html = `
-
-    <div class="section">
-
-      <h3>
-        📚 تجمیع سفارشات بر اساس قیمت
-      </h3>
-
-      <div class="filter-note">
-        در این جدول تمام سطوح Bid و Ask دریافتی از Orderbook
-        بر اساس قیمت کنار هم قرار گرفته‌اند.
-        حجم هر سطح = قیمت × حجم برای ارزش معامله.
-        میانگین حجم نیز بر اساس Levelهای موجود محاسبه شده است.
-      </div>
-
-      <div class="table-wrap">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                قیمت
-              </th>
-
-              <th class="buy-data">
-                تعداد خرید
-              </th>
-
-              <th class="buy-data">
-                حجم خرید
-              </th>
-
-              <th class="buy-data">
-                میانگین حجم خرید
-              </th>
-
-              <th class="buy-data">
-                ارزش خرید
-              </th>
-
-              <th class="sell-data">
-                تعداد فروش
-              </th>
-
-              <th class="sell-data">
-                حجم فروش
-              </th>
-
-              <th class="sell-data">
-                میانگین حجم فروش
-              </th>
-
-              <th class="sell-data">
-                ارزش فروش
-              </th>
-
-              <th>
-                Delta حجم
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-  `;
-
-
-  for(
-    const row
-    of rows
-  ){
-
-    html += `
-
-      <tr>
-
-        <td>
-          <strong>
-            ${formatPrice(
-              row.price
-            )}
-          </strong>
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyCount,
-            0
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyVolume,
-            8
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.averageBuyVolume,
-            8
-          )}
-        </td>
-
-        <td class="buy-data">
-          ${formatNumber(
-            row.buyNotional,
-            2
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellCount,
-            0
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellVolume,
-            8
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.averageSellVolume,
-            8
-          )}
-        </td>
-
-        <td class="sell-data">
-          ${formatNumber(
-            row.sellNotional,
-            2
-          )}
-        </td>
-
-        <td
-          class="${valueClass(
-            row.deltaVolume
-          )}"
-        >
-          ${formatNumber(
-            row.deltaVolume,
-            8
-          )}
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  if(
-    !rows.length
-  ){
-
-    html += `
-
-      <tr>
-
-        <td colspan="10">
-
-          اطلاعات Orderbook دریافت نشده است.
-
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-
-  html += `
-
-          </tbody>
-
-  `;
-
-
-  if(
-    rows.length
-  ){
-
-    let buyCount = 0;
-    let buyVolume = 0;
-    let buyNotional = 0;
-
-    let sellCount = 0;
-    let sellVolume = 0;
-    let sellNotional = 0;
-
-
-    for(
-      const row
-      of rows
-    ){
-
-      buyCount +=
-        row.buyCount;
-
-      buyVolume +=
-        row.buyVolume;
-
-      buyNotional +=
-        row.buyNotional;
-
-      sellCount +=
-        row.sellCount;
-
-      sellVolume +=
-        row.sellVolume;
-
-      sellNotional +=
-        row.sellNotional;
-
-    }
-
-
-    html += `
-
-      <tfoot>
-
-        <tr class="total-row">
-
-          <td>
-            جمع
-          </td>
-
-          <td class="buy-data">
-            ${formatNumber(
-              buyCount,
-              0
-            )}
-          </td>
-
-          <td class="buy-data">
-            ${formatNumber(
-              buyVolume,
-              8
-            )}
-          </td>
-
-          <td class="buy-data">
-            ${
-              buyCount > 0
-                ? formatNumber(
-                    buyVolume /
-                    buyCount,
-                    8
-                  )
-                : "0"
-            }
-          </td>
-
-          <td class="buy-data">
-            ${formatNumber(
-              buyNotional,
-              2
-            )}
-          </td>
-
-          <td class="sell-data">
-            ${formatNumber(
-              sellCount,
-              0
-            )}
-          </td>
-
-          <td class="sell-data">
-            ${formatNumber(
-              sellVolume,
-              8
-            )}
-          </td>
-
-          <td class="sell-data">
-            ${
-              sellCount > 0
-                ? formatNumber(
-                    sellVolume /
-                    sellCount,
-                    8
-                  )
-                : "0"
-            }
-          </td>
-
-          <td class="sell-data">
-            ${formatNumber(
-              sellNotional,
-              2
-            )}
-          </td>
-
-          <td class="${valueClass(
-            buyVolume -
-            sellVolume
-          )}">
-            ${formatNumber(
-              buyVolume -
-              sellVolume,
-              8
-            )}
-          </td>
-
-        </tr>
-
-      </tfoot>
-
-    `;
-
-  }
-
-
-  html += `
-
-        </table>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  return html;
 
 }
 
@@ -4910,39 +4908,9 @@ function startLive(
 
   const timer =
     setInterval(
-      async () => {
+      () => {
 
-        if(
-          closedCoins.has(
-            symbol
-          )
-        ){
-
-          stopLive(
-            symbol
-          );
-
-          return;
-
-        }
-
-
-        if(
-          !document.body.contains(
-            card
-          )
-        ){
-
-          stopLive(
-            symbol
-          );
-
-          return;
-
-        }
-
-
-        await refreshLive(
+        refreshLive(
           symbol,
           card
         );
@@ -4957,28 +4925,10 @@ function startLive(
     timer
   );
 
-}
 
-
-function stopLive(
-  symbol
-){
-
-  const timer =
-    liveTimers.get(
-      symbol
-    );
-
-  if(timer){
-
-    clearInterval(
-      timer
-    );
-
-  }
-
-  liveTimers.delete(
-    symbol
+  refreshLive(
+    symbol,
+    card
   );
 
 }
@@ -4988,6 +4938,41 @@ async function refreshLive(
   symbol,
   card
 ){
+
+  if (
+    closedCoins.has(
+      symbol
+    )
+  ){
+
+    stopLive(
+      symbol
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !document.body.contains(
+      card
+    )
+  ){
+
+    stopLive(
+      symbol
+    );
+
+    return;
+
+  }
+
+
+  /*
+    اگر کاربر در حال انتخاب زمان/قیمت است،
+    به هیچ وجه بخش فیلتر را بازسازی نمی‌کنیم.
+  */
 
   try{
 
@@ -5004,66 +4989,65 @@ async function refreshLive(
       );
 
 
-    if(!res.ok){
-      return;
-    }
-
-
     const data =
       await res.json();
 
 
-    if(
-      !data.ok
+    if (
+      !res.ok ||
+      !data?.ok
     ){
       return;
     }
 
 
     updateCard(
-      card,
-      data
+      data,
+      card
     );
 
 
     maybeAlert(
       symbol,
-      data.state
+      data?.state ||
+      data?.currentState?.state
     );
 
 
-    updateStats();
-
-
     /*
-      تحلیل عمیق باز است.
-      در هر بروزرسانی زنده، جدول‌های
-      معاملات و Orderbook نیز تازه می‌شوند.
+      نکته مهم:
+      اینجا innerHTML روی deep زده نمی‌شود.
+      بنابراین جدول‌ها، فیلترها و موقعیت اسکرول
+      دست‌نخورده باقی می‌مانند.
     */
 
-    const deep =
-      card.querySelector(
-        '[data-field="deep"]'
-      );
-
-
-    if(
-      deep &&
-      !deep.hidden
+    if (
+      filterEditingCount <= 0
     ){
 
-      const scroll =
-        deep.scrollTop;
-
-      deep.innerHTML =
-        buildDeepHtml(
-          data
+      const deep =
+        card.querySelector(
+          ".js-deep-container"
         );
 
-      deep.scrollTop =
-        scroll;
+
+      /*
+        فقط اگر جدول عمیق وجود ندارد
+        کاری انجام نمی‌دهیم.
+        اطلاعات Deep قبلی عمداً حفظ می‌شود.
+      */
+
+      if (deep){
+        deep.dataset.lastLive =
+          String(
+            Date.now()
+          );
+      }
 
     }
+
+
+    updateStats();
 
   }catch{}
 
@@ -5074,58 +5058,51 @@ async function refreshLive(
    SCAN
 ========================= */
 
-async function runScan(){
-
-  if(
-    !scanning
-  ){
-    return;
-  }
-
-
-  const scanState =
-    document.getElementById(
-      "scanState"
-    );
-
-  scanState.textContent =
-    "در حال اسکن";
-
+async function scanOnce(){
 
   try{
 
     const res =
       await fetch(
-        WORKER + "/scan",
+        WORKER +
+        "/scan",
         {
           cache:"no-store"
         }
       );
 
 
-    if(!res.ok){
+    const data =
+      await res.json();
+
+
+    if (
+      !res.ok ||
+      !data?.ok
+    ){
 
       throw new Error(
-        "HTTP " +
-        res.status
+        data?.error ||
+        "Scan failed"
       );
 
     }
 
 
-    const data =
-      await res.json();
-
-
     const items =
-      Array.isArray(data)
-        ? data
-        : (
-            data.results ||
-            data.items ||
-            data.data ||
-            []
-          );
+      Array.isArray(
+        data?.results
+      )
+        ? data.results
+        : Array.isArray(
+            data
+          )
+          ? data
+          : Array.isArray(
+              data?.items
+            )
+            ? data.items
+            : [];
 
 
     renderResults(
@@ -5133,16 +5110,12 @@ async function runScan(){
     );
 
 
-    scanState.textContent =
-      scanning
-        ? "فعال"
-        : "متوقف";
-
-
   }catch(error){
 
-    scanState.textContent =
-      "خطا";
+    console.error(
+      "Scan error:",
+      error
+    );
 
   }
 
@@ -5151,43 +5124,25 @@ async function runScan(){
 
 function startScan(){
 
-  if(
-    scanning
-  ){
+  if (scanning){
     return;
   }
-
-
-  unlockAudio();
 
 
   scanning = true;
 
 
-  document.getElementById(
-    "startScan"
-  ).disabled =
-    true;
-
-
-  document.getElementById(
-    "stopScan"
-  ).disabled =
-    false;
-
-
-  document.getElementById(
-    "scanState"
-  ).textContent =
+  $("scanState")
+    .textContent =
     "فعال";
 
 
-  runScan();
+  scanOnce();
 
 
   scanTimer =
     setInterval(
-      runScan,
+      scanOnce,
       SCAN_INTERVAL
     );
 
@@ -5196,13 +5151,10 @@ function startScan(){
 
 function stopScan(){
 
-  scanning =
-    false;
+  scanning = false;
 
 
-  if(
-    scanTimer
-  ){
+  if (scanTimer){
 
     clearInterval(
       scanTimer
@@ -5214,131 +5166,106 @@ function stopScan(){
   }
 
 
-  document.getElementById(
-    "startScan"
-  ).disabled =
-    false;
-
-
-  document.getElementById(
-    "stopScan"
-  ).disabled =
-    true;
-
-
-  document.getElementById(
-    "scanState"
-  ).textContent =
+  $("scanState")
+    .textContent =
     "متوقف";
 
 }
 
 
+$("startScan")
+  .addEventListener(
+    "click",
+    startScan
+  );
+
+
+$("stopScan")
+  .addEventListener(
+    "click",
+    stopScan
+  );
+
+
 /* =========================
-   MANUAL ANALYSIS
+   MANUAL
 ========================= */
 
 async function manualAnalyze(){
 
-  let symbol =
-    document.getElementById(
-      "symbolInput"
-    ).value
-      .trim()
-      .toUpperCase();
+  const input =
+    $("symbolInput");
 
 
-  if(!symbol){
+  const symbol =
+    String(
+      input.value || ""
+    )
+    .trim()
+    .toUpperCase();
+
+
+  if (!symbol){
     return;
   }
 
 
-  if(
-    !symbol.endsWith(
-      "USDT"
-    )
-  ){
+  const clean =
+    symbol
+      .replace(
+        /[^A-Z0-9]/g,
+        ""
+      );
 
-    symbol +=
-      "USDT";
 
+  if (!clean){
+    return;
   }
 
 
   closedCoins.delete(
-    symbol
+    clean
   );
 
 
   let card =
     cards.get(
-      symbol
+      clean
     );
 
 
-  if(!card){
+  if (!card){
 
     card =
       createCard({
-
-        symbol,
-
-        category:
-          "در حال شناسایی",
-
+        symbol:clean,
         price:0,
-
-        pump:{
-          pumpPercent:0,
-          volumeMultiplier:0,
-          score:0
-        },
-
-        setup:{
-          pullbackPercent:0,
-          zoneLow:0,
-          zoneHigh:0,
-          zonePrice:0,
-          state:"WAITING"
-        },
-
         state:"WAITING"
-
       });
 
 
     cards.set(
-      symbol,
+      clean,
       card
     );
 
 
-    const results =
-      document.getElementById(
-        "results"
+    $("results")
+      .appendChild(
+        card
       );
-
-
-    const empty =
-      results.querySelector(
-        ".empty"
-      );
-
-
-    if(empty){
-      empty.remove();
-    }
-
-
-    results.prepend(
-      card
-    );
 
   }
 
 
+  $("emptyState")
+    .classList.add(
+      "hidden"
+    );
+
+
   await openDeep(
-    symbol,
+    clean,
     card
   );
 
@@ -5348,126 +5275,210 @@ async function manualAnalyze(){
 }
 
 
+$("analyzeBtn")
+  .addEventListener(
+    "click",
+    manualAnalyze
+  );
+
+
+$("symbolInput")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key ===
+        "Enter"
+      ){
+
+        event.preventDefault();
+
+        manualAnalyze();
+
+      }
+
+    }
+  );
+
+
 /* =========================
    STATS
 ========================= */
 
 function updateStats(){
 
-  document.getElementById(
-    "resultCount"
-  ).textContent =
-    cards.size;
-
-
   let reached = 0;
+
   let near = 0;
 
 
-  for(
-    const card
-    of cards.values()
-  ){
+  cards.forEach(
+    card => {
 
-    const badge =
-      card.querySelector(
-        '[data-field="state"]'
+      const badge =
+        card.querySelector(
+          ".js-state"
+        );
+
+
+      const text =
+        badge?.textContent ||
+        "";
+
+
+      if (
+        text.includes(
+          "وارد ناحیه"
+        )
+      ){
+
+        reached++;
+
+      }
+
+
+      if (
+        text.includes(
+          "نزدیک ناحیه"
+        )
+      ){
+
+        near++;
+
+      }
+
+    }
+  );
+
+
+  $("resultCount")
+    .textContent =
+    cards.size
+      .toLocaleString(
+        "fa-IR"
       );
 
 
-    const text =
-      badge?.textContent ||
-      "";
+  $("reachedCount")
+    .textContent =
+    reached.toLocaleString(
+      "fa-IR"
+    );
 
 
-    if(
-      text.includes(
-        "وارد ناحیه"
-      )
-    ){
-
-      reached++;
-
-    }
-
-
-    if(
-      text.includes(
-        "نزدیک ناحیه"
-      )
-    ){
-
-      near++;
-
-    }
-
-  }
-
-
-  document.getElementById(
-    "reachedCount"
-  ).textContent =
-    reached;
-
-
-  document.getElementById(
-    "nearCount"
-  ).textContent =
-    near;
+  $("nearCount")
+    .textContent =
+    near.toLocaleString(
+      "fa-IR"
+    );
 
 }
 
 
 /* =========================
-   EVENTS
+   GLOBAL TABLE SCROLL MEMORY
 ========================= */
 
-document.getElementById(
-  "startScan"
-).addEventListener(
-  "click",
-  startScan
-);
-
-
-document.getElementById(
-  "stopScan"
-).addEventListener(
-  "click",
-  stopScan
-);
-
-
-document.getElementById(
-  "analyzeBtn"
-).addEventListener(
-  "click",
-  manualAnalyze
-);
-
-
-document.getElementById(
-  "symbolInput"
-).addEventListener(
-  "keydown",
-  event => {
-
-    if(
-      event.key ===
-      "Enter"
-    ){
-
-      manualAnalyze();
-
-    }
-
+document.addEventListener(
+  "scroll",
+  () => {},
+  {
+    passive:true
   }
 );
 
 
+/*
+  وقتی کاربر روی جدول است،
+  هیچ event عمومی باعث reset شدن
+  موقعیت افقی نمی‌شود.
+*/
+
+document.addEventListener(
+  "pointerdown",
+  event => {
+
+    const wrap =
+      event.target.closest(
+        ".table-wrap"
+      );
+
+
+    if (!wrap){
+      return;
+    }
+
+
+    tableScrollPositions.set(
+      wrap,
+      {
+        left:
+          wrap.scrollLeft,
+        top:
+          wrap.scrollTop
+      }
+    );
+
+  },
+  true
+);
+
+
+document.addEventListener(
+  "pointerup",
+  event => {
+
+    const wrap =
+      event.target.closest(
+        ".table-wrap"
+      );
+
+
+    if (!wrap){
+      return;
+    }
+
+
+    const position =
+      tableScrollPositions.get(
+        wrap
+      );
+
+
+    if (!position){
+      return;
+    }
+
+
+    requestAnimationFrame(
+      () => {
+
+        if (
+          wrap.isConnected
+        ){
+
+          wrap.scrollLeft =
+            position.left;
+
+          wrap.scrollTop =
+            position.top;
+
+        }
+
+      }
+    );
+
+  },
+  true
+);
+
+
 /* =========================
-   INIT
+   STARTUP
 ========================= */
+
+updateVolumeText();
 
 updateStats();
 
