@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html><html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pump Scanner — Bybit PPR V3</title>
-
-<style>
+<title>Pump Scanner — Bybit PPR V7</title><style>
 *{box-sizing:border-box}
 
 body{
@@ -40,11 +37,27 @@ h1{
 
 .status{
   margin-top:15px;
-  padding:12px 14px;
+  padding:13px 14px;
   background:#0a101b;
   border:1px solid #263348;
   border-radius:12px;
-  color:#aab6c8
+  color:#aab6c8;
+  line-height:1.8
+}
+
+.status.loading{
+  border-color:#2563eb;
+  color:#93c5fd
+}
+
+.status.success{
+  border-color:#15803d;
+  color:#86efac
+}
+
+.status.error{
+  border-color:#991b1b;
+  color:#fca5a5
 }
 
 .controls{
@@ -66,6 +79,11 @@ button{
 
 button:hover{
   opacity:.88
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed
 }
 
 button.stop{
@@ -129,15 +147,24 @@ button.active{
 
 .card.reached{
   border-color:#16a34a;
-  box-shadow:0 0 25px rgba(22,163,74,.08)
+  box-shadow:0 0 25px rgba(22,163,74,.12)
 }
 
 .card.near{
-  border-color:#eab308
+  border-color:#eab308;
+  box-shadow:0 0 25px rgba(234,179,8,.08)
 }
 
 .card.approaching{
   border-color:#3b82f6
+}
+
+.card.below{
+  border-color:#52525b
+}
+
+.card.invalid{
+  border-color:#991b1b
 }
 
 .top{
@@ -234,6 +261,32 @@ button.active{
   font-weight:bold
 }
 
+.progress{
+  margin-top:13px;
+  height:8px;
+  background:#182232;
+  border-radius:999px;
+  overflow:hidden
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  transition:width .4s ease
+}
+
+.progress.approaching .progress-bar{
+  background:#3b82f6
+}
+
+.progress.near .progress-bar{
+  background:#eab308
+}
+
+.progress.reached .progress-bar{
+  background:#16a34a
+}
+
 .message{
   text-align:center;
   padding:35px 15px;
@@ -242,6 +295,20 @@ button.active{
   border:1px dashed #29364a;
   border-radius:18px;
   line-height:2
+}
+
+.scan-info{
+  background:#0d1420;
+  border:1px solid #222e41;
+  border-radius:15px;
+  padding:13px 15px;
+  margin-bottom:14px;
+  color:#94a3b8;
+  line-height:2
+}
+
+.scan-info b{
+  color:#e2e8f0
 }
 
 .last{
@@ -263,113 +330,93 @@ button.active{
   h1{font-size:22px}
   .symbol{font-size:19px}
   .price{font-size:22px}
+  button{
+    width:100%
+  }
 }
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<header>
-
-  <h1>🚀 Pump Scanner — Bybit</h1>
-
-  <div class="subtitle">
+</style></head><body><div class="container"><header>  <h1>🚀 Pump Scanner — Bybit</h1>  <div class="subtitle">
     شناسایی ساختار واقعی بازار:
     <b>PUMP → RED CANDLE → PULLBACK ZONE → RETEST</b>
     <br>
-    تایم‌فریم: <b>15M</b> · منبع: <b>Bybit</b>
-  </div>
+    تایم‌فریم: <b>15M</b> · منبع: <b>Bybit</b> · نسخه: <b>V7</b>
+  </div>  <div id="status" class="status">
+    🟡 در حال اتصال به Worker...
+  </div>  <div class="controls"><button
+  id="autoBtn"
+  onclick="toggleAuto()"
+>
+  ▶️ شروع اسکن خودکار
+</button>
 
-  <div id="status" class="status">
-    🟡 در حال اتصال...
-  </div>
+<button
+  id="scanBtn"
+  onclick="scanNow()"
+>
+  🔎 اسکن همین الان
+</button>
 
-  <div class="controls">
+<button
+  class="test"
+  onclick="testSound()"
+>
+  🔊 تست صدا
+</button>
 
-    <button id="autoBtn" onclick="toggleAuto()">
-      ▶️ شروع اسکن خودکار
-    </button>
+<button
+  class="stop"
+  onclick="stopAuto()"
+>
+  ⏹ توقف
+</button>
 
-    <button onclick="scanNow()">
-      🔎 اسکن همین الان
-    </button>
-
-    <button class="test" onclick="testSound()">
-      🔊 تست صدا
-    </button>
-
-    <button class="stop" onclick="stopAuto()">
-      ⏹ توقف
-    </button>
-
-  </div>
-
-  <div class="stats">
-
-    <div class="stat">
-      <div class="label">ارزهای اسکن‌شده</div>
-      <div id="scanned" class="num">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">Pump Setup</div>
-      <div id="setups" class="num">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">REACHED 🔥</div>
-      <div id="signals" class="num">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">NEAR 🟡</div>
-      <div id="near" class="num">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">APPROACHING 🔵</div>
-      <div id="approaching" class="num">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">INVALID</div>
-      <div id="invalid" class="num">0</div>
-    </div>
-
-  </div>
-
-</header>
-
-
-<div class="section">
-
-  <div class="section-title">
-    🎯 Pumpهای معتبر
-  </div>
-
-  <div id="results" class="results">
-
-    <div class="message">
-      برای شروع، «شروع اسکن خودکار» را بزن.
-    </div>
-
-  </div>
-
-  <div id="lastScan" class="last"></div>
-
+  </div>  <div class="stats"><div class="stat">
+  <div class="label">ارزهای اسکن‌شده</div>
+  <div id="scanned" class="num">0</div>
 </div>
 
-
-<div class="footer">
-  PUMP-SCANNER-BYBIT-PPR-V3
+<div class="stat">
+  <div class="label">Pump Candidate</div>
+  <div id="candidates" class="num">0</div>
 </div>
 
+<div class="stat">
+  <div class="label">Pump Setup</div>
+  <div id="setups" class="num">0</div>
 </div>
 
+<div class="stat">
+  <div class="label">REACHED 🔥</div>
+  <div id="signals" class="num">0</div>
+</div>
 
-<script>
+<div class="stat">
+  <div class="label">NEAR 🟡</div>
+  <div id="near" class="num">0</div>
+</div>
+
+<div class="stat">
+  <div class="label">APPROACHING 🔵</div>
+  <div id="approaching" class="num">0</div>
+</div>
+
+<div class="stat">
+  <div class="label">INVALID</div>
+  <div id="invalid" class="num">0</div>
+</div>
+
+  </div></header><div class="section">  <div class="section-title">
+    🎯 نتایج اسکن
+  </div>  <div id="scanInfo" class="scan-info">
+    هنوز اسکن انجام نشده است.
+  </div>  <div id="results" class="results"><div class="message">
+  🔎 برای شروع روی
+  <b>«اسکن همین الان»</b>
+  بزن.
+</div>
+
+  </div>  <div id="lastScan" class="last"></div></div><div class="footer">
+  PUMP-SCANNER-BYBIT-PPR-V7
+</div></div><script>
 
 /* =========================================================
    WORKER
@@ -383,8 +430,7 @@ const WORKER =
    CONFIG
 ========================================================= */
 
-const SCAN_INTERVAL =
-  45000;
+const SCAN_INTERVAL = 45000;
 
 
 /* =========================================================
@@ -394,7 +440,6 @@ const SCAN_INTERVAL =
 let autoRunning = false;
 let scanBusy = false;
 let timer = null;
-
 let audioContext = null;
 
 const alertedSignals =
@@ -450,13 +495,40 @@ function dateTime(value){
 
   if(!value) return "-";
 
-  return new Date(value).toLocaleString(
-    "fa-IR",
-    {
-      dateStyle:"short",
-      timeStyle:"short"
-    }
-  );
+  try{
+
+    return new Date(value).toLocaleString(
+      "fa-IR",
+      {
+        dateStyle:"short",
+        timeStyle:"short"
+      }
+    );
+
+  }catch{
+
+    return "-";
+  }
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setStatus(
+  text,
+  type=""
+){
+
+  const el =
+    $("status");
+
+  el.textContent =
+    text;
+
+  el.className =
+    "status " + type;
 }
 
 
@@ -481,6 +553,7 @@ function getAudio(){
   if(
     audioContext.state === "suspended"
   ){
+
     audioContext.resume();
   }
 
@@ -548,16 +621,17 @@ function beep(
 
 function alertSignal(item){
 
-  const id =
-    item.id;
+  if(!item || !item.id){
+    return;
+  }
 
   if(
-    alertedSignals.has(id)
+    alertedSignals.has(item.id)
   ){
     return;
   }
 
-  alertedSignals.add(id);
+  alertedSignals.add(item.id);
 
   beep(880,.20,0);
   beep(1100,.20,.25);
@@ -568,13 +642,17 @@ function alertSignal(item){
     Notification.permission === "granted"
   ){
 
-    new Notification(
-      "🔥 Pump Scanner",
-      {
-        body:
-          `${item.symbol} به Pullback Zone رسید`
-      }
-    );
+    try{
+
+      new Notification(
+        "🔥 Pump Scanner",
+        {
+          body:
+            `${item.symbol} به Pullback Zone رسید`
+        }
+      );
+
+    }catch{}
   }
 }
 
@@ -601,36 +679,57 @@ function testSound(){
 
 async function health(){
 
+  setStatus(
+    "🟡 در حال اتصال به Worker...",
+    "loading"
+  );
+
   try{
 
     const response =
       await fetch(
-        WORKER + "/health?_" +
+        WORKER +
+        "/health?_" +
         Date.now(),
         {
+          method:"GET",
           cache:"no-store"
         }
       );
 
     if(!response.ok){
+
       throw new Error(
-        "HTTP " + response.status
+        "HTTP " +
+        response.status
       );
     }
 
     const data =
       await response.json();
 
-    $("status").textContent =
-      `🟢 Worker متصل است — ${data.version}`;
+    if(!data.ok){
+
+      throw new Error(
+        data.error ||
+        "Worker error"
+      );
+    }
+
+    setStatus(
+      `🟢 Worker متصل است — ${data.version}`,
+      "success"
+    );
 
     return true;
 
   }catch(error){
 
-    $("status").textContent =
-      "🔴 Worker در دسترس نیست — " +
-      error.message;
+    setStatus(
+      "🔴 اتصال به Worker برقرار نشد — " +
+      error.message,
+      "error"
+    );
 
     return false;
   }
@@ -644,13 +743,28 @@ async function health(){
 async function scanNow(){
 
   if(scanBusy){
+
     return;
   }
 
   scanBusy = true;
 
-  $("status").textContent =
-    "🟡 در حال اسکن Pumpهای واقعی Bybit...";
+  const scanBtn =
+    $("scanBtn");
+
+  scanBtn.disabled =
+    true;
+
+  scanBtn.textContent =
+    "⏳ در حال اسکن...";
+
+  setStatus(
+    "🟡 در حال اسکن 15M بازار Bybit — لطفاً صبر کنید...",
+    "loading"
+  );
+
+  $("scanInfo").innerHTML =
+    "⏳ Worker در حال بررسی ارزهای Bybit است...";
 
   try{
 
@@ -660,6 +774,7 @@ async function scanNow(){
         "/scan?_" +
         Date.now(),
         {
+          method:"GET",
           cache:"no-store"
         }
       );
@@ -667,7 +782,8 @@ async function scanNow(){
     if(!response.ok){
 
       throw new Error(
-        "HTTP " + response.status
+        "HTTP " +
+        response.status
       );
     }
 
@@ -675,15 +791,19 @@ async function scanNow(){
       await response.json();
 
     if(
-      data.error
+      !data ||
+      data.ok !== true
     ){
 
       throw new Error(
-        data.error
+        data?.error ||
+        "پاسخ نامعتبر از Worker"
       );
     }
 
     updateStats(data);
+
+    renderScanInfo(data);
 
     const results =
       Array.isArray(data.results)
@@ -698,12 +818,13 @@ async function scanNow(){
         "fa-IR"
       );
 
-    $("status").textContent =
-      `🟢 اسکن کامل شد — ` +
-      `${data.scannedSymbols || 0} ارز بررسی شد`;
+    setStatus(
+      `🟢 اسکن کامل شد — ${data.scannedSymbols || 0} ارز بررسی شد — ${data.setups || 0} Setup`,
+      "success"
+    );
 
     /*
-      فقط REACHED هشدار می‌دهد.
+      هشدار فقط برای REACHED
     */
 
     for(
@@ -721,13 +842,37 @@ async function scanNow(){
 
   }catch(error){
 
-    $("status").textContent =
+    console.error(
+      "SCAN ERROR:",
+      error
+    );
+
+    setStatus(
       "🔴 خطا در اسکن — " +
-      error.message;
+      error.message,
+      "error"
+    );
+
+    $("scanInfo").innerHTML = `
+      <b>❌ اسکن انجام نشد</b>
+      <br>
+      ${escapeHtml(error.message)}
+      <br>
+      <small>
+        آدرس Worker:
+        ${escapeHtml(WORKER)}
+      </small>
+    `;
 
   }finally{
 
     scanBusy = false;
+
+    scanBtn.disabled =
+      false;
+
+    scanBtn.textContent =
+      "🔎 اسکن همین الان";
   }
 }
 
@@ -739,22 +884,94 @@ async function scanNow(){
 function updateStats(data){
 
   $("scanned").textContent =
-    data.scannedSymbols || 0;
+    Number(data.scannedSymbols || 0);
+
+  $("candidates").textContent =
+    Number(data.candidates || 0);
 
   $("setups").textContent =
-    data.setups || 0;
+    Number(data.setups || 0);
 
   $("signals").textContent =
-    data.signals || 0;
+    Number(data.signals || 0);
 
   $("near").textContent =
-    data.near || 0;
+    Number(data.near || 0);
 
   $("approaching").textContent =
-    data.approaching || 0;
+    Number(data.approaching || 0);
 
   $("invalid").textContent =
-    data.invalid || 0;
+    Number(data.invalid || 0);
+}
+
+
+/* =========================================================
+   SCAN INFO
+========================================================= */
+
+function renderScanInfo(data){
+
+  const duration =
+    data.durationMs
+      ? (Number(data.durationMs) / 1000).toFixed(1)
+      : "-";
+
+  $("scanInfo").innerHTML = `
+
+    🟢 <b>اسکن واقعی Bybit انجام شد</b>
+
+    <br>
+
+    ارزهای بررسی‌شده:
+    <b>${Number(data.scannedSymbols || 0).toLocaleString("en-US")}</b>
+
+    ·
+
+    Candidate:
+    <b>${Number(data.candidates || 0)}</b>
+
+    ·
+
+    Setup:
+    <b>${Number(data.setups || 0)}</b>
+
+    <br>
+
+    REACHED:
+    <b>${Number(data.signals || 0)}</b>
+
+    ·
+
+    NEAR:
+    <b>${Number(data.near || 0)}</b>
+
+    ·
+
+    APPROACHING:
+    <b>${Number(data.approaching || 0)}</b>
+
+    ·
+
+    زمان:
+    <b>${duration}s</b>
+
+  `;
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
@@ -765,6 +982,7 @@ function updateStats(data){
 function stateInfo(state){
 
   if(state === "REACHED"){
+
     return {
       cls:"reached",
       text:"🔥 رسید به Zone"
@@ -772,6 +990,7 @@ function stateInfo(state){
   }
 
   if(state === "NEAR"){
+
     return {
       cls:"near",
       text:"🟡 نزدیک Zone"
@@ -779,13 +998,23 @@ function stateInfo(state){
   }
 
   if(state === "APPROACHING"){
+
     return {
       cls:"approaching",
       text:"🔵 در حال نزدیک شدن"
     };
   }
 
+  if(state === "BELOW_ZONE"){
+
+    return {
+      cls:"below",
+      text:"⚪ زیر Zone"
+    };
+  }
+
   if(state === "INVALID"){
+
     return {
       cls:"invalid",
       text:"🔴 نامعتبر"
@@ -794,13 +1023,13 @@ function stateInfo(state){
 
   return {
     cls:"below",
-    text:"⚪ زیر Zone"
+    text:state || "نامشخص"
   };
 }
 
 
 /* =========================================================
-   RENDER
+   RENDER RESULTS
 ========================================================= */
 
 function renderResults(results){
@@ -809,8 +1038,8 @@ function renderResults(results){
     $("results");
 
   /*
-    فقط Setupهایی که Pump معتبر
-    و Pullback معتبر دارند.
+    Worker در V7 فقط Setupهای سالم
+    را برمی‌گرداند.
   */
 
   const valid =
@@ -818,20 +1047,26 @@ function renderResults(results){
       x =>
         x &&
         x.pump &&
-        x.pullback &&
-        x.state !== "INVALID"
+        x.pullback
     );
 
   if(!valid.length){
 
     box.innerHTML = `
       <div class="message">
-        🔎 در این اسکن هیچ
+
+        🔎 این اسکن انجام شد،
+        اما در حال حاضر
         <b>Pump Setup</b>
-        معتبری پیدا نشد.
-        <br>
-        سیستم فقط Pumpهایی را نمایش می‌دهد
-        که قوانین V3 را پاس کرده باشند.
+        قابل معامله‌ای وجود ندارد.
+
+        <br><br>
+
+        سیستم هر حرکت کوچک را نمایش نمی‌دهد.
+        فقط ساختار کامل
+        <b>PUMP → RED CANDLE → PULLBACK</b>
+        نمایش داده می‌شود.
+
       </div>
     `;
 
@@ -842,6 +1077,46 @@ function renderResults(results){
     valid
       .map(renderCard)
       .join("");
+}
+
+
+/* =========================================================
+   DISTANCE PROGRESS
+========================================================= */
+
+function progressPercent(
+  state,
+  distance
+){
+
+  const d =
+    Number(distance);
+
+  if(state === "REACHED"){
+    return 100;
+  }
+
+  if(state === "NEAR"){
+    return 85;
+  }
+
+  if(state === "APPROACHING"){
+
+    /*
+      صرفاً نمایش بصری است.
+      روی منطق Worker تأثیری ندارد.
+    */
+
+    return Math.max(
+      5,
+      Math.min(
+        80,
+        80 - d * 5
+      )
+    );
+  }
+
+  return 0;
 }
 
 
@@ -860,6 +1135,12 @@ function renderCard(item){
   const pb =
     item.pullback || {};
 
+  const progress =
+    progressPercent(
+      item.state,
+      item.distancePercent
+    );
+
   return `
 
     <div class="card ${info.cls}">
@@ -867,7 +1148,7 @@ function renderCard(item){
       <div class="top">
 
         <div class="symbol">
-          🚀 ${item.symbol}
+          🚀 ${escapeHtml(item.symbol)}
         </div>
 
         <div class="badge ${info.cls}">
@@ -892,16 +1173,25 @@ function renderCard(item){
         </div>
 
         <div class="item">
-          <small>حجم نسبت به میانگین</small>
+          <small>حجم نسبت به قبل</small>
           <strong>
             ${fmt(pump.volumeRatio,2)}x
           </strong>
         </div>
 
         <div class="item">
-          <small>تعداد کندل Pump</small>
+          <small>کندل‌های Pump</small>
           <strong>
             ${pump.candles ?? "-"}
+          </strong>
+        </div>
+
+        <div class="item">
+          <small>نسبت کندل سبز</small>
+          <strong>
+            ${pct(
+              Number(pump.greenRatio || 0) * 100
+            )}
           </strong>
         </div>
 
@@ -926,13 +1216,20 @@ function renderCard(item){
           </strong>
         </div>
 
+        <div class="item">
+          <small>Retrace</small>
+          <strong>
+            ${pct(pb.retracePercent)}
+          </strong>
+        </div>
+
       </div>
 
 
       <div class="zone">
 
         <div class="zone-title">
-          🎯 محدوده Pullback
+          🎯 محدوده Pullback Zone
         </div>
 
         <div class="zone-price">
@@ -945,20 +1242,29 @@ function renderCard(item){
 
         </div>
 
+        <div class="progress ${info.cls}">
+
+          <div
+            class="progress-bar"
+            style="width:${progress}%"
+          ></div>
+
+        </div>
+
       </div>
 
 
       <div class="grid">
 
         <div class="item">
-          <small>شروع Pump</small>
+          <small>Base Pump</small>
           <strong>
             ${fmt(pump.basePrice,8)}
           </strong>
         </div>
 
         <div class="item">
-          <small>قیمت Pump</small>
+          <small>End Pump</small>
           <strong>
             ${fmt(pump.price,8)}
           </strong>
@@ -972,16 +1278,16 @@ function renderCard(item){
         </div>
 
         <div class="item">
-          <small>Open کندل قرمز</small>
+          <small>Low Pump</small>
           <strong>
-            ${fmt(pb.open,8)}
+            ${fmt(pump.low,8)}
           </strong>
         </div>
 
         <div class="item">
-          <small>Low کندل قرمز</small>
+          <small>Open کندل قرمز</small>
           <strong>
-            ${fmt(pb.low,8)}
+            ${fmt(pb.open,8)}
           </strong>
         </div>
 
@@ -1053,15 +1359,7 @@ function startAuto(){
     "active"
   );
 
-  /*
-    اولین اسکن بلافاصله
-  */
-
   scanNow();
-
-  /*
-    سپس هر 45 ثانیه
-  */
 
   timer =
     setInterval(
@@ -1097,8 +1395,10 @@ function stopAuto(){
     "active"
   );
 
-  $("status").textContent =
-    "⏹ اسکن خودکار متوقف شد";
+  setStatus(
+    "⏹ اسکن خودکار متوقف شد",
+    ""
+  );
 }
 
 
@@ -1106,9 +1406,22 @@ function stopAuto(){
    STARTUP
 ========================================================= */
 
-health();
+(async function(){
 
-</script>
+  const connected =
+    await health();
 
-</body>
+  /*
+    اگر Worker وصل بود،
+    یک بار اتوماتیک اسکن اولیه انجام بده.
+  */
+
+  if(connected){
+
+    await scanNow();
+  }
+
+})();
+
+</script></body>
 </html>
