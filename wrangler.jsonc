@@ -3,9 +3,5 @@
 "name": "pump-scanner",
 "main": "worker.js",
 "compatibility_date": "2026-09-01",
-"workers_dev": true,
-"assets": {
-"directory": "./public",
-"binding": "ASSETS"
-}
+"workers_dev": true
 }
