@@ -2,366 +2,479 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>اسکنر هوشمند جهش قیمت بای‌بیت</title>
 
 <style>
 *{box-sizing:border-box}
 body{
   margin:0;
-  background:#0b1020;
-  color:#e8edf7;
+  background:#07110e;
+  color:#e8fff5;
   font-family:Tahoma,Arial,sans-serif;
-  line-height:1.7
 }
-button,input,select{font:inherit}
-button{cursor:pointer}
-.container{
-  max-width:1450px;
+button,input,select{
+  font:inherit;
+}
+button{
+  cursor:pointer;
+}
+.app{
+  width:min(1200px,100%);
   margin:auto;
-  padding:14px
+  padding:12px;
 }
 .header{
-  background:linear-gradient(135deg,#111a33,#172449);
-  border:1px solid #26365f;
+  background:#0d1d18;
+  border:1px solid #1d4035;
   border-radius:18px;
   padding:18px;
-  margin-bottom:14px
+  margin-bottom:12px;
 }
 .header h1{
-  margin:0 0 5px;
-  font-size:24px
+  margin:0 0 8px;
+  font-size:24px;
 }
 .header p{
   margin:0;
-  color:#aeb9d2;
-  font-size:13px
+  color:#9bbcaf;
+  line-height:1.8;
 }
-.status{
-  margin-top:12px;
-  padding:9px 12px;
-  border-radius:10px;
-  background:#10182c;
-  border:1px solid #26365f
-}
-.controls{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-  margin-bottom:14px
-}
-.panel{
-  background:#11182b;
-  border:1px solid #26365f;
+.card{
+  background:#0d1d18;
+  border:1px solid #1d4035;
   border-radius:16px;
   padding:14px;
-  margin-bottom:14px
+  margin-bottom:12px;
 }
-label{
-  display:block;
-  color:#aeb9d2;
-  font-size:12px;
-  margin-bottom:5px
+.title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+.row{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
 }
 input,select{
   width:100%;
-  padding:10px;
+  background:#07110e;
   color:#fff;
-  background:#0a1020;
-  border:1px solid #304064;
-  border-radius:9px;
-  outline:none
-}
-input:focus,select:focus{
-  border-color:#5b8cff
+  border:1px solid #31584b;
+  border-radius:10px;
+  padding:11px;
+  outline:none;
 }
 button{
   border:0;
-  border-radius:9px;
-  padding:10px 14px;
-  background:#315ed8;
-  color:#fff
+  border-radius:10px;
+  padding:11px 14px;
+  color:#fff;
+  background:#126b4e;
 }
-button:hover{filter:brightness(1.12)}
-button.secondary{background:#263653}
-button.success{background:#16875a}
-button.danger{background:#b83c4d}
-button.warning{background:#a46b18}
-button.small{
-  padding:6px 9px;
-  font-size:12px
+button.secondary{
+  background:#17332a;
 }
-.row{
-  display:flex;
+button.danger{
+  background:#6d2525;
+}
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+.status{
+  padding:11px;
+  border-radius:10px;
+  background:#10261e;
+  margin-bottom:10px;
+}
+.controls{
+  display:grid;
+  gap:10px;
+}
+.scan-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:8px;
-  flex-wrap:wrap;
-  align-items:end
 }
-.row>*{flex:1}
-.title{
-  font-weight:bold;
-  font-size:16px;
-  margin-bottom:10px
-}
-.muted{
-  color:#8996b2;
-  font-size:12px
+.scan-state{
+  color:#9bbcaf;
 }
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:10px
-}
-.stat{
-  background:#0b1224;
-  border:1px solid #253454;
-  border-radius:12px;
-  padding:11px
-}
-.stat .k{
-  color:#8794af;
-  font-size:11px
-}
-.stat .v{
-  font-size:17px;
-  font-weight:bold;
-  margin-top:2px
-}
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:12px
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
 }
 .coin{
-  background:#10182a;
-  border:1px solid #2a3a60;
-  border-radius:15px;
-  padding:13px;
-  transition:.2s
+  border:1px solid #254b3d;
+  border-radius:14px;
+  padding:12px;
+  background:#091712;
 }
-.coin:hover{border-color:#5275c8}
 .coin-head{
   display:flex;
   justify-content:space-between;
   gap:8px;
   align-items:center;
-  margin-bottom:7px
 }
-.coin-symbol{
-  font-size:18px;
-  font-weight:bold
+.symbol{
+  font-size:19px;
+  font-weight:bold;
+}
+.price{
+  font-size:20px;
+  font-weight:bold;
 }
 .badge{
   display:inline-block;
+  padding:4px 8px;
   border-radius:20px;
-  padding:3px 9px;
-  font-size:11px;
-  background:#263653
+  font-size:12px;
+  margin-top:5px;
 }
-.badge.pump{background:#0e704c;color:#8ff3c9}
-.badge.dump{background:#762d3c;color:#ffb0bc}
-.badge.watch{background:#765218;color:#ffd88c}
-.badge.normal{background:#263653;color:#aeb9d2}
-.green{color:#49e39b}
-.red{color:#ff687b}
-.yellow{color:#ffd369}
-.blue{color:#72a0ff}
-hr{
-  border:0;
-  border-top:1px solid #263452;
-  margin:12px 0
+.long{background:#0c633f}
+.short{background:#742b2b}
+.wait{background:#4e4a1d}
+.normal{background:#25443a}
+.pump{background:#075f43}
+.dump{background:#7c2424}
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  margin-top:10px;
+}
+.metric{
+  background:#10221c;
+  border-radius:9px;
+  padding:8px;
+  text-align:center;
+}
+.metric b{
+  display:block;
+  font-size:14px;
+  margin-bottom:4px;
+}
+.metric span{
+  color:#a9c4b8;
+  font-size:12px;
 }
 .deep{
-  margin-top:12px;
-  background:#0d1426;
-  border:1px solid #31446f;
-  border-radius:15px;
-  padding:14px
+  margin-top:10px;
 }
-.deep h3{
-  margin:0 0 8px
+.deep-box{
+  background:#07110e;
+  border:1px solid #244a3c;
+  border-radius:12px;
+  padding:10px;
+  margin-top:10px;
+}
+.deep-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.info{
+  color:#a9c4b8;
+  line-height:1.9;
+  font-size:13px;
+}
+.section{
+  border-top:1px solid #1d4035;
+  margin-top:12px;
+  padding-top:12px;
+}
+.filter-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+.quick{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px;
+  margin-top:8px;
+}
+.quick button{
+  padding:8px;
+  background:#17352b;
+}
+.filter-summary{
+  margin-top:10px;
+  background:#10231c;
+  border-radius:10px;
+  padding:10px;
 }
 .table-wrap{
   overflow:auto;
-  border:1px solid #253555;
-  border-radius:10px
+  margin-top:10px;
 }
 table{
   width:100%;
-  min-width:900px;
   border-collapse:collapse;
-  font-size:12px
+  min-width:850px;
 }
 th,td{
-  padding:7px 8px;
-  border-bottom:1px solid #202e4b;
+  border-bottom:1px solid #214337;
+  padding:8px;
   text-align:center;
-  white-space:nowrap
+  white-space:nowrap;
 }
 th{
-  background:#151f37;
-  color:#b9c6e0;
-  position:sticky;
-  top:0;
-  z-index:1
+  background:#10231c;
 }
-tr.buy td{background:rgba(20,130,90,.07)}
-tr.sell td{background:rgba(180,45,65,.07)}
-.filter-box{
-  background:#111b31;
-  border:1px solid #2b3c60;
-  border-radius:13px;
-  padding:12px;
-  margin:12px 0
+.buy{
+  color:#58e0a5;
 }
-.quick{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:8px
+.sell{
+  color:#ff7272;
 }
-.quick button{
-  padding:6px 9px;
-  font-size:11px;
-  background:#243452
+.delta-pos{
+  color:#58e0a5;
 }
-.notice{
-  background:#111d34;
-  border:1px solid #2d426b;
-  padding:9px;
+.delta-neg{
+  color:#ff7272;
+}
+.history{
+  background:#0b1a15;
+  border:1px solid #204537;
   border-radius:10px;
-  font-size:12px;
-  color:#aebbd4
+  padding:10px;
+  margin-top:10px;
 }
-.loading{
+.sound-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.range-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.hidden{
+  display:none!important;
+}
+.empty{
+  padding:30px;
   text-align:center;
-  padding:25px;
-  color:#9aa8c4
+  color:#91aaa0;
 }
-.hidden{display:none!important}
-details{
-  border:1px solid #263858;
-  border-radius:10px;
-  padding:8px;
-  margin-top:8px
+.footer{
+  text-align:center;
+  color:#6e897e;
+  padding:20px;
 }
-summary{
-  cursor:pointer;
-  color:#b8c7e4
+@media(max-width:800px){
+  .grid,
+  .deep-grid{
+    grid-template-columns:1fr;
+  }
+  .filter-grid{
+    grid-template-columns:1fr 1fr;
+  }
 }
-.progress{
-  height:7px;
-  background:#202d49;
-  border-radius:20px;
-  overflow:hidden;
-  margin-top:6px
-}
-.progress i{
-  display:block;
-  height:100%;
-  background:#4e78e8
-}
-@media(max-width:600px){
-  .container{padding:8px}
-  .header h1{font-size:19px}
-  .controls{grid-template-columns:1fr}
-  .row>*{min-width:140px}
+@media(max-width:560px){
+  .row,
+  .scan-buttons,
+  .metrics,
+  .filter-grid,
+  .quick,
+  .sound-row,
+  .range-row{
+    grid-template-columns:1fr;
+  }
+  .header h1{
+    font-size:20px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
 
   <div class="header">
     <h1>🚀 اسکنر هوشمند جهش قیمت بای‌بیت</h1>
-    <p>شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد بر پایه داده‌های واقعی بازار بای‌بیت</p>
-    <div id="status" class="status">⏳ در حال اتصال به Worker...</div>
+    <p>
+      شناسایی جهش واقعی قیمت، کندل قرمز، ناحیه ورود و آزمایش مجدد
+      بر پایه داده‌های واقعی بازار بای‌بیت
+    </p>
   </div>
 
-  <div class="panel">
-    <div class="title">🔎 تحلیل ارز</div>
+  <div class="card">
+    <div id="status" class="status">
+      🟡 در حال اتصال به Worker...
+    </div>
 
     <div class="controls">
-      <div>
-        <label>نماد</label>
-        <input id="symbol" value="BTCUSDT" placeholder="BTCUSDT">
-      </div>
 
-      <div>
-        <label>بازار</label>
-        <select id="category">
-          <option value="auto">Auto</option>
+      <div class="row">
+        <input
+          id="symbolInput"
+          placeholder="مثلاً BTCUSDT یا PEPE"
+          autocomplete="off"
+        >
+
+        <select id="categoryInput">
+          <option value="auto">خودکار</option>
           <option value="linear">Futures</option>
           <option value="spot">Spot</option>
         </select>
       </div>
 
-      <div>
-        <label>&nbsp;</label>
-        <button id="analyzeBtn" class="success">🔎 تحلیل</button>
+      <div class="row">
+        <button id="analyzeBtn">
+          🔎 تحلیل ارز
+        </button>
+
+        <button id="scanBtn">
+          🚀 شروع اسکن
+        </button>
       </div>
 
-      <div>
-        <label>&nbsp;</label>
-        <button id="scanBtn">🚀 شروع اسکن</button>
+      <div class="row">
+        <button id="stopScanBtn" class="danger">
+          ⛔ توقف اسکن
+        </button>
+
+        <button id="clearBtn" class="secondary">
+          🧹 پاک‌کردن نتایج
+        </button>
       </div>
 
-      <div>
-        <label>&nbsp;</label>
-        <button id="stopBtn" class="danger">⛔ توقف اسکن</button>
+      <div class="scan-state" id="scanState">
+        اسکن متوقف است.
       </div>
+
     </div>
-
-    <div id="scanStatus" class="muted">اسکن متوقف است.</div>
   </div>
 
-  <div id="scanResults" class="cards"></div>
+  <div class="card">
+    <div class="title">🔊 هشدار</div>
 
-  <div id="deepResults"></div>
+    <div class="sound-row">
+      <button id="soundBtn">
+        🔔 صدا: روشن
+      </button>
+
+      <button id="testSoundBtn" class="secondary">
+        🔊 تست صدا
+      </button>
+    </div>
+
+    <div style="margin-top:8px">
+      <input
+        id="volume"
+        type="range"
+        min="0"
+        max="1"
+        step=".05"
+        value=".7"
+      >
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">
+      📊 نتایج اسکن
+    </div>
+
+    <div id="results" class="grid">
+      <div class="empty">
+        هنوز نتیجه‌ای دریافت نشده است.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">
+      🔬 تحلیل عمیق
+    </div>
+
+    <div id="deepContainer">
+      <div class="empty">
+        برای تحلیل عمیق، یک ارز را جستجو کنید.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Bybit Smart Pump Scanner
+  </div>
 
 </div>
 
 <script>
-"use strict";
 
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const WORKER = "https://pump-scanner.29mah12.workers.dev";
+const WORKER =
+  "https://pump-scanner.29mah12.workers.dev";
 
 const LIVE_INTERVAL = 3000;
-const HISTORY_REFRESH_INTERVAL = 12000;
 const SCAN_INTERVAL = 10000;
-const MAX_FRONT_HISTORY = 100000;
-const HISTORY_HOURS = 24;
-
-/* =========================================================
-   STATE
-========================================================= */
+const TRADE_REFRESH_INTERVAL = 12000;
 
 const cards = new Map();
-const closedCoins = new Set();
-const alertedStates = new Map();
-const previousStates = new Map();
-const liveTimers = new Map();
+
 const deepTradeHistory = new Map();
-const historyTimers = new Map();
+
+const historyMeta = new Map();
 
 let scanTimer = null;
+let liveTimer = null;
+let tradeTimer = null;
+
+let scanRunning = false;
 let scanOffset = 0;
-let scanning = false;
 
-/* =========================================================
-   HELPERS
-========================================================= */
+let soundEnabled =
+  localStorage.getItem(
+    "pump_sound"
+  ) !== "0";
 
-const $ = id => document.getElementById(id);
+let volume =
+  Number(
+    localStorage.getItem(
+      "pump_volume"
+    ) || ".7"
+  );
 
-function esc(v){
-  return String(v ?? "")
+document.getElementById(
+  "volume"
+).value = volume;
+
+function fmt(n, digits = 4) {
+  if (
+    n === null ||
+    n === undefined ||
+    Number.isNaN(Number(n))
+  ) {
+    return "-";
+  }
+
+  return Number(n).toLocaleString(
+    "en-US",
+    {
+      maximumFractionDigits:
+        digits
+    }
+  );
+}
+
+function fa(n) {
+  return String(n).replace(
+    /\d/g,
+    d =>
+      "۰۱۲۳۴۵۶۷۸۹"[d]
+  );
+}
+
+function escapeHtml(v) {
+  return String(
+    v ?? ""
+  )
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
     .replaceAll(">","&gt;")
@@ -369,1924 +482,2477 @@ function esc(v){
     .replaceAll("'","&#039;");
 }
 
-function num(v,d=0){
-  const x=Number(v);
-  return Number.isFinite(x)?x:d;
+function formatDate(ts) {
+  if (!ts) return "-";
+
+  return new Date(
+    Number(ts)
+  ).toLocaleString(
+    "fa-IR",
+    {
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit",
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit"
+    }
+  );
 }
 
-function fmt(v,d=4){
-  const x=Number(v);
-  if(!Number.isFinite(x)) return "-";
-  return x.toLocaleString("en-US",{
-    maximumFractionDigits:d,
-    minimumFractionDigits:0
-  });
+function tradeTimestamp(t) {
+  const x =
+    Number(
+      t?.time ??
+      t?.timestamp ??
+      t?.T ??
+      0
+    );
+
+  return x < 1e12
+    ? x * 1000
+    : x;
 }
 
-function fmtBig(v){
-  const x=Number(v);
-  if(!Number.isFinite(x))return "-";
-  if(Math.abs(x)>=1e9)return (x/1e9).toFixed(2)+"B";
-  if(Math.abs(x)>=1e6)return (x/1e6).toFixed(2)+"M";
-  if(Math.abs(x)>=1e3)return (x/1e3).toFixed(2)+"K";
-  return fmt(x,4);
+function tradePrice(t) {
+  return Number(
+    t?.price ?? 0
+  );
 }
 
-function pct(v){
-  return `${num(v).toFixed(2)}%`;
+function tradeSize(t) {
+  return Number(
+    t?.size ??
+    t?.qty ??
+    0
+  );
 }
 
-function getTradeTimestamp(t){
-  let x=Number(t?.time ?? t?.timestamp ?? t?.T ?? 0);
-  if(!Number.isFinite(x)||x<=0)return 0;
-  if(x<100000000000)x*=1000;
-  return x;
+function tradeNotional(t) {
+  const direct =
+    Number(
+      t?.notional
+    );
+
+  if (
+    Number.isFinite(
+      direct
+    ) &&
+    direct > 0
+  ) {
+    return direct;
+  }
+
+  return (
+    tradePrice(t) *
+    tradeSize(t)
+  );
 }
 
-function tradePrice(t){
-  return num(t?.price);
-}
-
-function tradeSize(t){
-  return num(t?.size ?? t?.qty ?? t?.volume);
-}
-
-function tradeNotional(t){
-  const p=tradePrice(t);
-  const q=tradeSize(t);
-  return num(t?.notional,p*q);
-}
-
-function tradeSide(t){
-  return String(t?.side||"").toUpperCase();
-}
-
-function tradeId(t){
+function tradeSide(t) {
   return String(
-    t?.execId ??
-    t?.id ??
-    `${getTradeTimestamp(t)}_${tradeSide(t)}_${tradePrice(t)}_${tradeSize(t)}`
-  );
+    t?.side || ""
+  ).toUpperCase();
 }
 
-function formatDateTime(ms){
-  if(!ms)return "-";
-  return new Date(ms).toLocaleString("fa-IR",{
-    year:"numeric",
-    month:"2-digit",
-    day:"2-digit",
-    hour:"2-digit",
-    minute:"2-digit",
-    second:"2-digit"
-  });
-}
+/* =========================
+   AUDIO
+========================= */
 
-function toLocalDateTimeValue(ms){
-  const d=new Date(ms);
-  const pad=x=>String(x).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
+let audioCtx = null;
 
-function fromLocalDateTimeValue(v){
-  if(!v)return 0;
-  const x=new Date(v).getTime();
-  return Number.isFinite(x)?x:0;
-}
+function playAlert(
+  frequency = 880,
+  duration = .16
+) {
+  if (!soundEnabled) return;
 
-function safeHtml(v){
-  return esc(v);
-}
+  try {
+    audioCtx =
+      audioCtx ||
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
 
-async function getJSON(url){
-  const r=await fetch(url,{
-    cache:"no-store",
-    headers:{accept:"application/json"}
-  });
+    const osc =
+      audioCtx.createOscillator();
 
-  let data=null;
-  try{
-    data=await r.json();
-  }catch(_){
-    throw new Error(`HTTP ${r.status}`);
-  }
+    const gain =
+      audioCtx.createGain();
 
-  if(!r.ok || data?.ok===false){
-    throw new Error(data?.error || `HTTP ${r.status}`);
-  }
+    osc.type = "sine";
+    osc.frequency.value =
+      frequency;
 
-  return data;
-}
+    gain.gain.value =
+      .0001;
 
-/* =========================================================
-   STATUS
-========================================================= */
+    osc.connect(gain);
+    gain.connect(
+      audioCtx.destination
+    );
 
-async function checkHealth(){
-  try{
-    const d=await getJSON(`${WORKER}/health`);
-    $("status").innerHTML=
-      `🟢 اتصال برقرار است — Bybit · Worker ${safeHtml(d.version||"ONLINE")}`;
-  }catch(e){
-    $("status").innerHTML=
-      `🔴 اتصال به Worker برقرار نیست — ${safeHtml(e.message)}`;
-  }
-}
+    const now =
+      audioCtx.currentTime;
 
-/* =========================================================
-   SOUND
-========================================================= */
-
-let audioContext=null;
-let soundEnabled=true;
-let volume=.35;
-
-try{
-  soundEnabled=localStorage.getItem("pump_sound")!=="0";
-  volume=num(localStorage.getItem("pump_volume"),.35);
-}catch(_){}
-
-function playAlert(){
-  if(!soundEnabled)return;
-
-  try{
-    audioContext ||= new (window.AudioContext||window.webkitAudioContext)();
-
-    if(audioContext.state==="suspended"){
-      audioContext.resume().catch(()=>{});
-    }
-
-    const now=audioContext.currentTime;
-
-    [0,0.18,0.36].forEach((delay,i)=>{
-      const osc=audioContext.createOscillator();
-      const gain=audioContext.createGain();
-
-      osc.type="sine";
-      osc.frequency.value=i===1?880:660;
-
-      gain.gain.setValueAtTime(0,now+delay);
-      gain.gain.linearRampToValueAtTime(volume,now+delay+.02);
-      gain.gain.exponentialRampToValueAtTime(
+    gain.gain.exponentialRampToValueAtTime(
+      Math.max(
         .001,
-        now+delay+.15
-      );
+        volume
+      ),
+      now + .01
+    );
 
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
+    gain.gain.exponentialRampToValueAtTime(
+      .0001,
+      now + duration
+    );
 
-      osc.start(now+delay);
-      osc.stop(now+delay+.16);
-    });
-  }catch(_){}
+    osc.start(now);
+    osc.stop(
+      now + duration + .02
+    );
+
+  } catch (_) {}
 }
 
-/* =========================================================
+function updateSoundButton() {
+  document.getElementById(
+    "soundBtn"
+  ).textContent =
+    soundEnabled
+      ? "🔔 صدا: روشن"
+      : "🔕 صدا: خاموش";
+}
+
+document.getElementById(
+  "soundBtn"
+).onclick = () => {
+  soundEnabled =
+    !soundEnabled;
+
+  localStorage.setItem(
+    "pump_sound",
+    soundEnabled
+      ? "1"
+      : "0"
+  );
+
+  updateSoundButton();
+
+  if (soundEnabled) {
+    playAlert(700,.1);
+  }
+};
+
+document.getElementById(
+  "testSoundBtn"
+).onclick = () => {
+  playAlert(880,.14);
+
+  setTimeout(
+    () => playAlert(1100,.14),
+    170
+  );
+
+  setTimeout(
+    () => playAlert(880,.18),
+    340
+  );
+};
+
+document.getElementById(
+  "volume"
+).oninput = e => {
+  volume =
+    Number(
+      e.target.value
+    );
+
+  localStorage.setItem(
+    "pump_volume",
+    volume
+  );
+};
+
+updateSoundButton();
+
+/* =========================
+   FETCH
+========================= */
+
+async function api(
+  path
+) {
+  const r =
+    await fetch(
+      WORKER + path,
+      {
+        cache:"no-store"
+      }
+    );
+
+  const text =
+    await r.text();
+
+  let d;
+
+  try {
+    d =
+      JSON.parse(text);
+  } catch (_) {
+    throw new Error(
+      "پاسخ Worker معتبر نیست"
+    );
+  }
+
+  if (!r.ok || d.ok === false) {
+    throw new Error(
+      d.error ||
+      `HTTP ${r.status}`
+    );
+  }
+
+  return d;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+async function checkHealth() {
+  const el =
+    document.getElementById(
+      "status"
+    );
+
+  try {
+    const d =
+      await api(
+        "/health"
+      );
+
+    el.textContent =
+      "🟢 اتصال برقرار است — Bybit";
+
+    el.style.border =
+      "1px solid #246b52";
+
+  } catch (e) {
+    el.textContent =
+      "🔴 اتصال به Worker برقرار نیست";
+
+    el.style.border =
+      "1px solid #742b2b";
+  }
+}
+
+/* =========================
    NORMALIZE
-========================================================= */
+========================= */
 
-function normalizeItem(x){
+function normalizeItem(
+  item
+) {
   return {
-    ...x,
-    symbol:String(x.symbol||"").toUpperCase(),
-    price:num(
-      x.price ??
-      x.lastPrice ??
-      x.currentPrice ??
-      x.market?.price
-    ),
-    pumpScore:num(x.pumpScore),
-    dumpScore:num(x.dumpScore),
-    pumpDumpStatus:String(
-      x.pumpDumpStatus ||
-      (x.pumpScore>=75?"PUMP":
-       x.dumpScore>=75?"DUMP":"NORMAL")
-    ).toUpperCase(),
-    reversal:x.reversal||{},
-    movement:x.movement||{},
-    market:x.market||{},
-    footprint:x.footprint||{},
-    orderBook:x.orderBook||x.orderbook||{},
-    supportResistance:x.supportResistance||{},
-    generatedAt:num(x.generatedAt,Date.now())
-  };
-}
+    symbol:
+      item.symbol,
 
-/* =========================================================
-   CARD
-========================================================= */
+    category:
+      item.category ||
+      "linear",
 
-function scoreBadge(item){
-  const pump=num(item.pumpScore);
-  const dump=num(item.dumpScore);
+    price:
+      Number(
+        item.price || 0
+      ),
 
-  if(pump>=75){
-    return `<span class="badge pump">🚀 PUMP ${fmt(pump,0)}</span>`;
-  }
+    activity:
+      Number(
+        item.activity || 0
+      ),
 
-  if(dump>=75){
-    return `<span class="badge dump">🔻 DUMP ${fmt(dump,0)}</span>`;
-  }
+    pump:
+      item.pump || {},
 
-  if(pump>=40 || dump>=40){
-    return `<span class="badge watch">👀 WATCH</span>`;
-  }
-
-  return `<span class="badge normal">NORMAL</span>`;
-}
-
-function renderCard(item){
-  item=normalizeItem(item);
-
-  const symbol=item.symbol;
-
-  if(closedCoins.has(symbol))return;
-
-  const pump=num(item.pumpScore);
-  const dump=num(item.dumpScore);
-  const change=num(
-    item.change15 ??
-    item.movement?.change15 ??
-    item.market?.change15
-  );
-
-  const div=document.createElement("div");
-  div.className="coin";
-  div.dataset.symbol=symbol;
-
-  div.innerHTML=`
-    <div class="coin-head">
-      <div class="coin-symbol">${safeHtml(symbol)}</div>
-      ${scoreBadge(item)}
-    </div>
-
-    <div class="grid">
-
-      <div class="stat">
-        <div class="k">قیمت</div>
-        <div class="v">${fmt(item.price,10)}</div>
-      </div>
-
-      <div class="stat">
-        <div class="k">Pump</div>
-        <div class="v green">${fmt(pump,0)}</div>
-      </div>
-
-      <div class="stat">
-        <div class="k">Dump</div>
-        <div class="v red">${fmt(dump,0)}</div>
-      </div>
-
-      <div class="stat">
-        <div class="k">حرکت</div>
-        <div class="v ${change>=0?"green":"red"}">${pct(change)}</div>
-      </div>
-
-    </div>
-
-    <div style="margin-top:10px">
-      <div class="muted">Pump</div>
-      <div class="progress"><i style="width:${Math.min(100,pump)}%"></i></div>
-    </div>
-
-    <div style="margin-top:6px">
-      <div class="muted">Dump</div>
-      <div class="progress"><i style="width:${Math.min(100,dump)}%"></i></div>
-    </div>
-
-    <div class="row" style="margin-top:10px">
-      <button class="small success js-deep">🔎 تحلیل عمیق</button>
-      <button class="small secondary js-close">بستن</button>
-    </div>
-  `;
-
-  div.querySelector(".js-deep").onclick=()=>openDeep(symbol);
-  div.querySelector(".js-close").onclick=()=>{
-    closedCoins.add(symbol);
-    div.remove();
-  };
-
-  const old=cards.get(symbol);
-  if(old)old.replaceWith(div);
-
-  cards.set(symbol,div);
-
-  const state=`${item.pumpDumpStatus}:${pump>=75?"P":""}:${dump>=75?"D":""}`;
-
-  if(
-    previousStates.has(symbol) &&
-    previousStates.get(symbol)!==state &&
-    (pump>=75 || dump>=75)
-  ){
-    playAlert();
-  }
-
-  previousStates.set(symbol,state);
-}
-
-/* =========================================================
-   SCAN
-========================================================= */
-
-async function scanOnce(){
-  if(!scanning)return;
-
-  try{
-    $("scanStatus").textContent=
-      `🔄 در حال اسکن بازار... Offset: ${scanOffset}`;
-
-    const d=await getJSON(
-      `${WORKER}/scan?offset=${encodeURIComponent(scanOffset)}`
-    );
-
-    const results=Array.isArray(d.results)?d.results:[];
-
-    results
-      .map(normalizeItem)
-      .sort((a,b)=>
-        Math.max(b.pumpScore,b.dumpScore)-
-        Math.max(a.pumpScore,a.dumpScore)
+    volumeRatio:
+      Number(
+        item.volumeRatio || 0
       )
-      .forEach(renderCard);
-
-    scanOffset=num(d.nextOffset,scanOffset+20);
-
-    $("scanStatus").textContent=
-      `🟢 اسکن فعال — ${results.length} بازار بررسی شد — Offset بعدی: ${scanOffset}`;
-
-  }catch(e){
-    $("scanStatus").textContent=
-      `🔴 خطای اسکن: ${e.message}`;
-  }
-}
-
-function startScan(){
-  if(scanning)return;
-
-  scanning=true;
-  $("scanBtn").disabled=true;
-  $("stopBtn").disabled=false;
-
-  scanOnce();
-
-  scanTimer=setInterval(
-    scanOnce,
-    SCAN_INTERVAL
-  );
-}
-
-function stopScan(){
-  scanning=false;
-
-  $("scanBtn").disabled=false;
-  $("stopBtn").disabled=true;
-
-  if(scanTimer){
-    clearInterval(scanTimer);
-    scanTimer=null;
-  }
-
-  $("scanStatus").textContent="⛔ اسکن متوقف شد.";
-}
-
-/* =========================================================
-   MANUAL ANALYZE
-========================================================= */
-
-async function manualAnalyze(){
-  const symbol=$("symbol").value.trim();
-
-  if(!symbol){
-    alert("نماد را وارد کنید.");
-    return;
-  }
-
-  $("analyzeBtn").disabled=true;
-  $("analyzeBtn").textContent="⏳ در حال تحلیل...";
-
-  try{
-    const category=$("category").value;
-
-    const url=
-      `${WORKER}/analyze?symbol=${encodeURIComponent(symbol)}`+
-      `&category=${encodeURIComponent(category)}`;
-
-    const d=await getJSON(url);
-
-    const item=normalizeItem(d);
-
-    renderCard(item);
-    await openDeep(item.symbol);
-
-  }catch(e){
-    alert(e.message);
-  }finally{
-    $("analyzeBtn").disabled=false;
-    $("analyzeBtn").textContent="🔎 تحلیل";
-  }
-}
-
-/* =========================================================
-   TRADE HISTORY
-========================================================= */
-
-function mergeTrades(symbol, trades){
-  symbol=String(symbol||"").toUpperCase();
-
-  const old=deepTradeHistory.get(symbol)||[];
-  const map=new Map();
-
-  for(const t of old){
-    if(!t)continue;
-    const tm=getTradeTimestamp(t);
-    if(!tm)continue;
-    map.set(tradeId(t),{
-      ...t,
-      time:tm,
-      price:tradePrice(t),
-      size:tradeSize(t),
-      notional:tradeNotional(t)
-    });
-  }
-
-  for(const t of Array.isArray(trades)?trades:[]){
-    if(!t)continue;
-
-    const tm=getTradeTimestamp(t);
-    const p=tradePrice(t);
-    const q=tradeSize(t);
-
-    if(!tm || p<=0 || q<=0)continue;
-
-    map.set(tradeId(t),{
-      ...t,
-      time:tm,
-      price:p,
-      size:q,
-      notional:tradeNotional(t)
-    });
-  }
-
-  const cutoff=Date.now()-HISTORY_HOURS*60*60*1000;
-
-  let arr=[...map.values()]
-    .filter(t=>getTradeTimestamp(t)>=cutoff)
-    .sort((a,b)=>getTradeTimestamp(a)-getTradeTimestamp(b));
-
-  if(arr.length>MAX_FRONT_HISTORY){
-    arr=arr.slice(-MAX_FRONT_HISTORY);
-  }
-
-  deepTradeHistory.set(symbol,arr);
-
-  return arr;
-}
-
-async function loadTradeHistory(symbol,force=false){
-  symbol=String(symbol||"").toUpperCase();
-
-  try{
-    const d=await getJSON(
-      `${WORKER}/trades?symbol=${encodeURIComponent(symbol)}`+
-      `&hours=${HISTORY_HOURS}`+
-      `&_=${Date.now()}`
-    );
-
-    const arr=mergeTrades(
-      symbol,
-      Array.isArray(d.trades)?d.trades:
-      Array.isArray(d.data?.trades)?d.data.trades:
-      []
-    );
-
-    const meta=d.tradeHistory||d.data?.tradeHistory||{};
-
-    updateHistoryMeta(symbol,{
-      ...meta,
-      returnedCount:arr.length,
-      refreshedAt:Date.now()
-    });
-
-    return arr;
-
-  }catch(e){
-
-    const old=deepTradeHistory.get(symbol)||[];
-
-    updateHistoryMeta(symbol,{
-      error:e.message,
-      returnedCount:old.length,
-      refreshedAt:Date.now()
-    });
-
-    return old;
-  }
-}
-
-/* =========================================================
-   HISTORY META
-========================================================= */
-
-const historyMeta=new Map();
-
-function updateHistoryMeta(symbol,data){
-  historyMeta.set(
-    String(symbol).toUpperCase(),
-    data||{}
-  );
-}
-
-function getHistoryMeta(symbol){
-  return historyMeta.get(
-    String(symbol).toUpperCase()
-  )||{};
-}
-
-function historyCoverageText(symbol){
-  const meta=getHistoryMeta(symbol);
-  const oldest=num(meta.oldestTime);
-  const newest=num(meta.newestTime);
-
-  if(oldest && newest){
-    const hours=Math.max(
-      0,
-      (newest-oldest)/3600000
-    );
-
-    return `پوشش تاریخچه موجود: ${hours.toFixed(2)} ساعت`;
-  }
-
-  const arr=deepTradeHistory.get(
-    String(symbol).toUpperCase()
-  )||[];
-
-  if(arr.length){
-    const a=getTradeTimestamp(arr[0]);
-    const b=getTradeTimestamp(arr[arr.length-1]);
-
-    if(a&&b){
-      return `پوشش تاریخچه موجود: ${Math.max(0,(b-a)/3600000).toFixed(2)} ساعت`;
-    }
-  }
-
-  return "پوشش تاریخچه: نامشخص";
-}
-
-/* =========================================================
-   FILTER TIME
-========================================================= */
-
-function getDefaultRange(){
-  const to=Date.now();
-  const from=to-(24*60*60*1000);
-
-  return {from,to};
-}
-
-function setFilterRange(deep,from,to){
-  const f=deep.querySelector(".js-from-datetime");
-  const t=deep.querySelector(".js-to-datetime");
-
-  if(f)f.value=toLocalDateTimeValue(from);
-  if(t)t.value=toLocalDateTimeValue(to);
-}
-
-function readFilterRange(deep){
-  const f=deep.querySelector(".js-from-datetime");
-  const t=deep.querySelector(".js-to-datetime");
-
-  const from=fromLocalDateTimeValue(f?.value);
-  const to=fromLocalDateTimeValue(t?.value);
-
-  return {from,to};
-}
-
-function filterTrades(deep,allTrades){
-  const {from,to}=readFilterRange(deep);
-
-  const minInput=deep.querySelector(".js-min-price");
-  const maxInput=deep.querySelector(".js-max-price");
-
-  const minRaw=minInput?.value?.trim()||"";
-  const maxRaw=maxInput?.value?.trim()||"";
-
-  const minPrice=
-    minRaw==="" ? -Infinity : Number(minRaw);
-
-  const maxPrice=
-    maxRaw==="" ? Infinity : Number(maxRaw);
-
-  if(
-    from &&
-    to &&
-    from>to
-  ){
-    throw new Error("زمان شروع نباید از زمان پایان بزرگ‌تر باشد.");
-  }
-
-  if(
-    !Number.isFinite(minPrice) ||
-    !Number.isFinite(maxPrice)
-  ){
-    throw new Error("قیمت واردشده معتبر نیست.");
-  }
-
-  if(minPrice>maxPrice){
-    throw new Error("حداقل قیمت نباید از حداکثر قیمت بیشتر باشد.");
-  }
-
-  return allTrades.filter(t=>{
-    const tm=getTradeTimestamp(t);
-    const p=tradePrice(t);
-
-    if(!tm || !p)return false;
-
-    if(from && tm<from)return false;
-    if(to && tm>to)return false;
-
-    if(p<minPrice)return false;
-    if(p>maxPrice)return false;
-
-    return true;
-  });
-}
-
-/* =========================================================
-   AGGREGATION
-========================================================= */
-
-function aggregateTradesByPrice(trades){
-  const map=new Map();
-
-  for(const t of trades){
-    const p=tradePrice(t);
-    const q=tradeSize(t);
-    const no=tradeNotional(t);
-    const side=tradeSide(t);
-
-    if(p<=0 || q<=0)continue;
-
-    /*
-      قیمت واقعی معامله حفظ می‌شود.
-      کلید فقط برای گروه‌بندی است.
-    */
-    const key=p.toFixed(12);
-
-    if(!map.has(key)){
-      map.set(key,{
-        price:p,
-        buyCount:0,
-        buyVolume:0,
-        buyNotional:0,
-        sellCount:0,
-        sellVolume:0,
-        sellNotional:0
-      });
-    }
-
-    const x=map.get(key);
-
-    if(side==="BUY"){
-      x.buyCount++;
-      x.buyVolume+=q;
-      x.buyNotional+=no;
-    }
-
-    if(side==="SELL"){
-      x.sellCount++;
-      x.sellVolume+=q;
-      x.sellNotional+=no;
-    }
-  }
-
-  return [...map.values()]
-    .map(x=>{
-      const totalVol=x.buyVolume+x.sellVolume;
-      const deltaVol=x.buyVolume-x.sellVolume;
-      const deltaNotional=
-        x.buyNotional-x.sellNotional;
-
-      return {
-        ...x,
-        buyAvg:x.buyVolume?
-          x.buyNotional/x.buyVolume:0,
-
-        sellAvg:x.sellVolume?
-          x.sellNotional/x.sellVolume:0,
-
-        deltaVolume:deltaVol,
-        deltaNotional,
-
-        pressure:
-          deltaVol>0?"BUY":
-          deltaVol<0?"SELL":"NEUTRAL",
-
-        totalVolume:totalVol
-      };
-    })
-    .sort((a,b)=>b.price-a.price);
-}
-
-/* =========================================================
-   SUMMARY
-========================================================= */
-
-function tradeSummary(trades){
-  let buyCount=0;
-  let sellCount=0;
-
-  let buyVolume=0;
-  let sellVolume=0;
-
-  let buyNotional=0;
-  let sellNotional=0;
-
-  for(const t of trades){
-    const side=tradeSide(t);
-    const q=tradeSize(t);
-    const no=tradeNotional(t);
-
-    if(side==="BUY"){
-      buyCount++;
-      buyVolume+=q;
-      buyNotional+=no;
-    }
-
-    if(side==="SELL"){
-      sellCount++;
-      sellVolume+=q;
-      sellNotional+=no;
-    }
-  }
-
-  const totalVolume=buyVolume+sellVolume;
-  const totalNotional=buyNotional+sellNotional;
-
-  return {
-    count:trades.length,
-    buyCount,
-    sellCount,
-    buyVolume,
-    sellVolume,
-    buyNotional,
-    sellNotional,
-    totalVolume,
-    totalNotional,
-
-    buyShare:
-      totalVolume?
-      buyVolume/totalVolume*100:0,
-
-    sellShare:
-      totalVolume?
-      sellVolume/totalVolume*100:0,
-
-    deltaVolume:
-      buyVolume-sellVolume,
-
-    deltaNotional:
-      buyNotional-sellNotional
   };
 }
 
-/* =========================================================
-   FILTER RESULT
-========================================================= */
+/* =========================
+   RENDER SCAN CARD
+========================= */
 
-function renderTradeFilterResult(deep,allTrades){
-  const out=deep.querySelector(".js-filter-result");
+function renderItem(
+  raw
+) {
+  const item =
+    normalizeItem(raw);
 
-  if(!out)return;
+  const pump =
+    item.pump || {};
 
-  try{
+  const status =
+    pump.detected
+      ? "PUMP"
+      : "NORMAL";
 
-    const filtered=filterTrades(
-      deep,
-      allTrades
-    );
+  const cls =
+    status === "PUMP"
+      ? "pump"
+      : "normal";
 
-    const s=tradeSummary(filtered);
-    const grouped=aggregateTradesByPrice(filtered);
-
-    const {from,to}=readFilterRange(deep);
-
-    const minInput=deep.querySelector(".js-min-price");
-    const maxInput=deep.querySelector(".js-max-price");
-
-    const min=minInput?.value||"—";
-    const max=maxInput?.value||"—";
-
-    const pressure=
-      s.deltaVolume>0?
-      `<span class="green">🟢 فشار خرید</span>`:
-      s.deltaVolume<0?
-      `<span class="red">🔴 فشار فروش</span>`:
-      `<span class="yellow">⚪ خنثی</span>`;
-
-    out.innerHTML=`
-
-      <div class="notice">
-        📌 بازه:
-        <b>${safeHtml(formatDateTime(from))}</b>
-        تا
-        <b>${safeHtml(formatDateTime(to))}</b>
-        <br>
-        💰 قیمت:
-        <b>${safeHtml(min)}</b>
-        تا
-        <b>${safeHtml(max)}</b>
-        <br>
-        📊
-        <b>${fmt(filtered.length,0)}</b>
-        معامله از
-        <b>${fmt(allTrades.length,0)}</b>
-        معامله موجود در Worker
-        <br>
-        ${historyCoverageText(deep.dataset.symbol)}
-      </div>
-
-      <div class="grid" style="margin-top:10px">
-
-        <div class="stat">
-          <div class="k">خرید</div>
-          <div class="v green">
-            ${fmt(s.buyCount,0)}
+  return `
+    <div class="coin">
+      <div class="coin-head">
+        <div>
+          <div class="symbol">
+            ${escapeHtml(item.symbol)}
           </div>
+          <span class="badge ${cls}">
+            ${status}
+          </span>
         </div>
 
-        <div class="stat">
-          <div class="k">فروش</div>
-          <div class="v red">
-            ${fmt(s.sellCount,0)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">حجم خرید</div>
-          <div class="v green">
-            ${fmtBig(s.buyVolume)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">حجم فروش</div>
-          <div class="v red">
-            ${fmtBig(s.sellVolume)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">ارزش خرید</div>
-          <div class="v green">
-            ${fmtBig(s.buyNotional)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">ارزش فروش</div>
-          <div class="v red">
-            ${fmtBig(s.sellNotional)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Delta Volume</div>
-          <div class="v ${s.deltaVolume>=0?"green":"red"}">
-            ${fmtBig(s.deltaVolume)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Delta Notional</div>
-          <div class="v ${s.deltaNotional>=0?"green":"red"}">
-            ${fmtBig(s.deltaNotional)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">فشار</div>
-          <div class="v">
-            ${pressure}
-          </div>
-        </div>
-
-      </div>
-
-      <details open style="margin-top:12px">
-        <summary>
-          📊 تجمیع دقیق معاملات بر اساس قیمت
-          — ${fmt(grouped.length,0)} سطح قیمت
-        </summary>
-
-        <div class="table-wrap" style="margin-top:10px">
-          <table>
-            <thead>
-              <tr>
-                <th>قیمت</th>
-                <th>خرید</th>
-                <th>حجم خرید</th>
-                <th>ارزش خرید</th>
-                <th>میانگین خرید</th>
-                <th>فروش</th>
-                <th>حجم فروش</th>
-                <th>ارزش فروش</th>
-                <th>میانگین فروش</th>
-                <th>Delta حجم</th>
-                <th>Delta ارزش</th>
-                <th>فشار</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              ${
-                grouped.map(x=>`
-                  <tr>
-                    <td>${fmt(x.price,12)}</td>
-
-                    <td class="green">
-                      ${fmt(x.buyCount,0)}
-                    </td>
-
-                    <td class="green">
-                      ${fmtBig(x.buyVolume)}
-                    </td>
-
-                    <td class="green">
-                      ${fmtBig(x.buyNotional)}
-                    </td>
-
-                    <td class="green">
-                      ${fmt(x.buyAvg,12)}
-                    </td>
-
-                    <td class="red">
-                      ${fmt(x.sellCount,0)}
-                    </td>
-
-                    <td class="red">
-                      ${fmtBig(x.sellVolume)}
-                    </td>
-
-                    <td class="red">
-                      ${fmtBig(x.sellNotional)}
-                    </td>
-
-                    <td class="red">
-                      ${fmt(x.sellAvg,12)}
-                    </td>
-
-                    <td class="${x.deltaVolume>=0?"green":"red"}">
-                      ${fmtBig(x.deltaVolume)}
-                    </td>
-
-                    <td class="${x.deltaNotional>=0?"green":"red"}">
-                      ${fmtBig(x.deltaNotional)}
-                    </td>
-
-                    <td class="${
-                      x.pressure==="BUY"?
-                      "green":
-                      x.pressure==="SELL"?
-                      "red":
-                      "yellow"
-                    }">
-                      ${
-                        x.pressure==="BUY"?
-                        "BUY":
-                        x.pressure==="SELL"?
-                        "SELL":
-                        "NEUTRAL"
-                      }
-                    </td>
-                  </tr>
-                `).join("")
-              }
-
-              ${
-                !grouped.length?
-                `<tr><td colspan="12">هیچ معامله‌ای با فیلتر انتخاب‌شده پیدا نشد.</td></tr>`:
-                ""
-              }
-            </tbody>
-          </table>
-        </div>
-      </details>
-
-    `;
-
-  }catch(e){
-
-    out.innerHTML=
-      `<div class="notice" style="color:#ff8e9c">
-        ❌ ${safeHtml(e.message)}
-      </div>`;
-
-  }
-}
-
-/* =========================================================
-   FILTER ATTACH
-========================================================= */
-
-function attachTradeFilter(deep){
-  const symbol=deep.dataset.symbol;
-
-  const allTrades=
-    deepTradeHistory.get(symbol)||[];
-
-  const apply=()=>{
-    renderTradeFilterResult(
-      deep,
-      deepTradeHistory.get(symbol)||[]
-    );
-  };
-
-  deep.querySelector(".js-apply-filter").onclick=apply;
-
-  deep.querySelector(".js-clear-filter").onclick=()=>{
-
-    const range=getDefaultRange();
-
-    setFilterRange(
-      deep,
-      range.from,
-      range.to
-    );
-
-    deep.querySelector(".js-min-price").value="";
-    deep.querySelector(".js-max-price").value="";
-
-    apply();
-  };
-
-  deep.querySelectorAll(".js-quick-range")
-    .forEach(btn=>{
-      btn.onclick=()=>{
-        const hours=num(btn.dataset.hours,24);
-        const to=Date.now();
-        const from=to-hours*60*60*1000;
-
-        setFilterRange(
-          deep,
-          from,
-          to
-        );
-
-        apply();
-      };
-    });
-
-  [
-    ".js-from-datetime",
-    ".js-to-datetime",
-    ".js-min-price",
-    ".js-max-price"
-  ].forEach(sel=>{
-    const el=deep.querySelector(sel);
-    if(el){
-      el.addEventListener("change",apply);
-      el.addEventListener("keydown",e=>{
-        if(e.key==="Enter")apply();
-      });
-    }
-  });
-
-  const range=getDefaultRange();
-
-  setFilterRange(
-    deep,
-    range.from,
-    range.to
-  );
-
-  renderTradeFilterResult(
-    deep,
-    allTrades
-  );
-}
-
-/* =========================================================
-   BUILD DEEP HTML
-========================================================= */
-
-function buildDeepHtml(data,symbol){
-  symbol=String(symbol||data.symbol||"").toUpperCase();
-
-  const pump=num(data.pumpScore);
-  const dump=num(data.dumpScore);
-
-  const fp=data.footprint||{};
-  const ob=data.orderBook||data.orderbook||{};
-  const market=data.market||{};
-  const movement=data.movement||{};
-  const reversal=data.reversal||{};
-  const sr=data.supportResistance||{};
-
-  const trades=
-    deepTradeHistory.get(symbol)||
-    [];
-
-  const displayTrades=
-    trades
-      .slice(-100)
-      .sort((a,b)=>
-        getTradeTimestamp(b)-
-        getTradeTimestamp(a)
-      );
-
-  const deep=document.createElement("div");
-
-  deep.className="deep";
-  deep.dataset.symbol=symbol;
-
-  deep.innerHTML=`
-
-    <div class="coin-head">
-      <h3>🔬 تحلیل عمیق ${safeHtml(symbol)}</h3>
-      <button class="small danger js-close-deep">
-        ✕ بستن
-      </button>
-    </div>
-
-    <div class="grid">
-
-      <div class="stat">
-        <div class="k">قیمت</div>
-        <div class="v">
-          ${fmt(data.price,12)}
+        <div class="price">
+          ${fmt(item.price,10)}
         </div>
       </div>
 
-      <div class="stat">
-        <div class="k">Pump Score</div>
-        <div class="v green">
-          ${fmt(pump,0)}
-        </div>
-      </div>
+      <div class="metrics">
 
-      <div class="stat">
-        <div class="k">Dump Score</div>
-        <div class="v red">
-          ${fmt(dump,0)}
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="k">وضعیت</div>
-        <div class="v">
-          ${scoreBadge(data)}
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="k">تغییر 24 ساعت</div>
-        <div class="v ${
-          num(data.market?.change24h)>=0?
-          "green":"red"
-        }">
-          ${pct(data.market?.change24h)}
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="k">Open Interest</div>
-        <div class="v">
-          ${fmtBig(market.openInterest)}
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="k">Funding</div>
-        <div class="v">
-          ${num(market.fundingRate).toFixed(6)}
-        </div>
-      </div>
-
-      <div class="stat">
-        <div class="k">Volume 24h</div>
-        <div class="v">
-          ${fmtBig(market.volume24h)}
-        </div>
-      </div>
-
-    </div>
-
-    <details open>
-      <summary>📈 Pump / Dump / Reversal</summary>
-
-      <div class="grid" style="margin-top:10px">
-
-        <div class="stat">
-          <div class="k">Pump</div>
-          <div class="v green">${fmt(pump,0)}</div>
+        <div class="metric">
+          <b>${fmt(item.activity,0)}</b>
+          <span>Activity</span>
         </div>
 
-        <div class="stat">
-          <div class="k">Dump</div>
-          <div class="v red">${fmt(dump,0)}</div>
+        <div class="metric">
+          <b>${fmt(item.volumeRatio,2)}x</b>
+          <span>Volume</span>
         </div>
 
-        <div class="stat">
-          <div class="k">Reversal Pump</div>
-          <div class="v green">
-            ${fmt(reversal.pumpScore,0)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Reversal Dump</div>
-          <div class="v red">
-            ${fmt(reversal.dumpScore,0)}
-          </div>
+        <div class="metric">
+          <b>${fmt(pump.change,2)}%</b>
+          <span>Pump</span>
         </div>
 
       </div>
 
       ${
-        Array.isArray(data.reasons)&&data.reasons.length?
-        `<div class="notice" style="margin-top:10px">
-          ${data.reasons.map(x=>`• ${safeHtml(x)}`).join("<br>")}
-        </div>`:
-        ""
+        pump.detected
+          ? `
+            <div class="deep-box">
+              <div class="info">
+                🚀 جهش شناسایی شد
+                <br>
+                درصد جهش:
+                <b>${fmt(pump.change,2)}%</b>
+                <br>
+                نسبت حجم:
+                <b>${fmt(pump.volumeMultiplier,2)}x</b>
+                <br>
+                پولبک:
+                <b>${fmt(pump.pullbackPercent,2)}%</b>
+              </div>
+            </div>
+          `
+          : ""
       }
 
-    </details>
+      <button
+        class="deep"
+        data-symbol="${escapeHtml(item.symbol)}"
+        data-category="${escapeHtml(item.category)}"
+      >
+        🔬 تحلیل عمیق
+      </button>
+    </div>
+  `;
+}
 
-    <details open>
-      <summary>👣 Footprint / معاملات</summary>
+function renderResults(
+  items
+) {
+  const el =
+    document.getElementById(
+      "results"
+    );
 
-      <div class="grid" style="margin-top:10px">
+  if (
+    !items ||
+    !items.length
+  ) {
+    el.innerHTML =
+      `<div class="empty">
+        موردی پیدا نشد.
+      </div>`;
 
-        <div class="stat">
-          <div class="k">Buy Volume</div>
-          <div class="v green">
-            ${fmtBig(fp.buyVolume)}
+    return;
+  }
+
+  el.innerHTML =
+    items
+      .map(
+        renderItem
+      )
+      .join("");
+
+  el
+    .querySelectorAll(
+      ".deep"
+    )
+    .forEach(
+      btn => {
+        btn.onclick = () =>
+          analyzeDeep(
+            btn.dataset.symbol,
+            btn.dataset.category
+          );
+      }
+    );
+}
+
+/* =========================
+   SCAN
+========================= */
+
+async function runScan() {
+  try {
+    const d =
+      await api(
+        `/scan?offset=${scanOffset}`
+      );
+
+    renderResults(
+      d.items || []
+    );
+
+    scanOffset =
+      Number(
+        d.nextOffset || 0
+      );
+
+    document.getElementById(
+      "scanState"
+    ).textContent =
+      `🟢 اسکن فعال — ${d.items?.length || 0} ارز بررسی شد`;
+
+  } catch (e) {
+    document.getElementById(
+      "scanState"
+    ).textContent =
+      "🔴 خطا: " +
+      e.message;
+  }
+}
+
+function startScan() {
+  if (scanRunning) return;
+
+  scanRunning = true;
+  scanOffset = 0;
+
+  runScan();
+
+  scanTimer =
+    setInterval(
+      runScan,
+      SCAN_INTERVAL
+    );
+}
+
+function stopScan() {
+  scanRunning = false;
+
+  if (scanTimer) {
+    clearInterval(
+      scanTimer
+    );
+
+    scanTimer = null;
+  }
+
+  document.getElementById(
+    "scanState"
+  ).textContent =
+    "⛔ اسکن متوقف است.";
+}
+
+document.getElementById(
+  "scanBtn"
+).onclick =
+  startScan;
+
+document.getElementById(
+  "stopScanBtn"
+).onclick =
+  stopScan;
+
+document.getElementById(
+  "clearBtn"
+).onclick = () => {
+  cards.clear();
+  deepTradeHistory.clear();
+  historyMeta.clear();
+
+  document.getElementById(
+    "results"
+  ).innerHTML =
+    `<div class="empty">
+      نتایج پاک شد.
+    </div>`;
+
+  document.getElementById(
+    "deepContainer"
+  ).innerHTML =
+    `<div class="empty">
+      برای تحلیل عمیق، یک ارز را جستجو کنید.
+    </div>`;
+};
+
+/* =========================
+   DEEP ANALYSIS
+========================= */
+
+async function analyzeDeep(
+  symbol,
+  category = "auto"
+) {
+  const container =
+    document.getElementById(
+      "deepContainer"
+    );
+
+  container.innerHTML =
+    `<div class="empty">
+      ⏳ در حال تحلیل ${escapeHtml(symbol)}...
+    </div>`;
+
+  try {
+    let query =
+      `symbol=${encodeURIComponent(symbol)}`;
+
+    if (
+      category &&
+      category !== "auto"
+    ) {
+      query +=
+        `&category=${encodeURIComponent(category)}`;
+    }
+
+    const d =
+      await api(
+        `/analyze?${query}`
+      );
+
+    const actualCategory =
+      d.category ||
+      (
+        category !== "auto"
+          ? category
+          : "linear"
+      );
+
+    const key =
+      `${actualCategory}:${d.symbol}`;
+
+    const tradeData =
+      await loadTrades(
+        d.symbol,
+        actualCategory,
+        24
+      );
+
+    deepTradeHistory.set(
+      key,
+      tradeData.trades || []
+    );
+
+    historyMeta.set(
+      key,
+      tradeData.history || {}
+    );
+
+    container.innerHTML =
+      buildDeepHtml(
+        d,
+        actualCategory
+      );
+
+    attachTradeFilter(
+      d.symbol,
+      actualCategory
+    );
+
+    startLive(
+      d.symbol,
+      actualCategory
+    );
+
+  } catch (e) {
+    container.innerHTML =
+      `<div class="empty">
+        🔴 ${escapeHtml(e.message)}
+      </div>`;
+  }
+}
+
+/* =========================
+   LOAD TRADES
+========================= */
+
+async function loadTrades(
+  symbol,
+  category,
+  hours = 24,
+  extra = {}
+) {
+  const p =
+    new URLSearchParams();
+
+  p.set(
+    "symbol",
+    symbol
+  );
+
+  p.set(
+    "category",
+    category
+  );
+
+  p.set(
+    "hours",
+    String(hours)
+  );
+
+  if (
+    extra.from !== undefined
+  ) {
+    p.set(
+      "from",
+      String(
+        extra.from
+      )
+    );
+  }
+
+  if (
+    extra.to !== undefined
+  ) {
+    p.set(
+      "to",
+      String(
+        extra.to
+      )
+    );
+  }
+
+  if (
+    extra.minPrice !== undefined &&
+    extra.minPrice !== ""
+  ) {
+    p.set(
+      "minPrice",
+      String(
+        extra.minPrice
+      )
+    );
+  }
+
+  if (
+    extra.maxPrice !== undefined &&
+    extra.maxPrice !== ""
+  ) {
+    p.set(
+      "maxPrice",
+      String(
+        extra.maxPrice
+      )
+    );
+  }
+
+  return api(
+    `/trades?${p.toString()}`
+  );
+}
+
+/* =========================
+   BUILD DEEP
+========================= */
+
+function buildDeepHtml(
+  d,
+  category
+) {
+  const key =
+    `${category}:${d.symbol}`;
+
+  const meta =
+    historyMeta.get(
+      key
+    ) || {};
+
+  const tf =
+    d.timeframes || {};
+
+  const fp =
+    d.footprint || {};
+
+  const ob =
+    d.orderBook ||
+    d.walls ||
+    {};
+
+  const market =
+    d.market || {};
+
+  return `
+
+    <div class="deep-box">
+
+      <div class="coin-head">
+        <div>
+          <div class="symbol">
+            ${escapeHtml(d.symbol)}
           </div>
-        </div>
 
-        <div class="stat">
-          <div class="k">Sell Volume</div>
-          <div class="v red">
-            ${fmtBig(fp.sellVolume)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Delta</div>
-          <div class="v ${
-            num(fp.delta)>=0?"green":"red"
+          <span class="badge ${
+            d.direction === "LONG"
+              ? "long"
+              :
+            d.direction === "SHORT"
+              ? "short"
+              : "wait"
           }">
-            ${fmtBig(fp.delta)}
-          </div>
+            ${escapeHtml(d.direction)}
+          </span>
+
+          <span class="badge ${
+            d.pumpScore >= 75
+              ? "pump"
+              :
+            d.dumpScore >= 75
+              ? "dump"
+              : "normal"
+          }">
+            ${escapeHtml(
+              d.pumpDumpStatus ||
+              "NORMAL"
+            )}
+          </span>
         </div>
 
-        <div class="stat">
-          <div class="k">Delta %</div>
-          <div class="v">
-            ${pct(fp.deltaPercent)}
-          </div>
+        <div class="price">
+          ${fmt(d.price,10)}
         </div>
-
-        <div class="stat">
-          <div class="k">Buy Notional</div>
-          <div class="v green">
-            ${fmtBig(fp.buyNotional)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Sell Notional</div>
-          <div class="v red">
-            ${fmtBig(fp.sellNotional)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Pressure</div>
-          <div class="v">
-            ${safeHtml(fp.pressure||"NEUTRAL")}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Trades</div>
-          <div class="v">
-            ${fmt(fp.trades,0)}
-          </div>
-        </div>
-
       </div>
-    </details>
 
-    <details>
-      <summary>📚 Order Book / Walls</summary>
+      <div class="metrics">
 
-      <div class="grid" style="margin-top:10px">
-
-        <div class="stat">
-          <div class="k">Buy Liquidity</div>
-          <div class="v green">
-            ${fmtBig(ob.buyLiquidity)}
-          </div>
+        <div class="metric">
+          <b>${fmt(d.score,0)}</b>
+          <span>Score</span>
         </div>
 
-        <div class="stat">
-          <div class="k">Sell Liquidity</div>
-          <div class="v red">
-            ${fmtBig(ob.sellLiquidity)}
-          </div>
+        <div class="metric">
+          <b>${fmt(d.pumpScore,0)}</b>
+          <span>Pump</span>
         </div>
 
-        <div class="stat">
-          <div class="k">Buy Share</div>
-          <div class="v green">
-            ${pct(ob.buyShare)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Sell Share</div>
-          <div class="v red">
-            ${pct(ob.sellShare)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Buy Wall</div>
-          <div class="v green">
-            ${fmt(ob.buy?.price,12)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Sell Wall</div>
-          <div class="v red">
-            ${fmt(ob.sell?.price,12)}
-          </div>
-        </div>
-
-      </div>
-    </details>
-
-    <details>
-      <summary>📍 Support / Resistance</summary>
-
-      <div class="grid" style="margin-top:10px">
-
-        <div class="stat">
-          <div class="k">Nearest Support</div>
-          <div class="v green">
-            ${fmt(sr.nearestSupport?.price,12)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Nearest Resistance</div>
-          <div class="v red">
-            ${fmt(sr.nearestResistance?.price,12)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Strongest Support</div>
-          <div class="v green">
-            ${fmt(sr.strongestSupport?.price,12)}
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="k">Strongest Resistance</div>
-          <div class="v red">
-            ${fmt(sr.strongestResistance?.price,12)}
-          </div>
-        </div>
-
-      </div>
-    </details>
-
-    <details open>
-      <summary>🎯 فیلتر و تجمیع معاملات واقعی Bybit</summary>
-
-      <div class="filter-box">
-
-        <div class="notice">
-          ارزش هر معامله =
-          <b>قیمت × حجم معامله</b>.
-          <span class="green">سبز = خرید</span>
-          ·
-          <span class="red">قرمز = فروش</span>.
-          <br>
-          تجمیع پایین جدول بر اساس تمام معاملات موجود در
-          <b>تاریخچه Worker</b>
-          انجام می‌شود، نه فقط 100 معامله نمایشی.
-        </div>
-
-        <div class="grid" style="margin-top:10px">
-
-          <div>
-            <label>از تاریخ و ساعت</label>
-            <input
-              type="datetime-local"
-              step="1"
-              class="js-from-datetime">
-          </div>
-
-          <div>
-            <label>تا تاریخ و ساعت</label>
-            <input
-              type="datetime-local"
-              step="1"
-              class="js-to-datetime">
-          </div>
-
-          <div>
-            <label>حداقل قیمت</label>
-            <input
-              type="number"
-              step="any"
-              class="js-min-price"
-              placeholder="مثلاً 0.7834">
-          </div>
-
-          <div>
-            <label>حداکثر قیمت</label>
-            <input
-              type="number"
-              step="any"
-              class="js-max-price"
-              placeholder="مثلاً 0.7973">
-          </div>
-
-        </div>
-
-        <div class="quick">
-
-          <button
-            type="button"
-            class="js-quick-range"
-            data-hours="1">
-            ۱ ساعت اخیر
-          </button>
-
-          <button
-            type="button"
-            class="js-quick-range"
-            data-hours="3">
-            ۳ ساعت اخیر
-          </button>
-
-          <button
-            type="button"
-            class="js-quick-range"
-            data-hours="6">
-            ۶ ساعت اخیر
-          </button>
-
-          <button
-            type="button"
-            class="js-quick-range"
-            data-hours="12">
-            ۱۲ ساعت اخیر
-          </button>
-
-          <button
-            type="button"
-            class="js-quick-range"
-            data-hours="24">
-            ۲۴ ساعت اخیر
-          </button>
-
-        </div>
-
-        <div class="row" style="margin-top:10px">
-
-          <button
-            type="button"
-            class="success js-apply-filter">
-            🎯 اعمال فیلتر
-          </button>
-
-          <button
-            type="button"
-            class="secondary js-clear-filter">
-            🔄 پاک کردن
-          </button>
-
+        <div class="metric">
+          <b>${fmt(d.dumpScore,0)}</b>
+          <span>Dump</span>
         </div>
 
       </div>
 
-      <div class="js-filter-result"></div>
+      <div class="section">
 
-    </details>
+        <div class="title">
+          📊 تایم‌فریم‌ها
+        </div>
 
-    <details>
-      <summary>
-        📋 آخرین 100 معامله نمایشی
-      </summary>
+        <div class="deep-grid">
 
-      <div class="notice" style="margin:10px 0">
-        این جدول فقط برای نمایش آخرین معاملات است.
-        فیلتر و تجمیع از تاریخچه کامل موجود در Worker استفاده می‌کند.
-      </div>
+          ${["1","3","5","15","60"]
+            .map(k => {
 
-      <div class="table-wrap">
+              const x =
+                tf[k];
 
-        <table>
-
-          <thead>
-            <tr>
-              <th>زمان</th>
-              <th>نوع</th>
-              <th>قیمت</th>
-              <th>حجم</th>
-              <th>ارزش معامله</th>
-              <th>Block</th>
-            </tr>
-          </thead>
-
-          <tbody class="js-recent-trades">
-
-            ${
-              displayTrades.map(t=>{
-                const side=tradeSide(t);
-                const cls=side==="BUY"?"buy":"sell";
-
+              if (!x) {
                 return `
-                  <tr class="${cls}">
-
-                    <td>
-                      ${safeHtml(
-                        formatDateTime(
-                          getTradeTimestamp(t)
-                        )
-                      )}
-                    </td>
-
-                    <td class="${
-                      side==="BUY"?
-                      "green":"red"
-                    }">
-                      ${
-                        side==="BUY"?
-                        "🟢 BUY":
-                        "🔴 SELL"
-                      }
-                    </td>
-
-                    <td>
-                      ${fmt(tradePrice(t),12)}
-                    </td>
-
-                    <td>
-                      ${fmtBig(tradeSize(t))}
-                    </td>
-
-                    <td>
-                      ${fmtBig(tradeNotional(t))}
-                    </td>
-
-                    <td>
-                      ${t.isBlockTrade?"🧱":"—"}
-                    </td>
-
-                  </tr>
+                  <div class="metric">
+                    <b>${k}m</b>
+                    <span>-</span>
+                  </div>
                 `;
-              }).join("")
-            }
+              }
 
-            ${
-              !displayTrades.length?
-              `<tr><td colspan="6">معامله‌ای موجود نیست.</td></tr>`:
-              ""
-            }
+              return `
+                <div class="metric">
+                  <b>${k}m</b>
+                  <span>
+                    قیمت ${fmt(x.close,10)}
+                    <br>
+                    MA20 ${fmt(x.ma20,10)}
+                    <br>
+                    RSI ${fmt(x.rsi,2)}
+                  </span>
+                </div>
+              `;
 
-          </tbody>
+            })
+            .join("")}
 
-        </table>
+        </div>
 
       </div>
-    </details>
 
-    <div class="muted" style="margin-top:10px">
-      آخرین به‌روزرسانی:
-      ${formatDateTime(Date.now())}
+      <div class="section">
+
+        <div class="title">
+          👣 Footprint
+        </div>
+
+        <div class="metrics">
+
+          <div class="metric">
+            <b class="buy">
+              ${fmt(fp.buyVolume,4)}
+            </b>
+            <span>Buy Volume</span>
+          </div>
+
+          <div class="metric">
+            <b class="sell">
+              ${fmt(fp.sellVolume,4)}
+            </b>
+            <span>Sell Volume</span>
+          </div>
+
+          <div class="metric">
+            <b>
+              ${fmt(fp.deltaPercent,2)}%
+            </b>
+            <span>Delta</span>
+          </div>
+
+        </div>
+
+        <div class="info" style="margin-top:8px">
+          فشار:
+          <b>
+            ${escapeHtml(
+              fp.pressure || "-"
+            )}
+          </b>
+          <br>
+          تعداد معاملات دریافت‌شده:
+          ${fmt(fp.rows,0)}
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="title">
+          📚 Order Book
+        </div>
+
+        <div class="metrics">
+
+          <div class="metric">
+            <b>
+              ${fmt(ob.buy?.price,10)}
+            </b>
+            <span>Buy Wall</span>
+          </div>
+
+          <div class="metric">
+            <b>
+              ${fmt(ob.sell?.price,10)}
+            </b>
+            <span>Sell Wall</span>
+          </div>
+
+          <div class="metric">
+            <b>
+              ${fmt(ob.buyShare,2)}%
+            </b>
+            <span>Buy Share</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="title">
+          📈 OI / Funding
+        </div>
+
+        <div class="metrics">
+
+          <div class="metric">
+            <b>
+              ${fmt(
+                market.openInterest,
+                2
+              )}
+            </b>
+            <span>OI</span>
+          </div>
+
+          <div class="metric">
+            <b>
+              ${fmt(
+                market.openInterestChange,
+                2
+              )}%
+            </b>
+            <span>OI Change</span>
+          </div>
+
+          <div class="metric">
+            <b>
+              ${fmt(
+                market.fundingRate,
+                6
+              )}
+            </b>
+            <span>Funding</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="title">
+          🧠 دلایل سیگنال
+        </div>
+
+        <div class="info">
+          ${
+            (d.reasons || [])
+              .length
+              ? d.reasons
+                  .map(
+                    x =>
+                      "• " +
+                      escapeHtml(x)
+                  )
+                  .join("<br>")
+              : "مورد مشخصی ثبت نشده است."
+          }
+        </div>
+
+      </div>
+
+      <div class="section">
+
+        <div class="title">
+          🕐 تاریخچه معاملات
+        </div>
+
+        <div
+          class="history"
+          id="history-${escapeHtml(
+            category + "-" + d.symbol
+          )}"
+        >
+
+          <div class="info">
+            تعداد معاملات ذخیره‌شده:
+            <b class="js-history-count">
+              ${fmt(meta.count || 0,0)}
+            </b>
+
+            <br>
+
+            قدیمی‌ترین:
+            <b class="js-history-oldest">
+              ${
+                meta.oldest
+                  ? formatDate(
+                      meta.oldest
+                    )
+                  : "-"
+              }
+            </b>
+
+            <br>
+
+            جدیدترین:
+            <b class="js-history-newest">
+              ${
+                meta.newest
+                  ? formatDate(
+                      meta.newest
+                    )
+                  : "-"
+              }
+            </b>
+
+            <br>
+
+            پوشش فعلی:
+            <b class="js-history-hours">
+              ${fmt(meta.hours || 0,2)}
+            </b>
+            ساعت
+
+            <br>
+
+            نگهداری:
+            <b>۲۴ ساعت</b>
+          </div>
+
+        </div>
+
+      </div>
+
+      ${buildTradeFilterHtml(
+        d.symbol,
+        category
+      )}
+
     </div>
 
   `;
-
-  deep.querySelector(".js-close-deep").onclick=()=>{
-    stopLive(symbol);
-    stopHistoryRefresh(symbol);
-    deep.remove();
-  };
-
-  return deep;
 }
 
-/* =========================================================
-   OPEN DEEP
-========================================================= */
+/* =========================
+   FILTER HTML
+========================= */
 
-async function openDeep(symbol){
-  symbol=String(symbol||"").trim().toUpperCase();
+function buildTradeFilterHtml(
+  symbol,
+  category
+) {
+  const now =
+    new Date();
 
-  if(!symbol)return;
-
-  stopLive(symbol);
-  stopHistoryRefresh(symbol);
-
-  const old=document.querySelector(
-    `.deep[data-symbol="${CSS.escape(symbol)}"]`
-  );
-
-  if(old)old.remove();
-
-  const holder=document.createElement("div");
-
-  holder.className="panel";
-  holder.innerHTML=
-    `<div class="loading">
-      ⏳ در حال دریافت تحلیل عمیق ${safeHtml(symbol)}...
-    </div>`;
-
-  $("deepResults").prepend(holder);
-
-  try{
-
-    const d=await getJSON(
-      `${WORKER}/analyze?symbol=${encodeURIComponent(symbol)}`+
-      `&category=${encodeURIComponent($("category").value)}`+
-      `&_=${Date.now()}`
+  const from =
+    new Date(
+      now.getTime() -
+      24 *
+      60 *
+      60 *
+      1000
     );
 
-    const initial=
-      Array.isArray(d.recentTrades)?
-      d.recentTrades:
-      [];
+  const toLocal =
+    value =>
+      new Date(
+        value.getTime() -
+        value.getTimezoneOffset() *
+          60000
+      )
+        .toISOString()
+        .slice(
+          0,
+          16
+        );
 
-    mergeTrades(symbol,initial);
+  return `
 
-    if(d.tradeHistory){
-      updateHistoryMeta(symbol,d.tradeHistory);
-    }
+    <div
+      class="section trade-filter"
+      data-symbol="${escapeHtml(symbol)}"
+      data-category="${escapeHtml(category)}"
+    >
 
-    await loadTradeHistory(symbol,true);
+      <div class="title">
+        🎯 فیلتر و تجمیع معاملات واقعی Bybit
+      </div>
 
-    const deep=buildDeepHtml(d,symbol);
+      <div class="info">
+        ارزش هر معامله =
+        قیمت × حجم معامله.
+        رنگ سبز خرید و رنگ قرمز فروش است.
+        تجمیع پایین این جدول بر اساس
+        تمام معاملات دریافت‌شده از Worker
+        انجام می‌شود.
+      </div>
 
-    holder.replaceWith(deep);
+      <div
+        class="quick"
+      >
+        <button
+          type="button"
+          data-hours="1"
+        >
+          ۱ ساعت
+        </button>
 
-    attachTradeFilter(deep);
+        <button
+          type="button"
+          data-hours="3"
+        >
+          ۳ ساعت
+        </button>
 
-    startLive(symbol);
+        <button
+          type="button"
+          data-hours="6"
+        >
+          ۶ ساعت
+        </button>
 
-    startHistoryRefresh(symbol);
+        <button
+          type="button"
+          data-hours="12"
+        >
+          ۱۲ ساعت
+        </button>
 
-  }catch(e){
+        <button
+          type="button"
+          data-hours="24"
+        >
+          ۲۴ ساعت
+        </button>
+      </div>
 
-    holder.innerHTML=
-      `<div class="notice" style="color:#ff8e9c">
-        ❌ خطا در تحلیل ${safeHtml(symbol)}:
-        ${safeHtml(e.message)}
-      </div>`;
+      <div
+        class="filter-grid"
+        style="margin-top:10px"
+      >
 
-  }
-}
+        <div>
+          <label>از تاریخ و ساعت</label>
+          <input
+            type="datetime-local"
+            step="1"
+            class="js-from-datetime"
+            value="${toLocal(from)}"
+          >
+        </div>
 
-/* =========================================================
-   LIVE
-========================================================= */
+        <div>
+          <label>تا تاریخ و ساعت</label>
+          <input
+            type="datetime-local"
+            step="1"
+            class="js-to-datetime"
+            value="${toLocal(to)}"
+          >
+        </div>
 
-function startLive(symbol){
-  symbol=String(symbol||"").toUpperCase();
+        <div>
+          <label>حداقل قیمت</label>
+          <input
+            type="number"
+            step="any"
+            class="js-min-price"
+            placeholder="مثلاً 0.7834"
+          >
+        </div>
 
-  stopLive(symbol);
+        <div>
+          <label>حداکثر قیمت</label>
+          <input
+            type="number"
+            step="any"
+            class="js-max-price"
+            placeholder="مثلاً 0.7973"
+          >
+        </div>
 
-  const timer=setInterval(
-    ()=>refreshLive(symbol),
-    LIVE_INTERVAL
-  );
+      </div>
 
-  liveTimers.set(symbol,timer);
+      <div
+        class="row"
+        style="margin-top:8px"
+      >
+        <button
+          type="button"
+          class="js-apply-filter"
+        >
+          🎯 اعمال فیلتر
+        </button>
 
-  refreshLive(symbol);
-}
+        <button
+          type="button"
+          class="secondary js-clear-filter"
+        >
+          🔄 بازنشانی
+        </button>
+      </div>
 
-function stopLive(symbol){
-  const timer=liveTimers.get(
-    String(symbol).toUpperCase()
-  );
+      <div
+        class="filter-summary js-filter-summary"
+      >
+        در حال دریافت معاملات...
+      </div>
 
-  if(timer){
-    clearInterval(timer);
-    liveTimers.delete(
-      String(symbol).toUpperCase()
-    );
-  }
-}
-
-async function refreshLive(symbol){
-  symbol=String(symbol||"").toUpperCase();
-
-  try{
-
-    const d=await getJSON(
-      `${WORKER}/live?symbol=${encodeURIComponent(symbol)}`+
-      `&_=${Date.now()}`
-    );
-
-    mergeTrades(
-      symbol,
-      Array.isArray(d.recentTrades)?
-      d.recentTrades:
-      []
-    );
-
-    const deep=document.querySelector(
-      `.deep[data-symbol="${CSS.escape(symbol)}"]`
-    );
-
-    if(!deep)return;
-
-    const all=deepTradeHistory.get(symbol)||[];
-
-    /*
-      فیلتر و تجمیع بدون از بین بردن
-      تاریخچه قبلی دوباره محاسبه می‌شود.
-    */
-    renderTradeFilterResult(
-      deep,
-      all
-    );
-
-    const tbody=deep.querySelector(
-      ".js-recent-trades"
-    );
-
-    if(tbody){
-
-      const latest=
-        all
-          .slice(-100)
-          .sort((a,b)=>
-            getTradeTimestamp(b)-
-            getTradeTimestamp(a)
-          );
-
-      tbody.innerHTML=
-        latest.map(t=>{
-          const side=tradeSide(t);
-
-          return `
-            <tr class="${
-              side==="BUY"?"buy":"sell"
-            }">
-
-              <td>
-                ${safeHtml(
-                  formatDateTime(
-                    getTradeTimestamp(t)
-                  )
-                )}
-              </td>
-
-              <td class="${
-                side==="BUY"?
-                "green":"red"
-              }">
-                ${
-                  side==="BUY"?
-                  "🟢 BUY":
-                  "🔴 SELL"
-                }
-              </td>
-
-              <td>${fmt(tradePrice(t),12)}</td>
-              <td>${fmtBig(tradeSize(t))}</td>
-              <td>${fmtBig(tradeNotional(t))}</td>
-              <td>${t.isBlockTrade?"🧱":"—"}</td>
-
+      <div
+        class="table-wrap"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>زمان</th>
+              <th>قیمت</th>
+              <th>حجم</th>
+              <th>ارزش</th>
+              <th>سمت</th>
             </tr>
-          `;
-        }).join("");
+          </thead>
 
-    }
+          <tbody
+            class="js-trades-body"
+          >
+            <tr>
+              <td colspan="5">
+                در حال دریافت...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-  }catch(_){}
+      <div
+        class="table-wrap"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>قیمت</th>
+              <th>خرید</th>
+              <th>فروش</th>
+              <th>حجم کل</th>
+              <th>ارزش کل</th>
+              <th>Delta</th>
+              <th>فشار</th>
+            </tr>
+          </thead>
+
+          <tbody
+            class="js-aggregation-body"
+          >
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  `;
 }
 
-/* =========================================================
-   HISTORY REFRESH
-========================================================= */
+/* =========================
+   DATETIME
+========================= */
 
-function startHistoryRefresh(symbol){
-  symbol=String(symbol||"").toUpperCase();
+function localDateTimeMs(
+  value
+) {
+  if (!value) {
+    return null;
+  }
 
-  stopHistoryRefresh(symbol);
+  const d =
+    new Date(
+      value
+    );
 
-  const timer=setInterval(
-    async()=>{
-      await loadTradeHistory(symbol,true);
+  const tm =
+    d.getTime();
 
-      const deep=document.querySelector(
-        `.deep[data-symbol="${CSS.escape(symbol)}"]`
+  return Number.isFinite(tm)
+    ? tm
+    : null;
+}
+
+/* =========================
+   FILTER
+========================= */
+
+function filterTradesLocal(
+  trades,
+  filter
+) {
+  const from =
+    localDateTimeMs(
+      filter.from
+    );
+
+  const to =
+    localDateTimeMs(
+      filter.to
+    );
+
+  const min =
+    filter.min !== ""
+      ? Number(
+          filter.min
+        )
+      : null;
+
+  const max =
+    filter.max !== ""
+      ? Number(
+          filter.max
+        )
+      : null;
+
+  return (
+    trades || []
+  ).filter(
+    t => {
+
+      const tm =
+        tradeTimestamp(t);
+
+      const price =
+        tradePrice(t);
+
+      if (
+        from !== null &&
+        tm < from
+      ) {
+        return false;
+      }
+
+      if (
+        to !== null &&
+        tm > to
+      ) {
+        return false;
+      }
+
+      if (
+        min !== null &&
+        Number.isFinite(min) &&
+        price < min
+      ) {
+        return false;
+      }
+
+      if (
+        max !== null &&
+        Number.isFinite(max) &&
+        price > max
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+  ).sort(
+    (a,b) =>
+      tradeTimestamp(a) -
+      tradeTimestamp(b)
+  );
+}
+
+/* =========================
+   AGGREGATION
+========================= */
+
+function aggregateLocal(
+  rows
+) {
+  const map =
+    new Map();
+
+  let buyVolume = 0;
+  let sellVolume = 0;
+
+  let buyNotional = 0;
+  let sellNotional = 0;
+
+  let buyTrades = 0;
+  let sellTrades = 0;
+
+  for (
+    const t of rows || []
+  ) {
+    const price =
+      tradePrice(t);
+
+    const size =
+      tradeSize(t);
+
+    const notional =
+      tradeNotional(t);
+
+    if (
+      price <= 0 ||
+      size <= 0
+    ) {
+      continue;
+    }
+
+    const key =
+      price.toFixed(12);
+
+    if (
+      !map.has(key)
+    ) {
+      map.set(
+        key,
+        {
+          price,
+
+          buyVolume:0,
+          sellVolume:0,
+
+          buyNotional:0,
+          sellNotional:0,
+
+          buyTrades:0,
+          sellTrades:0
+        }
+      );
+    }
+
+    const r =
+      map.get(key);
+
+    const side =
+      tradeSide(t);
+
+    if (
+      side === "BUY"
+    ) {
+      r.buyVolume +=
+        size;
+
+      r.buyNotional +=
+        notional;
+
+      r.buyTrades++;
+
+      buyVolume +=
+        size;
+
+      buyNotional +=
+        notional;
+
+      buyTrades++;
+    }
+
+    if (
+      side === "SELL"
+    ) {
+      r.sellVolume +=
+        size;
+
+      r.sellNotional +=
+        notional;
+
+      r.sellTrades++;
+
+      sellVolume +=
+        size;
+
+      sellNotional +=
+        notional;
+
+      sellTrades++;
+    }
+  }
+
+  const ranges =
+    [...map.values()]
+      .map(
+        r => {
+
+          const totalVolume =
+            r.buyVolume +
+            r.sellVolume;
+
+          const totalNotional =
+            r.buyNotional +
+            r.sellNotional;
+
+          const delta =
+            r.buyVolume -
+            r.sellVolume;
+
+          return {
+            ...r,
+
+            totalVolume,
+
+            totalNotional,
+
+            delta,
+
+            pressure:
+              delta > 0
+                ? "BUY"
+                :
+              delta < 0
+                ? "SELL"
+                :
+                  "BALANCED"
+          };
+        }
+      )
+      .sort(
+        (a,b) =>
+          a.price -
+          b.price
       );
 
-      if(deep){
-        renderTradeFilterResult(
-          deep,
-          deepTradeHistory.get(symbol)||[]
+  const totalVolume =
+    buyVolume +
+    sellVolume;
+
+  const totalNotional =
+    buyNotional +
+    sellNotional;
+
+  return {
+    ranges,
+
+    buyVolume,
+    sellVolume,
+
+    buyNotional,
+    sellNotional,
+
+    buyTrades,
+    sellTrades,
+
+    totalVolume,
+
+    totalNotional,
+
+    totalTrades:
+      buyTrades +
+      sellTrades,
+
+    deltaVolume:
+      buyVolume -
+      sellVolume,
+
+    deltaNotional:
+      buyNotional -
+      sellNotional,
+
+    buyShare:
+      totalVolume
+        ? buyVolume /
+          totalVolume *
+          100
+        : 0,
+
+    sellShare:
+      totalVolume
+        ? sellVolume /
+          totalVolume *
+          100
+        : 0
+  };
+}
+
+/* =========================
+   RENDER FILTER
+========================= */
+
+function renderTradeFilterResult(
+  root,
+  rows,
+  meta
+) {
+  const summary =
+    root.querySelector(
+      ".js-filter-summary"
+    );
+
+  const body =
+    root.querySelector(
+      ".js-trades-body"
+    );
+
+  const aggBody =
+    root.querySelector(
+      ".js-aggregation-body"
+    );
+
+  const agg =
+    aggregateLocal(
+      rows
+    );
+
+  summary.innerHTML = `
+    <b>معاملات فیلترشده:</b>
+    ${fmt(rows.length,0)}
+
+    &nbsp; | &nbsp;
+
+    <b>خرید:</b>
+    <span class="buy">
+      ${fmt(agg.buyTrades,0)}
+    </span>
+
+    &nbsp; | &nbsp;
+
+    <b>فروش:</b>
+    <span class="sell">
+      ${fmt(agg.sellTrades,0)}
+    </span>
+
+    <br>
+
+    حجم خرید:
+    <b class="buy">
+      ${fmt(agg.buyVolume,8)}
+    </b>
+
+    &nbsp; | &nbsp;
+
+    حجم فروش:
+    <b class="sell">
+      ${fmt(agg.sellVolume,8)}
+    </b>
+
+    <br>
+
+    ارزش خرید:
+    <b class="buy">
+      ${fmt(agg.buyNotional,4)}
+    </b>
+
+    &nbsp; | &nbsp;
+
+    ارزش فروش:
+    <b class="sell">
+      ${fmt(agg.sellNotional,4)}
+    </b>
+
+    <br>
+
+    Delta:
+    <b class="${
+      agg.deltaVolume >= 0
+        ? "delta-pos"
+        : "delta-neg"
+    }">
+      ${fmt(agg.deltaVolume,8)}
+    </b>
+
+    <br>
+
+    پوشش Worker:
+    <b>
+      ${fmt(meta?.hours || 0,2)}
+      ساعت
+    </b>
+
+    |
+    کل تاریخچه:
+    <b>
+      ${fmt(meta?.count || 0,0)}
+    </b>
+  `;
+
+  const displayRows =
+    rows
+      .slice(-100)
+      .reverse();
+
+  if (
+    !displayRows.length
+  ) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="5">
+          معامله‌ای مطابق فیلتر پیدا نشد.
+        </td>
+      </tr>
+    `;
+  } else {
+    body.innerHTML =
+      displayRows
+        .map(
+          t => {
+
+            const side =
+              tradeSide(t);
+
+            const sideClass =
+              side === "BUY"
+                ? "buy"
+                : "sell";
+
+            return `
+              <tr>
+                <td>
+                  ${formatDate(
+                    tradeTimestamp(t)
+                  )}
+                </td>
+
+                <td>
+                  ${fmt(
+                    tradePrice(t),
+                    12
+                  )}
+                </td>
+
+                <td>
+                  ${fmt(
+                    tradeSize(t),
+                    8
+                  )}
+                </td>
+
+                <td>
+                  ${fmt(
+                    tradeNotional(t),
+                    4
+                  )}
+                </td>
+
+                <td class="${sideClass}">
+                  ${escapeHtml(
+                    side
+                  )}
+                </td>
+              </tr>
+            `;
+          }
+        )
+        .join("");
+  }
+
+  if (
+    !agg.ranges.length
+  ) {
+    aggBody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          داده‌ای برای تجمیع وجود ندارد.
+        </td>
+      </tr>
+    `;
+  } else {
+    aggBody.innerHTML =
+      agg.ranges
+        .map(
+          r => {
+
+            const delta =
+              r.delta;
+
+            return `
+              <tr>
+
+                <td>
+                  ${fmt(
+                    r.price,
+                    12
+                  )}
+                </td>
+
+                <td class="buy">
+                  ${fmt(
+                    r.buyVolume,
+                    8
+                  )}
+                  <br>
+                  ${fmt(
+                    r.buyNotional,
+                    4
+                  )}
+                </td>
+
+                <td class="sell">
+                  ${fmt(
+                    r.sellVolume,
+                    8
+                  )}
+                  <br>
+                  ${fmt(
+                    r.sellNotional,
+                    4
+                  )}
+                </td>
+
+                <td>
+                  ${fmt(
+                    r.totalVolume,
+                    8
+                  )}
+                </td>
+
+                <td>
+                  ${fmt(
+                    r.totalNotional,
+                    4
+                  )}
+                </td>
+
+                <td class="${
+                  delta >= 0
+                    ? "delta-pos"
+                    : "delta-neg"
+                }">
+                  ${fmt(
+                    delta,
+                    8
+                  )}
+                </td>
+
+                <td>
+                  ${
+                    r.pressure ===
+                    "BUY"
+                      ? "🟢 BUY"
+                      :
+                    r.pressure ===
+                    "SELL"
+                      ? "🔴 SELL"
+                      : "⚪ متعادل"
+                  }
+                </td>
+
+              </tr>
+            `;
+          }
+        )
+        .join("");
+  }
+}
+
+/* =========================
+   ATTACH FILTER
+========================= */
+
+function attachTradeFilter(
+  symbol,
+  category
+) {
+  const root =
+    document.querySelector(
+      `.trade-filter[data-symbol="${CSS.escape(symbol)}"][data-category="${CSS.escape(category)}"]`
+    );
+
+  if (!root) return;
+
+  const key =
+    `${category}:${symbol}`;
+
+  const apply =
+    async (
+      hoursOverride = null
+    ) => {
+
+      const fromInput =
+        root.querySelector(
+          ".js-from-datetime"
         );
 
-        const meta=getHistoryMeta(symbol);
-
-        const notice=deep.querySelector(
-          ".js-history-meta"
+      const toInput =
+        root.querySelector(
+          ".js-to-datetime"
         );
 
-        if(notice){
-          notice.textContent=
-            historyCoverageText(symbol);
-        }
+      const minInput =
+        root.querySelector(
+          ".js-min-price"
+        );
+
+      const maxInput =
+        root.querySelector(
+          ".js-max-price"
+        );
+
+      let from =
+        fromInput.value;
+
+      let to =
+        toInput.value;
+
+      if (
+        hoursOverride !== null
+      ) {
+        const now =
+          new Date();
+
+        const fromDate =
+          new Date(
+            now.getTime() -
+            hoursOverride *
+            60 *
+            60 *
+            1000
+          );
+
+        const local =
+          d =>
+            new Date(
+              d.getTime() -
+              d.getTimezoneOffset() *
+                60000
+            )
+              .toISOString()
+              .slice(
+                0,
+                16
+              );
+
+        from =
+          local(
+            fromDate
+          );
+
+        to =
+          local(
+            now
+          );
+
+        fromInput.value =
+          from;
+
+        toInput.value =
+          to;
       }
-    },
-    HISTORY_REFRESH_INTERVAL
-  );
 
-  historyTimers.set(symbol,timer);
+      const fromMs =
+        localDateTimeMs(
+          from
+        );
+
+      const toMs =
+        localDateTimeMs(
+          to
+        );
+
+      const min =
+        minInput.value;
+
+      const max =
+        maxInput.value;
+
+      try {
+
+        const server =
+          await loadTrades(
+            symbol,
+            category,
+            24,
+            {
+              from:
+                fromMs ??
+                undefined,
+
+              to:
+                toMs ??
+                undefined,
+
+              minPrice:
+                min,
+
+              maxPrice:
+                max
+            }
+          );
+
+        deepTradeHistory.set(
+          key,
+          server.trades || []
+        );
+
+        historyMeta.set(
+          key,
+          server.history || {}
+        );
+
+        const all =
+          server.trades || [];
+
+        const rows =
+          filterTradesLocal(
+            all,
+            {
+              from,
+              to,
+              min,
+              max
+            }
+          );
+
+        renderTradeFilterResult(
+          root,
+          rows,
+          server.history
+        );
+
+        updateHistoryMeta(
+          root,
+          server.history
+        );
+
+      } catch (e) {
+
+        root.querySelector(
+          ".js-filter-summary"
+        ).innerHTML =
+          "🔴 " +
+          escapeHtml(
+            e.message
+          );
+      }
+    };
+
+  root
+    .querySelectorAll(
+      "[data-hours]"
+    )
+    .forEach(
+      btn => {
+        btn.onclick =
+          () =>
+            apply(
+              Number(
+                btn.dataset.hours
+              )
+            );
+      }
+    );
+
+  root.querySelector(
+    ".js-apply-filter"
+  ).onclick =
+    () =>
+      apply();
+
+  root.querySelector(
+    ".js-clear-filter"
+  ).onclick =
+    () => {
+
+      const now =
+        new Date();
+
+      const from =
+        new Date(
+          now.getTime() -
+          24 *
+          60 *
+          60 *
+          1000
+        );
+
+      const local =
+        d =>
+          new Date(
+            d.getTime() -
+            d.getTimezoneOffset() *
+              60000
+          )
+            .toISOString()
+            .slice(
+              0,
+              16
+            );
+
+      root.querySelector(
+        ".js-from-datetime"
+      ).value =
+        local(from);
+
+      root.querySelector(
+        ".js-to-datetime"
+      ).value =
+        local(now);
+
+      root.querySelector(
+        ".js-min-price"
+      ).value = "";
+
+      root.querySelector(
+        ".js-max-price"
+      ).value = "";
+
+      apply();
+    };
+
+  apply();
 }
 
-function stopHistoryRefresh(symbol){
-  symbol=String(symbol||"").toUpperCase();
+/* =========================
+   HISTORY META
+========================= */
 
-  const timer=historyTimers.get(symbol);
+function updateHistoryMeta(
+  root,
+  meta
+) {
+  if (!meta) return;
 
-  if(timer){
-    clearInterval(timer);
-    historyTimers.delete(symbol);
+  const count =
+    root.querySelector(
+      ".js-history-count"
+    );
+
+  const oldest =
+    root.querySelector(
+      ".js-history-oldest"
+    );
+
+  const newest =
+    root.querySelector(
+      ".js-history-newest"
+    );
+
+  const hours =
+    root.querySelector(
+      ".js-history-hours"
+    );
+
+  if (count) {
+    count.textContent =
+      fmt(
+        meta.count || 0,
+        0
+      );
+  }
+
+  if (oldest) {
+    oldest.textContent =
+      meta.oldest
+        ? formatDate(
+            meta.oldest
+          )
+        : "-";
+  }
+
+  if (newest) {
+    newest.textContent =
+      meta.newest
+        ? formatDate(
+            meta.newest
+          )
+        : "-";
+  }
+
+  if (hours) {
+    hours.textContent =
+      fmt(
+        meta.hours || 0,
+        2
+      );
   }
 }
 
-/* =========================================================
-   LIVE CARD UPDATE
-========================================================= */
+/* =========================
+   LIVE
+========================= */
 
-function updateCardFromLive(symbol,d){
-  const card=cards.get(symbol);
-  if(!card)return;
+function startLive(
+  symbol,
+  category
+) {
+  if (liveTimer) {
+    clearInterval(
+      liveTimer
+    );
 
-  const price=num(d.price);
+    liveTimer = null;
+  }
 
-  const priceNode=card.querySelector(
-    ".stat .v"
+  refreshLive(
+    symbol,
+    category
   );
 
-  if(priceNode && price){
-    priceNode.textContent=fmt(price,10);
+  liveTimer =
+    setInterval(
+      () =>
+        refreshLive(
+          symbol,
+          category
+        ),
+      LIVE_INTERVAL
+    );
+
+  if (tradeTimer) {
+    clearInterval(
+      tradeTimer
+    );
   }
+
+  tradeTimer =
+    setInterval(
+      () =>
+        refreshTradeHistory(
+          symbol,
+          category
+        ),
+      TRADE_REFRESH_INTERVAL
+    );
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
+async function refreshLive(
+  symbol,
+  category
+) {
+  try {
 
-$("analyzeBtn").onclick=manualAnalyze;
-$("scanBtn").onclick=startScan;
-$("stopBtn").onclick=stopScan;
+    const d =
+      await api(
+        `/live?symbol=${encodeURIComponent(symbol)}&category=${encodeURIComponent(category)}`
+      );
 
-$("stopBtn").disabled=true;
+    const key =
+      `${category}:${symbol}`;
 
-$("symbol").addEventListener(
+    const existing =
+      deepTradeHistory.get(
+        key
+      ) || [];
+
+    const incoming =
+      d.recentTrades || [];
+
+    const map =
+      new Map();
+
+    [
+      ...existing,
+      ...incoming
+    ].forEach(
+      t => {
+
+        const id =
+          t.execId ||
+          `${tradeTimestamp(t)}-${tradePrice(t)}-${tradeSize(t)}-${tradeSide(t)}`;
+
+        map.set(
+          id,
+          t
+        );
+      }
+    );
+
+    const merged =
+      [...map.values()]
+        .sort(
+          (a,b) =>
+            tradeTimestamp(a) -
+            tradeTimestamp(b)
+        );
+
+    deepTradeHistory.set(
+      key,
+      merged
+    );
+
+    historyMeta.set(
+      key,
+      d.tradeHistory ||
+      {}
+    );
+
+    const root =
+      document.querySelector(
+        `.trade-filter[data-symbol="${CSS.escape(symbol)}"][data-category="${CSS.escape(category)}"]`
+      );
+
+    if (!root) return;
+
+    updateHistoryMeta(
+      root,
+      d.tradeHistory
+    );
+
+    const rows =
+      root.querySelector(
+        ".js-trades-body"
+      );
+
+    const currentFrom =
+      root.querySelector(
+        ".js-from-datetime"
+      )?.value;
+
+    const currentTo =
+      root.querySelector(
+        ".js-to-datetime"
+      )?.value;
+
+    const min =
+      root.querySelector(
+        ".js-min-price"
+      )?.value || "";
+
+    const max =
+      root.querySelector(
+        ".js-max-price"
+      )?.value || "";
+
+    const filtered =
+      filterTradesLocal(
+        merged,
+        {
+          from:
+            currentFrom,
+          to:
+            currentTo,
+          min,
+          max
+        }
+      );
+
+    renderTradeFilterResult(
+      root,
+      filtered,
+      d.tradeHistory
+    );
+
+  } catch (_) {}
+}
+
+/* =========================
+   REFRESH HISTORY
+========================= */
+
+async function refreshTradeHistory(
+  symbol,
+  category
+) {
+  try {
+
+    const server =
+      await loadTrades(
+        symbol,
+        category,
+        24
+      );
+
+    const key =
+      `${category}:${symbol}`;
+
+    deepTradeHistory.set(
+      key,
+      server.trades || []
+    );
+
+    historyMeta.set(
+      key,
+      server.history || {}
+    );
+
+    const root =
+      document.querySelector(
+        `.trade-filter[data-symbol="${CSS.escape(symbol)}"][data-category="${CSS.escape(category)}"]`
+      );
+
+    if (!root) return;
+
+    updateHistoryMeta(
+      root,
+      server.history
+    );
+
+    const from =
+      root.querySelector(
+        ".js-from-datetime"
+      )?.value;
+
+    const to =
+      root.querySelector(
+        ".js-to-datetime"
+      )?.value;
+
+    const min =
+      root.querySelector(
+        ".js-min-price"
+      )?.value || "";
+
+    const max =
+      root.querySelector(
+        ".js-max-price"
+      )?.value || "";
+
+    const rows =
+      filterTradesLocal(
+        server.trades || [],
+        {
+          from,
+          to,
+          min,
+          max
+        }
+      );
+
+    renderTradeFilterResult(
+      root,
+      rows,
+      server.history
+    );
+
+  } catch (_) {}
+}
+
+/* =========================
+   MANUAL ANALYZE
+========================= */
+
+document.getElementById(
+  "analyzeBtn"
+).onclick =
+  () => {
+
+    const input =
+      document.getElementById(
+        "symbolInput"
+      );
+
+    const category =
+      document.getElementById(
+        "categoryInput"
+      ).value;
+
+    const symbol =
+      input.value
+        .trim()
+        .toUpperCase();
+
+    if (!symbol) {
+      input.focus();
+      return;
+    }
+
+    analyzeDeep(
+      symbol,
+      category
+    );
+  };
+
+document.getElementById(
+  "symbolInput"
+).addEventListener(
   "keydown",
-  e=>{
-    if(e.key==="Enter")manualAnalyze();
+  e => {
+    if (
+      e.key === "Enter"
+    ) {
+      document.getElementById(
+        "analyzeBtn"
+      ).click();
+    }
   }
 );
 
-/* =========================================================
+/* =========================
    INITIAL
-========================================================= */
+========================= */
 
 checkHealth();
-
-setTimeout(
-  checkHealth,
-  10000
-);
-
-setInterval(
-  checkHealth,
-  30000
-);
-
-window.addEventListener(
-  "beforeunload",
-  ()=>{
-    liveTimers.forEach(t=>clearInterval(t));
-    historyTimers.forEach(t=>clearInterval(t));
-    if(scanTimer)clearInterval(scanTimer);
-  }
-);
 
 </script>
 
