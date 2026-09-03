@@ -1,6 +1,6 @@
 const BYBIT = "https://api.bybit.com";
 
-const VERSION = "PUMP-SCANNER-BYBIT-PPR-V11";
+const VERSION = "PUMP-SCANNER-BYBIT-PPR-V12";
 
 const TF = "15";
 const TF_MS = 15 * 60 * 1000;
@@ -17,128 +17,270 @@ const MAX_PULLBACK_PERCENT = 4.5;
 const NEAR_ZONE_PERCENT = 0.35;
 const MAX_PUMP_AGE_HOURS = 12;
 
+/*
+=========================================================
+TRADE HISTORY
+=========================================================
+
+Bybit recent-trade فقط آخر معاملات بازار را می‌دهد.
+برای اینکه فیلتر زمانی بتواند واقعاً روی بازه طولانی‌تر
+کار کند، Worker معاملات دریافت‌شده را در حافظه Worker
+نگه می‌دارد و در هر درخواست معاملات جدید را به آن اضافه
+می‌کند.
+
+بازه نگهداری:
+24 ساعت
+
+نکته:
+برای حفظ تاریخچه بعد از Restart شدن کامل Worker،
+باید بعداً KV/D1/Durable Object اضافه شود.
+=========================================================
+*/
+
+const TRADE_HISTORY_MS = 24 * 60 * 60 * 1000;
+const TRADE_HISTORY_MAX = 100000;
+
 const RECENT_TRADE_LIMIT_LINEAR = 1000;
 const RECENT_TRADE_LIMIT_SPOT = 60;
 
+const tradeHistory = new Map();
+
+
 const FOOTPRINT_WINDOWS = [
-  { key: "1m", label: "1 دقیقه", ms: 60 * 1000 },
-  { key: "3m", label: "3 دقیقه", ms: 3 * 60 * 1000 },
-  { key: "5m", label: "5 دقیقه", ms: 5 * 60 * 1000 },
-  { key: "15m", label: "15 دقیقه", ms: 15 * 60 * 1000 },
-  { key: "30m", label: "30 دقیقه", ms: 30 * 60 * 1000 },
-  { key: "1h", label: "1 ساعت", ms: 60 * 60 * 1000 }
+  {
+    key: "1m",
+    label: "1 دقیقه",
+    ms: 60 * 1000
+  },
+  {
+    key: "3m",
+    label: "3 دقیقه",
+    ms: 3 * 60 * 1000
+  },
+  {
+    key: "5m",
+    label: "5 دقیقه",
+    ms: 5 * 60 * 1000
+  },
+  {
+    key: "15m",
+    label: "15 دقیقه",
+    ms: 15 * 60 * 1000
+  },
+  {
+    key: "30m",
+    label: "30 دقیقه",
+    ms: 30 * 60 * 1000
+  },
+  {
+    key: "1h",
+    label: "1 ساعت",
+    ms: 60 * 60 * 1000
+  }
 ];
+
 
 const OI_WINDOWS = [
-  { key: "5m", label: "5 دقیقه", interval: "5min" },
-  { key: "15m", label: "15 دقیقه", interval: "15min" },
-  { key: "30m", label: "30 دقیقه", interval: "30min" },
-  { key: "1h", label: "1 ساعت", interval: "1h" }
+  {
+    key: "5m",
+    label: "5 دقیقه",
+    interval: "5min"
+  },
+  {
+    key: "15m",
+    label: "15 دقیقه",
+    interval: "15min"
+  },
+  {
+    key: "30m",
+    label: "30 دقیقه",
+    interval: "30min"
+  },
+  {
+    key: "1h",
+    label: "1 ساعت",
+    interval: "1h"
+  }
 ];
 
 
-/* =========================
+/* =====================================================
    RESPONSE
-========================= */
+===================================================== */
 
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      "cache-control": "no-store, no-cache, must-revalidate",
-      "access-control-allow-origin": "*",
-      "access-control-allow-methods": "GET,OPTIONS",
-      "access-control-allow-headers": "*"
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        "content-type":
+          "application/json; charset=utf-8",
+
+        "cache-control":
+          "no-store, no-cache, must-revalidate",
+
+        "access-control-allow-origin":
+          "*",
+
+        "access-control-allow-methods":
+          "GET,OPTIONS",
+
+        "access-control-allow-headers":
+          "*"
+      }
     }
-  });
+  );
 }
+
 
 function text(data, status = 200) {
-  return new Response(data, {
-    status,
-    headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "access-control-allow-origin": "*"
+  return new Response(
+    data,
+    {
+      status,
+      headers: {
+        "content-type":
+          "text/plain; charset=utf-8",
+
+        "access-control-allow-origin":
+          "*"
+      }
     }
-  });
+  );
 }
 
 
-/* =========================
+/* =====================================================
    HELPERS
-========================= */
+===================================================== */
 
 function num(v, fallback = 0) {
   const n = Number(v);
-  return Number.isFinite(n) ? n : fallback;
+
+  return Number.isFinite(n)
+    ? n
+    : fallback;
 }
 
+
 function pct(a, b) {
-  if (!Number.isFinite(a) || !Number.isFinite(b) || b === 0) {
+  if (
+    !Number.isFinite(a) ||
+    !Number.isFinite(b) ||
+    b === 0
+  ) {
     return 0;
   }
 
-  return ((a - b) / Math.abs(b)) * 100;
+  return (
+    ((a - b) /
+      Math.abs(b)) *
+    100
+  );
 }
+
 
 function median(values) {
   const a = values
     .map(Number)
     .filter(Number.isFinite)
-    .sort((x, y) => x - y);
+    .sort(
+      (x, y) =>
+        x - y
+    );
 
   if (!a.length) {
     return 0;
   }
 
-  const m = Math.floor(a.length / 2);
+  const m =
+    Math.floor(
+      a.length / 2
+    );
 
   return a.length % 2
     ? a[m]
-    : (a[m - 1] + a[m]) / 2;
+    : (
+        a[m - 1] +
+        a[m]
+      ) / 2;
 }
 
-function normalizeSide(side) {
-  const s = String(side || "").trim().toLowerCase();
 
-  if (s === "buy") return "Buy";
-  if (s === "sell") return "Sell";
+function normalizeSide(side) {
+  const s =
+    String(side || "")
+      .trim()
+      .toLowerCase();
+
+  if (s === "buy") {
+    return "Buy";
+  }
+
+  if (s === "sell") {
+    return "Sell";
+  }
 
   return "";
 }
 
 
-/* =========================
+/* =====================================================
    BYBIT API
-========================= */
+===================================================== */
 
-async function bybit(path, params = {}) {
-  const url = new URL(BYBIT + path);
+async function bybit(
+  path,
+  params = {}
+) {
+  const url =
+    new URL(
+      BYBIT + path
+    );
 
-  for (const [k, v] of Object.entries(params)) {
+  for (
+    const [
+      k,
+      v
+    ]
+    of Object.entries(params)
+  ) {
     if (
       v !== undefined &&
       v !== null &&
       v !== ""
     ) {
-      url.searchParams.set(k, String(v));
+      url.searchParams.set(
+        k,
+        String(v)
+      );
     }
   }
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      accept: "application/json"
-    }
-  });
+  const res =
+    await fetch(
+      url.toString(),
+      {
+        headers: {
+          accept:
+            "application/json"
+        }
+      }
+    );
 
   if (!res.ok) {
-    throw new Error(`Bybit HTTP ${res.status}`);
+    throw new Error(
+      `Bybit HTTP ${res.status}`
+    );
   }
 
-  const data = await res.json();
+  const data =
+    await res.json();
 
-  if (data.retCode !== 0) {
+  if (
+    data.retCode !== 0
+  ) {
     throw new Error(
       data.retMsg ||
       `Bybit error ${data.retCode}`
@@ -149,92 +291,132 @@ async function bybit(path, params = {}) {
 }
 
 
-/* =========================
+/* =====================================================
    SYMBOL / MARKET
-========================= */
+===================================================== */
 
-async function getInstruments(category = "linear") {
+async function getInstruments(
+  category = "linear"
+) {
   const out = [];
   let cursor = "";
 
-  for (let page = 0; page < 3; page++) {
-    const data = await bybit(
-      "/v5/market/instruments-info",
-      {
-        category,
-        limit: 1000,
-        cursor
-      }
-    );
+  for (
+    let page = 0;
+    page < 5;
+    page++
+  ) {
+    const data =
+      await bybit(
+        "/v5/market/instruments-info",
+        {
+          category,
+          limit: 1000,
+          cursor
+        }
+      );
 
     const list =
-      data?.result?.list || [];
+      data?.result?.list ||
+      [];
 
-    for (const x of list) {
-      if (x.status !== "Trading") {
-        continue;
-      }
-
-      if (x.quoteCoin !== "USDT") {
-        continue;
-      }
-
+    for (
+      const x of list
+    ) {
       if (
-        category === "linear" &&
-        x.contractType !== "LinearPerpetual"
+        x.status !==
+        "Trading"
       ) {
         continue;
       }
 
-      out.push(x.symbol);
+      if (
+        x.quoteCoin !==
+        "USDT"
+      ) {
+        continue;
+      }
+
+      if (
+        category ===
+          "linear" &&
+        x.contractType !==
+          "LinearPerpetual"
+      ) {
+        continue;
+      }
+
+      out.push(
+        x.symbol
+      );
     }
 
     cursor =
-      data?.result?.nextPageCursor || "";
+      data?.result
+        ?.nextPageCursor ||
+      "";
 
     if (!cursor) {
       break;
     }
   }
 
-  return [...new Set(out)];
+  return [
+    ...new Set(out)
+  ];
 }
 
 
-async function findSymbol(symbol) {
-  let s = String(symbol || "")
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "");
+async function findSymbol(
+  symbol
+) {
+  let s =
+    String(symbol || "")
+      .trim()
+      .toUpperCase()
+      .replace(
+        /[^A-Z0-9]/g,
+        ""
+      );
 
   if (!s) {
     return null;
   }
 
-  if (!s.endsWith("USDT")) {
+  if (
+    !s.endsWith("USDT")
+  ) {
     s += "USDT";
   }
 
-  for (const category of [
-    "linear",
-    "spot"
-  ]) {
+  for (
+    const category
+    of [
+      "linear",
+      "spot"
+    ]
+  ) {
     try {
-      const data = await bybit(
-        "/v5/market/instruments-info",
-        {
-          category,
-          symbol: s
-        }
-      );
+      const data =
+        await bybit(
+          "/v5/market/instruments-info",
+          {
+            category,
+            symbol: s
+          }
+        );
 
       const list =
-        data?.result?.list || [];
+        data?.result?.list ||
+        [];
 
-      if (list.length) {
+      if (
+        list.length
+      ) {
         return {
           category,
-          symbol: list[0].symbol
+          symbol:
+            list[0].symbol
         };
       }
     } catch {}
@@ -244,25 +426,46 @@ async function findSymbol(symbol) {
 }
 
 
-/* =========================
+/* =====================================================
    KLINES
-========================= */
+===================================================== */
 
-function parseKlines(list) {
-  return (list || [])
+function parseKlines(
+  list
+) {
+  return (
+    list || []
+  )
     .map(x => ({
-      time: num(x[0]),
-      open: num(x[1]),
-      high: num(x[2]),
-      low: num(x[3]),
-      close: num(x[4]),
-      volume: num(x[5]),
-      turnover: num(x[6])
+      time:
+        num(x[0]),
+
+      open:
+        num(x[1]),
+
+      high:
+        num(x[2]),
+
+      low:
+        num(x[3]),
+
+      close:
+        num(x[4]),
+
+      volume:
+        num(x[5]),
+
+      turnover:
+        num(x[6])
     }))
-    .filter(x => x.time > 0)
+    .filter(
+      x =>
+        x.time > 0
+    )
     .sort(
       (a, b) =>
-        a.time - b.time
+        a.time -
+        b.time
     );
 }
 
@@ -273,34 +476,39 @@ async function getKlines(
   interval = "15",
   limit = KLINE_LIMIT
 ) {
-  const data = await bybit(
-    "/v5/market/kline",
-    {
-      category,
-      symbol,
-      interval,
-      limit
-    }
-  );
+  const data =
+    await bybit(
+      "/v5/market/kline",
+      {
+        category,
+        symbol,
+        interval,
+        limit
+      }
+    );
 
   return parseKlines(
-    data?.result?.list || []
+    data?.result?.list ||
+      []
   );
 }
 
 
-/* =========================
+/* =====================================================
    PUMP DETECTION
-========================= */
+===================================================== */
 
-function detectPump(candles) {
+function detectPump(
+  candles
+) {
   if (
     !candles ||
     candles.length < 30
   ) {
     return {
       candidate: false,
-      reason: "Not enough candles"
+      reason:
+        "Not enough candles"
     };
   }
 
@@ -310,22 +518,34 @@ function detectPump(candles) {
   let best = null;
 
   for (
-    let end = lastIndex - 1;
-    end >= Math.max(
-      10,
-      lastIndex - 48
-    );
+    let end =
+      lastIndex - 1;
+
+    end >=
+      Math.max(
+        10,
+        lastIndex - 48
+      );
+
     end--
   ) {
     for (
-      let count = MIN_PUMP_CANDLES;
-      count <= MAX_PUMP_CANDLES;
+      let count =
+        MIN_PUMP_CANDLES;
+
+      count <=
+        MAX_PUMP_CANDLES;
+
       count++
     ) {
       const start =
-        end - count + 1;
+        end -
+        count +
+        1;
 
-      if (start < 1) {
+      if (
+        start < 1
+      ) {
         continue;
       }
 
@@ -339,19 +559,30 @@ function detectPump(candles) {
         segment[0].open;
 
       const lastClose =
-        segment[segment.length - 1].close;
+        segment[
+          segment.length - 1
+        ].close;
 
-      if (firstOpen <= 0) {
+      if (
+        firstOpen <= 0
+      ) {
         continue;
       }
 
       const pumpPercent =
-        ((lastClose - firstOpen) /
-          firstOpen) * 100;
+        (
+          (
+            lastClose -
+            firstOpen
+          ) /
+          firstOpen
+        ) * 100;
 
       const greenCount =
         segment.filter(
-          c => c.close > c.open
+          c =>
+            c.close >
+            c.open
         ).length;
 
       const greenRatio =
@@ -360,7 +591,10 @@ function detectPump(candles) {
 
       const previous =
         candles.slice(
-          Math.max(0, start - 20),
+          Math.max(
+            0,
+            start - 20
+          ),
           start
         );
 
@@ -368,21 +602,26 @@ function detectPump(candles) {
         previous.length
           ? previous.reduce(
               (s, c) =>
-                s + c.volume,
+                s +
+                c.volume,
               0
-            ) / previous.length
+            ) /
+            previous.length
           : 0;
 
       const pumpVolume =
         segment.reduce(
           (s, c) =>
-            s + c.volume,
+            s +
+            c.volume,
           0
-        ) / segment.length;
+        ) /
+        segment.length;
 
       const volumeRatio =
         avgVolume > 0
-          ? pumpVolume / avgVolume
+          ? pumpVolume /
+            avgVolume
           : 0;
 
       if (
@@ -409,14 +648,16 @@ function detectPump(candles) {
       const pumpHigh =
         Math.max(
           ...segment.map(
-            c => c.high
+            c =>
+              c.high
           )
         );
 
       const pumpLow =
         Math.min(
           ...segment.map(
-            c => c.low
+            c =>
+              c.low
           )
         );
 
@@ -429,12 +670,13 @@ function detectPump(candles) {
         (
           Date.now() -
           pumpEndTime
-        ) / 3600000;
+        ) /
+        3600000;
 
       if (
         ageHours < 0 ||
         ageHours >
-        MAX_PUMP_AGE_HOURS
+          MAX_PUMP_AGE_HOURS
       ) {
         continue;
       }
@@ -489,9 +731,10 @@ function detectPump(candles) {
       if (
         !best ||
         candidate.score >
-        best.score
+          best.score
       ) {
-        best = candidate;
+        best =
+          candidate;
       }
     }
   }
@@ -511,9 +754,9 @@ function detectPump(candles) {
 }
 
 
-/* =========================
+/* =====================================================
    RED CANDLE + PULLBACK
-========================= */
+===================================================== */
 
 function buildSetup(
   candles,
@@ -540,15 +783,25 @@ function buildSetup(
   if (!red) {
     return {
       redCandle: null,
-      pullbackPercent: 0,
-      zoneLow: pump.pumpLow,
-      zoneHigh: pump.pumpHigh,
+
+      pullbackPercent:
+        0,
+
+      zoneLow:
+        pump.pumpLow,
+
+      zoneHigh:
+        pump.pumpHigh,
+
       zonePrice:
         (
           pump.pumpLow +
           pump.pumpHigh
         ) / 2,
-      status: "WAITING_RED",
+
+      status:
+        "WAITING_RED",
+
       reason:
         "Waiting for red candle"
     };
@@ -558,24 +811,45 @@ function buildSetup(
     pump.pumpHigh -
     pump.pumpLow;
 
-  if (pumpRange <= 0) {
+  if (
+    pumpRange <= 0
+  ) {
     return {
       redCandle: {
-        time: red.time,
-        open: red.open,
-        high: red.high,
-        low: red.low,
-        close: red.close
+        time:
+          red.time,
+
+        open:
+          red.open,
+
+        high:
+          red.high,
+
+        low:
+          red.low,
+
+        close:
+          red.close
       },
-      pullbackPercent: 0,
-      zoneLow: pump.pumpLow,
-      zoneHigh: pump.pumpHigh,
+
+      pullbackPercent:
+        0,
+
+      zoneLow:
+        pump.pumpLow,
+
+      zoneHigh:
+        pump.pumpHigh,
+
       zonePrice:
         (
           pump.pumpLow +
           pump.pumpHigh
         ) / 2,
-      status: "INVALID",
+
+      status:
+        "INVALID",
+
       reason:
         "Invalid pump range"
     };
@@ -606,11 +880,20 @@ function buildSetup(
 
   return {
     redCandle: {
-      time: red.time,
-      open: red.open,
-      high: red.high,
-      low: red.low,
-      close: red.close
+      time:
+        red.time,
+
+      open:
+        red.open,
+
+      high:
+        red.high,
+
+      low:
+        red.low,
+
+      close:
+        red.close
     },
 
     pullbackPercent,
@@ -634,9 +917,9 @@ function buildSetup(
 }
 
 
-/* =========================
+/* =====================================================
    TICKER
-========================= */
+===================================================== */
 
 async function getTicker(
   category,
@@ -662,44 +945,66 @@ async function getTicker(
     symbol,
 
     lastPrice:
-      num(x.lastPrice),
+      num(
+        x.lastPrice
+      ),
 
     markPrice:
-      num(x.markPrice),
+      num(
+        x.markPrice
+      ),
 
     indexPrice:
-      num(x.indexPrice),
+      num(
+        x.indexPrice
+      ),
 
     bid1Price:
-      num(x.bid1Price),
+      num(
+        x.bid1Price
+      ),
 
     ask1Price:
-      num(x.ask1Price),
+      num(
+        x.ask1Price
+      ),
 
     volume24h:
-      num(x.volume24h),
+      num(
+        x.volume24h
+      ),
 
     turnover24h:
-      num(x.turnover24h),
+      num(
+        x.turnover24h
+      ),
 
     price24hPcnt:
-      num(x.price24hPcnt) * 100,
+      num(
+        x.price24hPcnt
+      ) * 100,
 
     fundingRate:
-      num(x.fundingRate),
+      num(
+        x.fundingRate
+      ),
 
     nextFundingTime:
-      num(x.nextFundingTime),
+      num(
+        x.nextFundingTime
+      ),
 
     openInterest:
-      num(x.openInterest)
+      num(
+        x.openInterest
+      )
   };
 }
 
 
-/* =========================
+/* =====================================================
    SETUP STATE
-========================= */
+===================================================== */
 
 function evaluateSetup(
   setup,
@@ -707,9 +1012,14 @@ function evaluateSetup(
 ) {
   if (!setup) {
     return {
-      state: "INVALID",
-      reason: "No setup data",
-      distancePercent: 0
+      state:
+        "INVALID",
+
+      reason:
+        "No setup data",
+
+      distancePercent:
+        0
     };
   }
 
@@ -718,9 +1028,14 @@ function evaluateSetup(
     price <= 0
   ) {
     return {
-      state: "INVALID",
-      reason: "Price unavailable",
-      distancePercent: 0
+      state:
+        "INVALID",
+
+      reason:
+        "Price unavailable",
+
+      distancePercent:
+        0
     };
   }
 
@@ -729,9 +1044,14 @@ function evaluateSetup(
     "INVALID"
   ) {
     return {
-      state: "INVALID",
-      reason: setup.reason,
-      distancePercent: 0
+      state:
+        "INVALID",
+
+      reason:
+        setup.reason,
+
+      distancePercent:
+        0
     };
   }
 
@@ -740,18 +1060,26 @@ function evaluateSetup(
     "WAITING_RED"
   ) {
     return {
-      state: "WAITING",
+      state:
+        "WAITING",
+
       reason:
         "Waiting for red candle",
-      distancePercent: 0
+
+      distancePercent:
+        0
     };
   }
 
   const distanceToZone =
-    price < setup.zoneLow
-      ? setup.zoneLow - price
-      : price > setup.zoneHigh
-        ? price - setup.zoneHigh
+    price <
+    setup.zoneLow
+      ? setup.zoneLow -
+        price
+      : price >
+          setup.zoneHigh
+        ? price -
+          setup.zoneHigh
         : 0;
 
   const distancePercent =
@@ -763,14 +1091,20 @@ function evaluateSetup(
       : 0;
 
   if (
-    price >= setup.zoneLow &&
-    price <= setup.zoneHigh
+    price >=
+      setup.zoneLow &&
+    price <=
+      setup.zoneHigh
   ) {
     return {
-      state: "REACHED",
+      state:
+        "REACHED",
+
       reason:
         "Price is inside pullback zone",
-      distancePercent: 0
+
+      distancePercent:
+        0
     };
   }
 
@@ -779,36 +1113,272 @@ function evaluateSetup(
     NEAR_ZONE_PERCENT
   ) {
     return {
-      state: "NEAR",
+      state:
+        "NEAR",
+
       reason:
         "Price is near pullback zone",
+
       distancePercent
     };
   }
 
   if (
-    price > setup.zoneHigh
+    price >
+    setup.zoneHigh
   ) {
     return {
-      state: "APPROACHING",
+      state:
+        "APPROACHING",
+
       reason:
         "Price is approaching pullback zone",
+
       distancePercent
     };
   }
 
   return {
-    state: "INVALID",
+    state:
+      "INVALID",
+
     reason:
       "Price invalidated setup",
+
     distancePercent
   };
 }
 
 
-/* =========================
-   RECENT TRADES
-========================= */
+/* =====================================================
+   TRADE NORMALIZATION
+===================================================== */
+
+function normalizeTrade(t) {
+  const price =
+    num(t.price);
+
+  const size =
+    num(
+      t.size ??
+      t.qty
+    );
+
+  const time =
+    num(
+      t.time ??
+      t.timestamp
+    );
+
+  return {
+    execId:
+      String(
+        t.execId || ""
+      ),
+
+    side:
+      normalizeSide(
+        t.side
+      ),
+
+    price,
+
+    size,
+
+    qty:
+      size,
+
+    /*
+      ارزش واقعی هر معامله
+      قیمت × حجم
+    */
+    notional:
+      price * size,
+
+    time,
+
+    timestamp:
+      time,
+
+    isBlockTrade:
+      !!t.isBlockTrade,
+
+    isRPITrade:
+      !!t.isRPITrade
+  };
+}
+
+
+/* =====================================================
+   TRADE HISTORY STORAGE
+===================================================== */
+
+function historyKey(
+  category,
+  symbol
+) {
+  return (
+    category +
+    ":" +
+    symbol
+  );
+}
+
+
+function cleanupTradeHistory(
+  key,
+  now = Date.now()
+) {
+  const rows =
+    tradeHistory.get(
+      key
+    ) || [];
+
+  const minTime =
+    now -
+    TRADE_HISTORY_MS;
+
+  const filtered =
+    rows.filter(
+      t =>
+        t.time >=
+        minTime
+    );
+
+  if (
+    filtered.length >
+    TRADE_HISTORY_MAX
+  ) {
+    filtered.splice(
+      0,
+      filtered.length -
+        TRADE_HISTORY_MAX
+    );
+  }
+
+  tradeHistory.set(
+    key,
+    filtered
+  );
+
+  return filtered;
+}
+
+
+function storeTrades(
+  category,
+  symbol,
+  trades,
+  now = Date.now()
+) {
+  const key =
+    historyKey(
+      category,
+      symbol
+    );
+
+  const old =
+    tradeHistory.get(
+      key
+    ) || [];
+
+  const map =
+    new Map();
+
+  for (
+    const t of old
+  ) {
+    if (
+      t.execId
+    ) {
+      map.set(
+        t.execId,
+        t
+      );
+    }
+  }
+
+  for (
+    const raw of trades
+  ) {
+    const t =
+      normalizeTrade(
+        raw
+      );
+
+    if (
+      !t.time ||
+      !t.price ||
+      !t.size ||
+      !t.side
+    ) {
+      continue;
+    }
+
+    const id =
+      t.execId ||
+      `${t.time}:${t.price}:${t.size}:${t.side}`;
+
+    map.set(
+      id,
+      t
+    );
+  }
+
+  const rows =
+    [
+      ...map.values()
+    ]
+      .filter(
+        t =>
+          t.time >=
+          now -
+            TRADE_HISTORY_MS
+      )
+      .sort(
+        (a, b) =>
+          a.time -
+          b.time
+      );
+
+  if (
+    rows.length >
+    TRADE_HISTORY_MAX
+  ) {
+    rows.splice(
+      0,
+      rows.length -
+        TRADE_HISTORY_MAX
+    );
+  }
+
+  tradeHistory.set(
+    key,
+    rows
+  );
+
+  return rows;
+}
+
+
+function getStoredTrades(
+  category,
+  symbol,
+  now = Date.now()
+) {
+  return cleanupTradeHistory(
+    historyKey(
+      category,
+      symbol
+    ),
+    now
+  );
+}
+
+
+/* =====================================================
+   BYBIT RECENT TRADES
+===================================================== */
 
 async function getRecentTrades(
   category,
@@ -830,61 +1400,58 @@ async function getRecentTrades(
     );
 
   const rows =
-    data?.result?.list || [];
+    data?.result?.list ||
+    [];
 
   return rows
-    .map(t => {
-      const price =
-        num(t.price);
-
-      const size =
-        num(t.size);
-
-      const time =
-        num(t.time);
-
-      return {
-        execId:
-          String(t.execId || ""),
-
-        side:
-          normalizeSide(t.side),
-
-        price,
-
-        size,
-
-        qty:
-          size,
-
-        notional:
-          price * size,
-
-        time,
-
-        timestamp:
-          time,
-
-        isBlockTrade:
-          !!t.isBlockTrade
-      };
-    })
-    .filter(t =>
-      t.time > 0 &&
-      t.price > 0 &&
-      t.size >= 0 &&
-      t.side !== ""
+    .map(
+      normalizeTrade
+    )
+    .filter(
+      t =>
+        t.time > 0 &&
+        t.price > 0 &&
+        t.size >= 0 &&
+        t.side !== ""
     )
     .sort(
       (a, b) =>
-        a.time - b.time
+        a.time -
+        b.time
     );
 }
 
 
-/* =========================
+/* =====================================================
+   GET ALL AVAILABLE HISTORY
+===================================================== */
+
+async function getTradeHistory(
+  category,
+  symbol,
+  now = Date.now()
+) {
+  const fresh =
+    await getRecentTrades(
+      category,
+      symbol
+    );
+
+  const stored =
+    storeTrades(
+      category,
+      symbol,
+      fresh,
+      now
+    );
+
+  return stored;
+}
+
+
+/* =====================================================
    FOOTPRINT
-========================= */
+===================================================== */
 
 function makeFootprint(
   trades,
@@ -897,13 +1464,16 @@ function makeFootprint(
     of FOOTPRINT_WINDOWS
   ) {
     const from =
-      now - window.ms;
+      now -
+      window.ms;
 
     const rows =
       trades.filter(
         t =>
-          t.time >= from &&
-          t.time <= now
+          t.time >=
+            from &&
+          t.time <=
+            now
       );
 
     let buyVolume = 0;
@@ -915,23 +1485,34 @@ function makeFootprint(
     let buyTrades = 0;
     let sellTrades = 0;
 
-    for (const t of rows) {
+    for (
+      const t of rows
+    ) {
       const notional =
-        t.price * t.size;
+        t.price *
+        t.size;
 
       if (
         t.side === "Buy"
       ) {
-        buyVolume += t.size;
-        buyNotional += notional;
+        buyVolume +=
+          t.size;
+
+        buyNotional +=
+          notional;
+
         buyTrades++;
       }
 
       if (
         t.side === "Sell"
       ) {
-        sellVolume += t.size;
-        sellNotional += notional;
+        sellVolume +=
+          t.size;
+
+        sellNotional +=
+          notional;
+
         sellTrades++;
       }
     }
@@ -960,7 +1541,9 @@ function makeFootprint(
       );
 
     const med =
-      median(notionals);
+      median(
+        notionals
+      );
 
     const largeThreshold =
       med > 0
@@ -973,32 +1556,43 @@ function makeFootprint(
     let largeBuyTrades = 0;
     let largeSellTrades = 0;
 
-    for (const t of rows) {
+    for (
+      const t of rows
+    ) {
       const n =
         t.price *
         t.size;
 
       if (
-        n >= largeThreshold &&
+        n >=
+          largeThreshold &&
         largeThreshold > 0
       ) {
         if (
-          t.side === "Buy"
+          t.side ===
+          "Buy"
         ) {
-          largeBuyVolume += t.size;
+          largeBuyVolume +=
+            t.size;
+
           largeBuyTrades++;
         }
 
         if (
-          t.side === "Sell"
+          t.side ===
+          "Sell"
         ) {
-          largeSellVolume += t.size;
+          largeSellVolume +=
+            t.size;
+
           largeSellTrades++;
         }
       }
     }
 
-    result[window.key] = {
+    result[
+      window.key
+    ] = {
       key:
         window.key,
 
@@ -1018,7 +1612,7 @@ function makeFootprint(
           ? Math.max(
               0,
               now -
-              rows[0].time
+                rows[0].time
             )
           : 0,
 
@@ -1035,9 +1629,11 @@ function makeFootprint(
       deltaPercent,
 
       pressure:
-        deltaPercent >= 10
+        deltaPercent >=
+        10
           ? "BUY_PRESSURE"
-          : deltaPercent <= -10
+          : deltaPercent <=
+              -10
             ? "SELL_PRESSURE"
             : "NEUTRAL",
 
@@ -1055,9 +1651,9 @@ function makeFootprint(
 }
 
 
-/* =========================
+/* =====================================================
    ORDERBOOK
-========================= */
+===================================================== */
 
 async function getOrderbook(
   category,
@@ -1074,13 +1670,17 @@ async function getOrderbook(
     );
 
   const r =
-    data?.result || {};
+    data?.result ||
+    {};
 
   const bids =
     (r.b || [])
       .map(x => ({
-        price: num(x[0]),
-        size: num(x[1])
+        price:
+          num(x[0]),
+
+        size:
+          num(x[1])
       }))
       .filter(
         x =>
@@ -1091,8 +1691,11 @@ async function getOrderbook(
   const asks =
     (r.a || [])
       .map(x => ({
-        price: num(x[0]),
-        size: num(x[1])
+        price:
+          num(x[0]),
+
+        size:
+          num(x[1])
       }))
       .filter(
         x =>
@@ -1106,6 +1709,7 @@ async function getOrderbook(
         x.price *
         x.size
     ),
+
     ...asks.map(
       x =>
         x.price *
@@ -1114,7 +1718,9 @@ async function getOrderbook(
   ];
 
   const med =
-    median(allNotionals);
+    median(
+      allNotionals
+    );
 
   const wallThreshold =
     med > 0
@@ -1161,14 +1767,17 @@ async function getOrderbook(
         x =>
           wallThreshold > 0 &&
           x.notional >=
-          wallThreshold
+            wallThreshold
       )
       .sort(
         (a, b) =>
           b.notional -
           a.notional
       )
-      .slice(0, 10)
+      .slice(
+        0,
+        10
+      )
       .map(x => ({
         ...x,
 
@@ -1185,7 +1794,7 @@ async function getOrderbook(
       (s, x) =>
         s +
         x.price *
-        x.size,
+          x.size,
       0
     );
 
@@ -1194,7 +1803,7 @@ async function getOrderbook(
       (s, x) =>
         s +
         x.price *
-        x.size,
+          x.size,
       0
     );
 
@@ -1223,10 +1832,12 @@ async function getOrderbook(
       Date.now(),
 
     bestBid:
-      bids[0]?.price || 0,
+      bids[0]?.price ||
+      0,
 
     bestAsk:
-      asks[0]?.price || 0,
+      asks[0]?.price ||
+      0,
 
     buyLiquidity,
     sellLiquidity,
@@ -1268,17 +1879,19 @@ async function getOrderbook(
 }
 
 
-/* =========================
+/* =====================================================
    OPEN INTEREST
-========================= */
+===================================================== */
 
 async function getOI(
   category,
   symbol
 ) {
   if (
-    category !== "linear" &&
-    category !== "inverse"
+    category !==
+      "linear" &&
+    category !==
+      "inverse"
   ) {
     return {
       available: false,
@@ -1299,8 +1912,10 @@ async function getOI(
           {
             category,
             symbol,
+
             intervalTime:
               window.interval,
+
             limit: 20
           }
         );
@@ -1313,10 +1928,14 @@ async function getOI(
         list
           .map(x => ({
             timestamp:
-              num(x.timestamp),
+              num(
+                x.timestamp
+              ),
 
             openInterest:
-              num(x.openInterest)
+              num(
+                x.openInterest
+              )
           }))
           .sort(
             (a, b) =>
@@ -1383,7 +2002,9 @@ async function getOI(
           0,
 
         history:
-          parsed.slice(-10)
+          parsed.slice(
+            -10
+          )
       });
 
     } catch (e) {
@@ -1406,6 +2027,7 @@ async function getOI(
           "UNAVAILABLE",
 
         timestamp: 0,
+
         history: [],
 
         error:
@@ -1421,9 +2043,9 @@ async function getOI(
 }
 
 
-/* =========================
+/* =====================================================
    FUNDING
-========================= */
+===================================================== */
 
 async function getFunding(
   category,
@@ -1431,8 +2053,10 @@ async function getFunding(
   ticker = null
 ) {
   if (
-    category !== "linear" &&
-    category !== "inverse"
+    category !==
+      "linear" &&
+    category !==
+      "inverse"
   ) {
     return {
       available: false,
@@ -1469,7 +2093,9 @@ async function getFunding(
           ),
 
         rate:
-          num(x.fundingRate)
+          num(
+            x.fundingRate
+          )
       }))
       .sort(
         (a, b) =>
@@ -1478,14 +2104,17 @@ async function getFunding(
       );
 
   const currentRate =
-    ticker?.fundingRate !== undefined
+    ticker?.fundingRate !==
+    undefined
       ? ticker.fundingRate
-      : history.at(-1)?.rate || 0;
+      : history.at(-1)?.rate ||
+        0;
 
   const previousRate =
     history.length >= 2
       ? history.at(-2).rate
-      : history.at(-1)?.rate || 0;
+      : history.at(-1)?.rate ||
+        0;
 
   const change =
     currentRate -
@@ -1528,7 +2157,11 @@ async function getFunding(
         .slice(-8)
         .reverse()
         .map(
-          (x, i, arr) => {
+          (
+            x,
+            i,
+            arr
+          ) => {
             const prev =
               arr[i + 1];
 
@@ -1565,9 +2198,107 @@ async function getFunding(
 }
 
 
-/* =========================
+/* =====================================================
+   TRADE RANGE FILTER — SERVER
+===================================================== */
+
+function filterTradesByRange(
+  trades,
+  options = {}
+) {
+  const now =
+    num(
+      options.now,
+      Date.now()
+    );
+
+  let from =
+    num(
+      options.from,
+      now -
+        TRADE_HISTORY_MS
+    );
+
+  let to =
+    num(
+      options.to,
+      now
+    );
+
+  if (
+    from > to
+  ) {
+    const tmp =
+      from;
+
+    from = to;
+    to = tmp;
+  }
+
+  const minPrice =
+    options.minPrice !==
+    undefined &&
+    options.minPrice !==
+    ""
+      ? num(
+          options.minPrice,
+          NaN
+        )
+      : null;
+
+  const maxPrice =
+    options.maxPrice !==
+    undefined &&
+    options.maxPrice !==
+    ""
+      ? num(
+          options.maxPrice,
+          NaN
+        )
+      : null;
+
+  return trades.filter(
+    t => {
+      if (
+        t.time < from ||
+        t.time > to
+      ) {
+        return false;
+      }
+
+      if (
+        minPrice !==
+          null &&
+        Number.isFinite(
+          minPrice
+        ) &&
+        t.price <
+          minPrice
+      ) {
+        return false;
+      }
+
+      if (
+        maxPrice !==
+          null &&
+        Number.isFinite(
+          maxPrice
+        ) &&
+        t.price >
+          maxPrice
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+  );
+}
+
+
+/* =====================================================
    DEEP ANALYSIS
-========================= */
+===================================================== */
 
 async function deepAnalysis(
   category,
@@ -1579,7 +2310,7 @@ async function deepAnalysis(
   const [
     ticker,
     candles,
-    trades,
+    recentTrades,
     orderbook
   ] = await Promise.all([
     getTicker(
@@ -1605,8 +2336,20 @@ async function deepAnalysis(
     )
   ]);
 
+  /*
+  معاملات جدید را وارد تاریخچه 24 ساعته می‌کنیم.
+  */
+  const trades =
+    storeTrades(
+      category,
+      symbol,
+      recentTrades
+    );
+
   const pump =
-    detectPump(candles);
+    detectPump(
+      candles
+    );
 
   const setup =
     pump.candidate
@@ -1617,7 +2360,8 @@ async function deepAnalysis(
       : null;
 
   const price =
-    ticker?.lastPrice || 0;
+    ticker?.lastPrice ||
+    0;
 
   const state =
     pump.candidate
@@ -1626,10 +2370,14 @@ async function deepAnalysis(
           price
         )
       : {
-          state: "INVALID",
+          state:
+            "INVALID",
+
           reason:
             pump.reason,
-          distancePercent: 0
+
+          distancePercent:
+            0
         };
 
   const footprint =
@@ -1654,6 +2402,13 @@ async function deepAnalysis(
     )
   ]);
 
+  const now =
+    Date.now();
+
+  const oldestTrade =
+    trades[0]?.time ||
+    0;
+
   return {
     ok: true,
 
@@ -1665,7 +2420,7 @@ async function deepAnalysis(
     symbol,
 
     timestamp:
-      Date.now(),
+      now,
 
     price,
 
@@ -1749,18 +2504,31 @@ async function deepAnalysis(
           }
         : {
             redCandle: null,
-            pullbackPercent: 0,
+
+            pullbackPercent:
+              0,
+
             zoneLow: 0,
             zoneHigh: 0,
             zonePrice: 0,
-            status: "INVALID",
+
+            status:
+              "INVALID",
+
             reason:
               pump.reason,
-            state: "INVALID",
+
+            state:
+              "INVALID",
+
             stateReason:
               pump.reason,
-            distancePercent: 0,
-            distanceToZonePercent: 0
+
+            distancePercent:
+              0,
+
+            distanceToZonePercent:
+              0
           },
 
     currentState:
@@ -1776,8 +2544,11 @@ async function deepAnalysis(
     orderbook: {
       ...orderbook,
 
-      bids: undefined,
-      asks: undefined
+      bids:
+        undefined,
+
+      asks:
+        undefined
     },
 
     walls: {
@@ -1806,14 +2577,69 @@ async function deepAnalysis(
     funding,
 
     /*
-      مهم:
-      معاملات خام با timestamp واقعی Bybit
-      ارسال می‌شوند.
+    تاریخچه کامل موجود در Worker.
+    فقط 100 مورد آخر برای جدول نمایش ارسال می‌شود.
     */
+
     recentTrades:
       trades
         .slice(-100)
         .reverse(),
+
+    /*
+    تعداد واقعی کل معاملات موجود
+    */
+
+    tradeHistory:
+      {
+        available:
+          trades.length > 0,
+
+        windowMs:
+          TRADE_HISTORY_MS,
+
+        windowHours:
+          24,
+
+        from:
+          now -
+          TRADE_HISTORY_MS,
+
+        to:
+          now,
+
+        tradeCount:
+          trades.length,
+
+        oldestTradeTime:
+          oldestTrade,
+
+        newestTradeTime:
+          trades.at(-1)
+            ?.time ||
+          0,
+
+        coverageMs:
+          trades.length
+            ? Math.max(
+                0,
+                now -
+                  oldestTrade
+              )
+            : 0,
+
+        coverageHours:
+          trades.length
+            ? Math.max(
+                0,
+                (
+                  now -
+                  oldestTrade
+                ) /
+                3600000
+              )
+            : 0
+      },
 
     diagnostics: {
       candleCount:
@@ -1822,18 +2648,23 @@ async function deepAnalysis(
       tradeCount:
         trades.length,
 
+      recentTradeCount:
+        recentTrades.length,
+
       oldestTradeTime:
-        trades[0]?.time || 0,
+        oldestTrade,
 
       newestTradeTime:
-        trades.at(-1)?.time || 0,
+        trades.at(-1)
+          ?.time ||
+        0,
 
       tradeCoverageMs:
         trades.length
           ? Math.max(
               0,
-              Date.now() -
-              trades[0].time
+              now -
+                oldestTrade
             )
           : 0,
 
@@ -1842,11 +2673,30 @@ async function deepAnalysis(
           ? Math.max(
               0,
               (
-                Date.now() -
-                trades[0].time
-              ) / 60000
+                now -
+                oldestTrade
+              ) /
+                60000
             )
           : 0,
+
+      tradeCoverageHours:
+        trades.length
+          ? Math.max(
+              0,
+              (
+                now -
+                oldestTrade
+              ) /
+                3600000
+            )
+          : 0,
+
+      historyWindowHours:
+        24,
+
+      historyMode:
+        "WORKER_ACCUMULATED_24H",
 
       hasPump:
         pump.candidate,
@@ -1865,9 +2715,9 @@ async function deepAnalysis(
 }
 
 
-/* =========================
+/* =====================================================
    SCAN
-========================= */
+===================================================== */
 
 async function scanCategory(
   category,
@@ -1877,9 +2727,11 @@ async function scanCategory(
 
   for (
     let i = 0;
+
     i < symbols.length &&
     results.length <
       SCAN_BATCH;
+
     i++
   ) {
     const symbol =
@@ -1895,7 +2747,9 @@ async function scanCategory(
         );
 
       const pump =
-        detectPump(candles);
+        detectPump(
+          candles
+        );
 
       if (
         !pump.candidate
@@ -1916,7 +2770,8 @@ async function scanCategory(
         );
 
       const price =
-        ticker?.lastPrice || 0;
+        ticker?.lastPrice ||
+        0;
 
       const state =
         evaluateSetup(
@@ -2007,13 +2862,15 @@ async function scan() {
   const shuffledLinear =
     linearSymbols.sort(
       () =>
-        Math.random() - 0.5
+        Math.random() -
+        0.5
     );
 
   const shuffledSpot =
     spotSymbols.sort(
       () =>
-        Math.random() - 0.5
+        Math.random() -
+        0.5
     );
 
   const [
@@ -2106,9 +2963,9 @@ async function scan() {
 }
 
 
-/* =========================
+/* =====================================================
    ROUTER
-========================= */
+===================================================== */
 
 export default {
   async fetch(
@@ -2146,11 +3003,17 @@ export default {
       }
 
 
+      /* ===============================================
+         ROOT
+      =============================================== */
+
       if (
         path === "/" ||
         path === ""
       ) {
-        if (env?.ASSETS) {
+        if (
+          env?.ASSETS
+        ) {
           return env.ASSETS.fetch(
             request
           );
@@ -2162,8 +3025,13 @@ export default {
       }
 
 
+      /* ===============================================
+         HEALTH
+      =============================================== */
+
       if (
-        path === "/health"
+        path ===
+        "/health"
       ) {
         return json({
           ok: true,
@@ -2184,7 +3052,8 @@ export default {
             "PUMP → RED CANDLE → PULLBACK ZONE → RETEST",
 
           liveData: {
-            footprint: true,
+            footprint:
+              true,
 
             recentTrades:
               true,
@@ -2205,27 +3074,44 @@ export default {
               true,
 
             funding:
+              true,
+
+            tradeHistory:
+              true,
+
+            exactPriceFilter:
+              true,
+
+            exactTimeFilter:
               true
           },
 
           tradeSource:
-            "Bybit V5 recent-trade",
+            "Bybit V5 recent-trade + Worker accumulation",
 
           tradeHistoryMode:
-            "RECENT_ONLY",
+            "ACCUMULATED_24H",
+
+          tradeHistoryWindowHours:
+            24,
 
           tradeHistoryWarning:
-            "Individual trades older than the exchange recent-trade window require external persistence.",
+            "24h history is accumulated while this Worker instance remains active.",
 
           endpoints: [
             "/health",
             "/scan",
             "/analyze?symbol=BTCUSDT",
-            "/live?symbol=BTCUSDT"
+            "/live?symbol=BTCUSDT",
+            "/trades?symbol=BTCUSDT"
           ]
         });
       }
 
+
+      /* ===============================================
+         SCAN
+      =============================================== */
 
       if (
         path === "/scan"
@@ -2236,8 +3122,13 @@ export default {
       }
 
 
+      /* ===============================================
+         ANALYZE
+      =============================================== */
+
       if (
-        path === "/analyze"
+        path ===
+        "/analyze"
       ) {
         const symbol =
           url.searchParams.get(
@@ -2248,6 +3139,7 @@ export default {
           return json(
             {
               ok: false,
+
               error:
                 "symbol required"
             },
@@ -2264,6 +3156,7 @@ export default {
           return json(
             {
               ok: false,
+
               error:
                 "Symbol not found"
             },
@@ -2280,8 +3173,25 @@ export default {
       }
 
 
+      /* ===============================================
+         TRADES
+         
+         endpoint مخصوص فیلتر دقیق زمان و قیمت
+         
+         مثال:
+         /trades?symbol=BTCUSDT
+
+         /trades?symbol=BTCUSDT&hours=24
+
+         /trades?symbol=BTCUSDT
+         &from=...
+         &to=...
+         &minPrice=...
+         &maxPrice=...
+      =============================================== */
+
       if (
-        path === "/live"
+        path === "/trades"
       ) {
         const symbol =
           url.searchParams.get(
@@ -2292,6 +3202,7 @@ export default {
           return json(
             {
               ok: false,
+
               error:
                 "symbol required"
             },
@@ -2308,6 +3219,191 @@ export default {
           return json(
             {
               ok: false,
+
+              error:
+                "Symbol not found"
+            },
+            404
+          );
+        }
+
+        const now =
+          Date.now();
+
+        const stored =
+          await getTradeHistory(
+            found.category,
+            found.symbol,
+            now
+          );
+
+        const hoursParam =
+          url.searchParams.get(
+            "hours"
+          );
+
+        const hours =
+          hoursParam !==
+          null
+            ? Math.max(
+                0,
+                Math.min(
+                  24,
+                  num(
+                    hoursParam,
+                    24
+                  )
+                )
+              )
+            : 24;
+
+        const defaultFrom =
+          now -
+          hours *
+            3600000;
+
+        const fromParam =
+          url.searchParams.get(
+            "from"
+          );
+
+        const toParam =
+          url.searchParams.get(
+            "to"
+          );
+
+        const from =
+          fromParam
+            ? num(
+                fromParam,
+                defaultFrom
+              )
+            : defaultFrom;
+
+        const to =
+          toParam
+            ? num(
+                toParam,
+                now
+              )
+            : now;
+
+        const filtered =
+          filterTradesByRange(
+            stored,
+            {
+              from,
+              to,
+
+              minPrice:
+                url.searchParams.get(
+                  "minPrice"
+                ),
+
+              maxPrice:
+                url.searchParams.get(
+                  "maxPrice"
+                ),
+
+              now
+            }
+          );
+
+        return json({
+          ok: true,
+
+          version:
+            VERSION,
+
+          category:
+            found.category,
+
+          symbol:
+            found.symbol,
+
+          timestamp:
+            now,
+
+          requestedRange: {
+            from,
+            to,
+
+            hours:
+              (
+                to -
+                from
+              ) /
+              3600000
+          },
+
+          availableHistory: {
+            from:
+              stored[0]
+                ?.time ||
+              0,
+
+            to:
+              stored.at(-1)
+                ?.time ||
+              0,
+
+            tradeCount:
+              stored.length,
+
+            coverageHours:
+              stored.length
+                ? (
+                    now -
+                    stored[0]
+                      .time
+                  ) /
+                  3600000
+                : 0
+          },
+
+          filteredCount:
+            filtered.length,
+
+          trades:
+            filtered
+        });
+      }
+
+
+      /* ===============================================
+         LIVE
+      =============================================== */
+
+      if (
+        path === "/live"
+      ) {
+        const symbol =
+          url.searchParams.get(
+            "symbol"
+          );
+
+        if (!symbol) {
+          return json(
+            {
+              ok: false,
+
+              error:
+                "symbol required"
+            },
+            400
+          );
+        }
+
+        const found =
+          await findSymbol(
+            symbol
+          );
+
+        if (!found) {
+          return json(
+            {
+              ok: false,
+
               error:
                 "Symbol not found"
             },
@@ -2318,7 +3414,7 @@ export default {
         const [
           ticker,
           candles,
-          trades,
+          recentTrades,
           orderbook
         ] = await Promise.all([
           getTicker(
@@ -2344,8 +3440,26 @@ export default {
           )
         ]);
 
+        /*
+        هر بار /live صدا زده می‌شود،
+        معاملات جدید وارد تاریخچه می‌شوند.
+        */
+
+        const now =
+          Date.now();
+
+        const trades =
+          storeTrades(
+            found.category,
+            found.symbol,
+            recentTrades,
+            now
+          );
+
         const pump =
-          detectPump(candles);
+          detectPump(
+            candles
+          );
 
         const setup =
           pump.candidate
@@ -2356,7 +3470,8 @@ export default {
             : null;
 
         const price =
-          ticker?.lastPrice || 0;
+          ticker?.lastPrice ||
+          0;
 
         const state =
           pump.candidate
@@ -2378,7 +3493,7 @@ export default {
         const footprint =
           makeFootprint(
             trades,
-            Date.now()
+            now
           );
 
         const [
@@ -2397,6 +3512,10 @@ export default {
           )
         ]);
 
+        const oldest =
+          trades[0]?.time ||
+          0;
+
         return json({
           ok: true,
 
@@ -2410,7 +3529,7 @@ export default {
             found.symbol,
 
           timestamp:
-            Date.now(),
+            now,
 
           price,
 
@@ -2419,7 +3538,8 @@ export default {
           pump:
             pump.candidate
               ? {
-                  candidate: true,
+                  candidate:
+                    true,
 
                   pumpPercent:
                     pump.pumpPercent,
@@ -2452,7 +3572,8 @@ export default {
                     pump.pumpLow
                 }
               : {
-                  candidate: false,
+                  candidate:
+                    false,
 
                   reason:
                     pump.reason,
@@ -2489,19 +3610,33 @@ export default {
                     state.distancePercent
                 }
               : {
-                  redCandle: null,
-                  pullbackPercent: 0,
+                  redCandle:
+                    null,
+
+                  pullbackPercent:
+                    0,
+
                   zoneLow: 0,
                   zoneHigh: 0,
                   zonePrice: 0,
-                  status: "INVALID",
+
+                  status:
+                    "INVALID",
+
                   reason:
                     pump.reason,
-                  state: "INVALID",
+
+                  state:
+                    "INVALID",
+
                   stateReason:
                     pump.reason,
-                  distancePercent: 0,
-                  distanceToZonePercent: 0
+
+                  distancePercent:
+                    0,
+
+                  distanceToZonePercent:
+                    0
                 },
 
           currentState:
@@ -2514,8 +3649,12 @@ export default {
 
           orderbook: {
             ...orderbook,
-            bids: undefined,
-            asks: undefined
+
+            bids:
+              undefined,
+
+            asks:
+              undefined
           },
 
           walls: {
@@ -2548,22 +3687,74 @@ export default {
               .slice(-100)
               .reverse(),
 
-          diagnostics: {
+          tradeHistory: {
+            windowHours:
+              24,
+
+            from:
+              now -
+              TRADE_HISTORY_MS,
+
+            to:
+              now,
+
             tradeCount:
               trades.length,
 
             oldestTradeTime:
-              trades[0]?.time || 0,
+              oldest,
 
             newestTradeTime:
-              trades.at(-1)?.time || 0,
+              trades.at(-1)
+                ?.time ||
+              0,
+
+            coverageMs:
+              trades.length
+                ? Math.max(
+                    0,
+                    now -
+                      oldest
+                  )
+                : 0,
+
+            coverageHours:
+              trades.length
+                ? Math.max(
+                    0,
+                    (
+                      now -
+                      oldest
+                    ) /
+                      3600000
+                  )
+                : 0,
+
+            mode:
+              "ACCUMULATED_24H"
+          },
+
+          diagnostics: {
+            tradeCount:
+              trades.length,
+
+            recentTradeCount:
+              recentTrades.length,
+
+            oldestTradeTime:
+              oldest,
+
+            newestTradeTime:
+              trades.at(-1)
+                ?.time ||
+              0,
 
             tradeCoverageMs:
               trades.length
                 ? Math.max(
                     0,
-                    Date.now() -
-                    trades[0].time
+                    now -
+                      oldest
                   )
                 : 0,
 
@@ -2572,17 +3763,42 @@ export default {
                 ? Math.max(
                     0,
                     (
-                      Date.now() -
-                      trades[0].time
-                    ) / 60000
+                      now -
+                      oldest
+                    ) /
+                      60000
                   )
-                : 0
+                : 0,
+
+            tradeCoverageHours:
+              trades.length
+                ? Math.max(
+                    0,
+                    (
+                      now -
+                      oldest
+                    ) /
+                      3600000
+                  )
+                : 0,
+
+            historyWindowHours:
+              24,
+
+            historyMode:
+              "WORKER_ACCUMULATED_24H"
           }
         });
       }
 
 
-      if (env?.ASSETS) {
+      /* ===============================================
+         ASSETS / 404
+      =============================================== */
+
+      if (
+        env?.ASSETS
+      ) {
         return env.ASSETS.fetch(
           request
         );
@@ -2591,6 +3807,7 @@ export default {
       return json(
         {
           ok: false,
+
           error:
             "Not found"
         },
@@ -2614,3 +3831,4 @@ export default {
     }
   }
 };
+```0
